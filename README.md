@@ -4,20 +4,17 @@ A CLI that logs into [Oma Helen](https://www.helen.fi/kirjautuminen) and prints 
 
 Oma Helen is the user portal for a Finnish electricity company, Helen Oy.
 
-### How to use
+### How to use and develop
 
-1. Launch the CLI as a python module `python -m helenservice`
-2. Enter your username and password as they are prompted
-3. The CLI will print your `access-token` to the Oma Helen API
-4. Use the token to query the API
-
-### How to develop
-
-Use virtual env to keep the project isolated.
+Use virtual env to keep the project isolated. Developed using Python 3.9.9
 
 1. In the root folder run `python -m venv .venv`
 2. Activate the venv with `source .venv/bin/activate`
 3. Install requirements `pip install -r requirements.txt`
+4. Launch the CLI as a python module `python -m helenservice`
+5. Enter your username and password as they are prompted
+6. The CLI will print your `access-token` to the Oma Helen API
+7. Use the token to query the API
 
 ### Oma Helen API example
 
