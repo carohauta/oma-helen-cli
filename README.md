@@ -16,6 +16,8 @@ Use virtual env to keep the project isolated. Developed using Python 3.9.9
 6. The CLI will print your `access-token` to the Oma Helen API
 7. Use the token to query the API
 
+Deactivate venv when not needed: `deactivate`
+
 ### Oma Helen API example
 
 You need your delivery site id (`Consumption` or `Käyttöpaikka`) from Oma Helen. You can get it from the `Electricity` tab (or `Sähkö` -välilehti) - right next to your home address - from your Oma Helen.
@@ -24,7 +26,7 @@ You need your delivery site id (`Consumption` or `Käyttöpaikka`) from Oma Hele
 
 A curl example
 ```bash
-curl -iv 'https://api.omahelen.fi/v7/measurements/electricity?begin=2021-12-31T22:00:00.000Z&end=2022-12-31T21:59:59.999Z&resolution=month&delivery_site_id=<YOUR-DELIVERY-SITE-HERE>&allow_transfer=true' -H 'User-Agent: Mozilla/5.0' -H 'Accept: application/json' -H 'Accept-Language: en-US,en;q=0.5' -H 'Accept-Encoding: gzip, deflate, br' -H 'Authorization: Bearer <YOUR-ACCESS-TOKEN-HERE> -H 'Origin: https://web.omahelen.fi' -H 'Connection: keep-alive' -H 'Sec-Fetch-Dest: empty' -H 'Sec-Fetch-Mode: cors' -H 'Sec-Fetch-Site: same-site' -H 'TE: trailers'
+curl -iv 'https://api.omahelen.fi/v7/measurements/electricity?begin=2021-12-31T22:00:00.000Z&end=2022-12-31T21:59:59.999Z&resolution=month&delivery_site_id=<YOUR-DELIVERY-SITE-HERE>&allow_transfer=true' -H 'User-Agent: Mozilla/5.0' -H 'Accept: application/json' -H 'Accept-Language: en-US,en;q=0.5' -H 'Accept-Encoding: gzip, deflate, br' -H 'Authorization: Bearer <YOUR-ACCESS-TOKEN-HERE>' -H 'Origin: https://web.omahelen.fi' -H 'Connection: keep-alive' -H 'Sec-Fetch-Dest: empty' -H 'Sec-Fetch-Mode: cors' -H 'Sec-Fetch-Site: same-site' -H 'TE: trailers'
 ```
 
 The response will look something like this
