@@ -10,6 +10,8 @@ class HelenApiClient:
     MEASUREMENTS_ENDPOINT = "/measurements/electricity"
     CONTRACT_ENDPOINT = "/contract/list"
 
+    contract_data_dict = None
+
     def __init__(self):
         self.session = HelenSession()
 
@@ -52,10 +54,27 @@ class HelenApiClient:
             "Authorization": f"Bearer {self.session.get_access_token()}",
             "Accept": "application/json"
         }
-        return get(contract_url, headers=headers).json()
+        constract_response_dict = get(contract_url, headers=headers).json()
+        self.contract_data_dict = constract_response_dict
+        return constract_response_dict
 
     def get_delivery_site_id(self) -> int:
         """Get the delivery site id from your contract data."""
 
-        contract_data_json = self.get_contract_data_json()
-        return contract_data_json[0]["delivery_site"]["id"]
+        if self.contract_data_dict is not None:
+            return self.contract_data_dict[0]["delivery_site"]["id"]
+        else: 
+            return self.get_contract_data_json()[0]["delivery_site"]["id"]
+
+    def get_contract_base_price(self) -> int:
+        """Get the contract base price from your contract data."""
+        
+        contract_data = None
+        if self.contract_data_dict is not None:
+            contract_data = self.contract_data_dict
+        else: 
+            contract_data = self.get_contract_data_json()
+        contract_components = contract_data[0]["products"][0]["components"]
+        base_price_component = next(filter(lambda component: component["is_base_price"], contract_components))
+        return base_price_component["price"]
+        
