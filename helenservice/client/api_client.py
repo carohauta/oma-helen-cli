@@ -1,4 +1,6 @@
 from datetime import date
+import json
+from helenservice.client.api_response import MonthlyMeasurementResponse
 from helenservice.client.helen_session import HelenSession
 from requests import get
 
@@ -14,7 +16,7 @@ class HelenApiClient:
     def login(self, username, password):
         self.session.login(username, password)
 
-    def get_monthly_measurements(self):
+    def get_monthly_measurements(self) -> MonthlyMeasurementResponse:
         """Get electricity measurements for each month of the on-going year."""
 
         year = date.today().year
@@ -35,12 +37,14 @@ class HelenApiClient:
             "Authorization": f"Bearer {self.session.get_access_token()}",
             "Accept": "application/json"
         }
-        response = get(measurements_url, measurements_params, headers=headers)
+        response_json_text = get(
+            measurements_url, measurements_params, headers=headers).text
+        monthly_measurement: MonthlyMeasurementResponse = MonthlyMeasurementResponse(
+            **json.loads(response_json_text))
 
-        # TODO: measurement model class
-        return None
+        return monthly_measurement
 
-    def get_contract_data(self):
+    def get_contract_data_json(self):
         """Get your contract data."""
 
         contract_url = self.HELEN_API_URL + self.CONTRACT_ENDPOINT
@@ -48,10 +52,10 @@ class HelenApiClient:
             "Authorization": f"Bearer {self.session.get_access_token()}",
             "Accept": "application/json"
         }
-        response = get(contract_url, headers=headers)
-        return response.json
+        return get(contract_url, headers=headers).json()
 
     def get_delivery_site_id(self) -> int:
         """Get the delivery site id from your contract data."""
 
-        # response.delivery_site.id INT
+        contract_data_json = self.get_contract_data_json()
+        return contract_data_json[0]["delivery_site"]["id"]

@@ -14,9 +14,9 @@ def main():
 
     api_client.login(username, password)
 
-    json_response = api_client.get_contract_data()
+    monthly_measurements = api_client.get_monthly_measurements()
 
-    print(json_response)
+    print(monthly_measurements)
 
 
 if __name__ == "__main__":
