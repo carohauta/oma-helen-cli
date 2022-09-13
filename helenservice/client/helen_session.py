@@ -110,5 +110,4 @@ class HelenSession:
         auth_response_params = {
             "code": auth_response_param_code, "state": auth_response_param_state}
 
-        self._make_url_request(auth_response_url, "GET",
-                               params=auth_response_params)
+        self._make_url_request(auth_response_url, "GET", params=auth_response_params)
