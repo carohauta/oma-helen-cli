@@ -8,20 +8,20 @@ class MonthlyMeasurement(object):
 
 
 class MonthlyMeasurementElectricity(object):
-    def __init__(self, start: str, stop: str, resolution_s: str, resolution: str, unit: str, measurements: List[MonthlyMeasurement]):
+    def __init__(self, start: str, stop: str, resolution_s: str, resolution: str, unit: str, measurements: List):
         self.start = start
         self.stop = stop
         self.resolution_s = resolution_s
         self.resolution = resolution
         self.unit = unit
-        self.measurements = measurements
+        self.measurements = list(map(lambda m: MonthlyMeasurement(**m), measurements))
 
 
 class MonthlyMeasurementIntervals(object):
-    def __init__(self, electricity: List[MonthlyMeasurementElectricity]):
-        self.electricity = electricity
+    def __init__(self, electricity: List):
+        self.electricity = list(map(lambda e: MonthlyMeasurementElectricity(**e), electricity))
 
 
 class MonthlyMeasurementResponse(object):
-    def __init__(self, intervals: MonthlyMeasurementIntervals):
-        self.intervals = intervals
+    def __init__(self, intervals: dict):
+        self.intervals = MonthlyMeasurementIntervals(**intervals)
