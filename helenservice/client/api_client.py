@@ -54,9 +54,9 @@ class HelenApiClient:
             "Authorization": f"Bearer {self.session.get_access_token()}",
             "Accept": "application/json"
         }
-        constract_response_dict = get(contract_url, headers=headers).json()
-        self.contract_data_dict = constract_response_dict
-        return constract_response_dict
+        contract_response_dict = get(contract_url, headers=headers).json()
+        self.contract_data_dict = contract_response_dict
+        return contract_response_dict
 
     def get_delivery_site_id(self) -> int:
         """Get the delivery site id from your contract data."""
@@ -77,4 +77,7 @@ class HelenApiClient:
         contract_components = contract_data[0]["products"][0]["components"]
         base_price_component = next(filter(lambda component: component["is_base_price"], contract_components))
         return base_price_component["price"]
+
+    def get_api_access_token(self):
+        return self.session.get_access_token()
         
