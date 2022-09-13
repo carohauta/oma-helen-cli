@@ -5,9 +5,9 @@ from bs4 import BeautifulSoup
 
 class HelenMarketPrices:
     def __init__(self, last_month, current_month, next_month):
-        self.last_month = last_month
-        self.current_month = current_month
-        self.next_month = next_month
+        self.last_month: float = last_month
+        self.current_month: float = current_month
+        self.next_month: float = next_month
 
 
 class HelenContractType(Enum):
@@ -39,22 +39,24 @@ class HelenPriceClient:
         price_site_response = get(self.url)
         price_site_soup = BeautifulSoup(price_site_response.text, "html.parser")
 
-        element = price_site_soup.select_one('td:-soup-contains("kWh")')
-        last_month_price_text = element.text # td -> <text>
-        if kwh_substring in last_month_price_text:
-            last_month_price_text = last_month_price_text[:last_month_price_text.index(kwh_substring)]
+        element = price_site_soup.select_one(f'td:-soup-contains("{kwh_substring}")')
+        last_month_price = element.text # td -> <text>
+        if kwh_substring in last_month_price:
+            last_month_price = last_month_price[:last_month_price.index(kwh_substring)]
+            last_month_price = float(last_month_price.replace(",", "."))
 
         element = element.find_next_sibling()
-        current_month_price_text = element.next_element.text # td -> strong -> <text>
-        if kwh_substring in current_month_price_text:
-            current_month_price_text = current_month_price_text[:current_month_price_text.index(kwh_substring)]
+        current_month_price = element.next_element.text # td -> strong -> <text>
+        if kwh_substring in current_month_price:
+            current_month_price = current_month_price[:current_month_price.index(kwh_substring)]
+            current_month_price = float(current_month_price.replace(",", "."))
 
         element = element.find_next_sibling()
-        next_month_price_text = element.text # td -> <text>
-        if kwh_substring in next_month_price_text:
-            next_month_price_text = next_month_price_text[:next_month_price_text.index(kwh_substring):]
+        next_month_price = element.text # td -> <text>
+        if kwh_substring in next_month_price:
+            next_month_price = next_month_price[:next_month_price.index(kwh_substring):]
+            next_month_price = float(next_month_price.replace(",", "."))
         else: 
-            next_month_price_text = None
+            next_month_price = None
 
-        # TODO parse float
-        return last_month_price_text, current_month_price_text, next_month_price_text
+        return last_month_price, current_month_price, next_month_price
