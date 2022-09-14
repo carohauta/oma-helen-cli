@@ -1,4 +1,5 @@
 from cmd import Cmd
+from datetime import date
 from helenservice.client.api_client import HelenApiClient
 from getpass import getpass
 from helenservice.client.price_client import HelenContractType, HelenPriceClient
@@ -23,11 +24,20 @@ class HelenCLIPrompt(Cmd):
         return True
 
     def do_get_monthly_measurements_json(self, input=None):
-        """Get the monthly electricity measurements as JSON"""
+        """Get the monthly electricity measurements of the on-going year as JSON"""
 
-        monthly_measurements = self.api_client.get_monthly_measurements()
+        year = date.today().year
+        monthly_measurements = self.api_client.get_monthly_measurements_by_year(year)
         monthly_measurements_json = json.dumps(monthly_measurements, default=lambda o: o.__dict__, indent=2)
         print(monthly_measurements_json)
+
+    def do_get_daily_measurements_json(self, input=None):
+        """Get the daily electricity measurements of the on-going month of the on-going year as JSON"""
+
+        month = date.today().month
+        daily_measurements = self.api_client.get_daily_measurements_by_month(month)
+        daily_measurements_json = json.dumps(daily_measurements, default=lambda o: o.__dict__, indent=2)
+        print(daily_measurements_json)
 
     def do_get_contract_data_json(self, input=None):
         """Get the whole contract data as JSON"""

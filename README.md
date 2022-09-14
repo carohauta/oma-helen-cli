@@ -1,4 +1,4 @@
-# Oma Helen login CLI
+# Oma Helen CLI
 
 An interactive CLI that logs into [Oma Helen](https://www.helen.fi/kirjautuminen) and offers functions to get contract data or electricity measurement data in JSON format.
 
@@ -12,7 +12,7 @@ Oma Helen is the user portal for a Finnish electricity company, Helen Oy.
 
 Use virtual env to keep the project isolated. Developed using Python 3.9.9
 
-1. In the root folder run `python -m venv .venv`
+1. In the project root folder run `python -m venv .venv`
 2. Activate the venv with `source .venv/bin/activate`
 3. Install requirements `pip install -r requirements.txt`
 4. Launch the CLI as a python module `python -m helenservice`
@@ -29,12 +29,13 @@ Deactivate venv when not needed: `deactivate`
 | get_contract_base_price       | Get the monthly base price of your current electricity contract |
 | get_contract_data_json        | Returns the whole contract data as JSON. Will return all active contracts you have with Helen |
 | get_contract_delivery_site_id | Get the delivery site id from the contract data |
+| get_daily_measurements_json   | Returns your daily energy consumption for the on-going month of the on-going year as JSON |
 | get_market_prices_json        | Returns the prices for the Market Price Electricity contract as JSON. The JSON includes the price for last month, the current month and next month if available |
-| get_monthly_measurements_json | Returns your energy consumption for the on-going year as JSON |
+| get_monthly_measurements_json | Returns your monthly energy consumption for the on-going year as JSON |
 
 ### Oma Helen API example
 
-In this example, in addition to the `access-token`, you are going to need your delivery site id (`Consumption` or `Käyttöpaikka`) from Oma Helen. You can get it with the CLI tool's `do_get_contract_delivery_site_id` function.
+In this example, in addition to the `access-token`, you are going to need your delivery site id (`Consumption` or `Käyttöpaikka`) from Oma Helen. You can get it with the CLI tool's `get_contract_delivery_site_id` function.
 
 #### Making a request
 
