@@ -8,7 +8,7 @@ class HelenSession:
     TUPAS_LOGIN_URL = "https://www.helen.fi/hcc/TupasLoginFrame?service=account&locale=fi"
 
     def __init__(self):
-        self.session = Session()
+        self._session = Session()
 
     def login(self, username, password):
         """Login to Oma Helen web and follow redirects until the main page is reached. 
@@ -33,7 +33,7 @@ class HelenSession:
         """Get the access-token to use the Helen API. It is required to login before the 
         token can be accessed
         """
-        access_token = self.session.cookies.get("access-token")
+        access_token = self._session.cookies.get("access-token")
 
         if access_token is None:
             raise Exception("No access token found. Log in first")
@@ -43,7 +43,7 @@ class HelenSession:
     def close(self):
         """Close down the session for the Oma Helen web service
         """
-        self.session.close()
+        self._session.close()
         logging.info("HelenSession was closed")
 
     def _make_url_request(self, url: str, method: str, data=None, params=None, allow_redirects: bool = False):
@@ -53,9 +53,9 @@ class HelenSession:
             request.data = data
         if params is not None:
             request.params = params
-        prepared_request = self.session.prepare_request(request)
+        prepared_request = self._session.prepare_request(request)
 
-        response = self.session.send(
+        response = self._session.send(
             prepared_request, allow_redirects=allow_redirects)
         return response
 
@@ -66,7 +66,7 @@ class HelenSession:
         return soup.find("form").attrs['action']
 
     def _get_tupas_response(self):
-        return self.session.get(self.TUPAS_LOGIN_URL)
+        return self._session.get(self.TUPAS_LOGIN_URL)
 
     def _send_login_request(self, username, password):
         tupas_response = self._get_tupas_response()

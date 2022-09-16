@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta
 from enum import Enum, auto
 from requests import get
 from bs4 import BeautifulSoup
@@ -8,6 +9,7 @@ class HelenMarketPrices:
         self.last_month: float = last_month
         self.current_month: float = current_month
         self.next_month: float = next_month
+        self.timestamp = datetime.now()
 
 
 class HelenContractType(Enum):
@@ -17,21 +19,36 @@ class HelenContractType(Enum):
 class HelenPriceClient:
     MARKET_PRICE_ELECTRICITY_URL = "https://www.helen.fi/sahko/sahkosopimus/markkinahinta"
 
+    _helen_market_price_prices: HelenMarketPrices = None
+
     def __init__(self, contract_type: HelenContractType):
-        self.contract_type = contract_type
+        self._contract_type = contract_type
         if contract_type == HelenContractType.MARKET_PRICE:
             self.url = self.MARKET_PRICE_ELECTRICITY_URL
 
     def get_electricity_prices(self):
         """Get the pricing for the current contract type"""
 
-        if self.contract_type == HelenContractType.MARKET_PRICE:
+        if self._contract_type == HelenContractType.MARKET_PRICE:
+            if self._are_market_price_prices_valid():
+                return self._helen_market_price_prices
             return self._get_market_price_prices()
+        return None
+
+    def _are_market_price_prices_valid(self):
+        """If the latest price scrape has happened within the last hour, then use cache"""
+
+        now = datetime.now()
+        if self._helen_market_price_prices is None:
+            return False
+        were_market_prices_scraped_within_hour = now-timedelta(hours=1) <= self._helen_market_price_prices.timestamp <= now
+        return were_market_prices_scraped_within_hour
 
     def _get_market_price_prices(self) -> HelenMarketPrices:
         last_month_price, current_month_price, next_month_price = self._scrape_market_price_prices()
 
-        return HelenMarketPrices(last_month_price, current_month_price, next_month_price)
+        self._helen_market_price_prices = HelenMarketPrices(last_month_price, current_month_price, next_month_price)
+        return self._helen_market_price_prices
 
     def _scrape_market_price_prices(self):
         kwh_substring = " c/kWh"

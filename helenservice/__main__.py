@@ -1,10 +1,15 @@
 from cmd import Cmd
-from datetime import date
+from datetime import date, datetime
 from helenservice.client.api_client import HelenApiClient
 from getpass import getpass
 from helenservice.client.price_client import HelenContractType, HelenPriceClient
 import json
 
+def _json_serializer(value):
+        if isinstance(value, datetime):
+            return value.strftime("%Y%m%d%H%M%S")
+        else:
+            return value.__dict__
 
 class HelenCLIPrompt(Cmd):
     prompt = "helen-cli> "
@@ -50,7 +55,7 @@ class HelenCLIPrompt(Cmd):
         """Get prices for the Market Price contract type as JSON"""
 
         price = self.market_price_client.get_electricity_prices()
-        price_json = json.dumps(price, default=lambda o: o.__dict__, indent=2)
+        price_json = json.dumps(price, default=_json_serializer, indent=2)
         print(price_json)
 
     def do_get_contract_delivery_site_id(self, input=None):
