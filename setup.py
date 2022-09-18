@@ -42,7 +42,7 @@ setup(
     license="MIT license",
     long_description=long_description,
     include_package_data=True,
-    packages=find_packages(include=['helenservice', 'helenservice.*']),
+    packages=find_packages(include=['helenservice', 'helenservice.client']),
     url='https://github.com/carohauta/oma-helen-cli',
     version='1.0.0-SNAPSHOT',
     zip_safe=False,
