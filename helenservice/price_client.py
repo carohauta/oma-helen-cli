@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 from enum import Enum, auto
-from helenservice.client.const import HTTP_READ_TIMEOUT
+from .const import HTTP_READ_TIMEOUT
 from requests import get
 from bs4 import BeautifulSoup
 

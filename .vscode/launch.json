@@ -8,7 +8,7 @@
             "name": "Python: helenservice",
             "type": "python",
             "request": "launch",
-            "module": "helenservice",
+            "module": "helenservice.cli",
             "justMyCode": true
         }
     ]

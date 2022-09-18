@@ -2,9 +2,9 @@ import calendar
 from cachetools import cached, TTLCache
 import json
 from datetime import datetime, timedelta
-from helenservice.client.api_response import MeasurementResponse
-from helenservice.client.const import HTTP_READ_TIMEOUT
-from helenservice.client.helen_session import HelenSession
+from .api_response import MeasurementResponse
+from .const import HTTP_READ_TIMEOUT
+from .helen_session import HelenSession
 from requests import get
 from dateutil.relativedelta import relativedelta
 
