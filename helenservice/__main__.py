@@ -6,10 +6,10 @@ from helenservice.client.price_client import HelenContractType, HelenPriceClient
 import json
 
 def _json_serializer(value):
-        if isinstance(value, datetime):
-            return value.strftime("%Y%m%d%H%M%S")
-        else:
-            return value.__dict__
+    if isinstance(value, datetime):
+        return value.strftime("%Y%m%d%H%M%S")
+    else:
+        return value.__dict__
 
 class HelenCLIPrompt(Cmd):
     prompt = "helen-cli> "

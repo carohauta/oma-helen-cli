@@ -34,7 +34,7 @@ setup(
     description="Oma Helen API library and CLI",
     entry_points={
         'console_scripts': [
-            'python_project=python_project.cli:main',
+            'oma-helen-cli=helenservice:main',
         ],
     },
     install_requires=requirements,
