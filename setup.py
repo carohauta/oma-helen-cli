@@ -37,6 +37,7 @@ setup(
             'oma-helen-cli=helenservice:main',
         ],
     },
+    name="oma-helen-cli"
     install_requires=requirements,
     license="MIT license",
     long_description=long_description,
