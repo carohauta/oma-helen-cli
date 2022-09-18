@@ -1,5 +1,6 @@
 from requests import Request, Response, Session
 from bs4 import BeautifulSoup
+from helenservice.client.const import HTTP_READ_TIMEOUT
 import logging
 
 
@@ -56,7 +57,7 @@ class HelenSession:
         prepared_request = self._session.prepare_request(request)
 
         response = self._session.send(
-            prepared_request, allow_redirects=allow_redirects)
+            prepared_request, allow_redirects=allow_redirects, timeout=HTTP_READ_TIMEOUT)
         return response
 
     def _get_html_input_value(self, soup: BeautifulSoup, attribute_name: str):
@@ -66,7 +67,7 @@ class HelenSession:
         return soup.find("form").attrs['action']
 
     def _get_tupas_response(self):
-        return self._session.get(self.TUPAS_LOGIN_URL)
+        return self._session.get(self.TUPAS_LOGIN_URL, timeout=HTTP_READ_TIMEOUT)
 
     def _send_login_request(self, username, password):
         tupas_response = self._get_tupas_response()

@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 from enum import Enum, auto
+from helenservice.client.const import HTTP_READ_TIMEOUT
 from requests import get
 from bs4 import BeautifulSoup
 
@@ -53,7 +54,7 @@ class HelenPriceClient:
     def _scrape_market_price_prices(self):
         kwh_substring = " c/kWh"
 
-        price_site_response = get(self.url)
+        price_site_response = get(self.url, timeout=HTTP_READ_TIMEOUT)
         price_site_soup = BeautifulSoup(price_site_response.text, "html.parser")
 
         element = price_site_soup.select_one(f'td:-soup-contains("{kwh_substring}")')

@@ -3,6 +3,7 @@ from cachetools import cached, TTLCache
 import json
 from datetime import datetime, timedelta
 from helenservice.client.api_response import MeasurementResponse
+from helenservice.client.const import HTTP_READ_TIMEOUT
 from helenservice.client.helen_session import HelenSession
 from requests import get
 from dateutil.relativedelta import relativedelta
@@ -54,7 +55,7 @@ class HelenApiClient:
 
         measurements_url = self.HELEN_API_URL + self.MEASUREMENTS_ENDPOINT
         response_json_text = get(
-            measurements_url, measurements_params, headers=self._api_request_headers()).text
+            measurements_url, measurements_params, headers=self._api_request_headers(), timeout=HTTP_READ_TIMEOUT).text
         daily_measurement: MeasurementResponse = MeasurementResponse(
             **json.loads(response_json_text))
 
@@ -78,7 +79,7 @@ class HelenApiClient:
 
         measurements_url = self.HELEN_API_URL + self.MEASUREMENTS_ENDPOINT
         response_json_text = get(
-            measurements_url, measurements_params, headers=self._api_request_headers()).text
+            measurements_url, measurements_params, headers=self._api_request_headers(), timeout=HTTP_READ_TIMEOUT).text
         monthly_measurement: MeasurementResponse = MeasurementResponse(
             **json.loads(response_json_text))
 
@@ -89,7 +90,7 @@ class HelenApiClient:
         """Get your contract data."""
 
         contract_url = self.HELEN_API_URL + self.CONTRACT_ENDPOINT
-        contract_response_dict = get(contract_url, headers=self._api_request_headers()).json()
+        contract_response_dict = get(contract_url, headers=self._api_request_headers(), timeout=HTTP_READ_TIMEOUT).json()
         self._contract_data_dict = contract_response_dict
         return contract_response_dict
 
