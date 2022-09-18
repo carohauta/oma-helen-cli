@@ -15,7 +15,7 @@ Use virtual env to keep the project isolated. Developed using Python 3.9.9
 1. In the project root folder run `python -m venv .venv`
 2. Activate the venv with `source .venv/bin/activate`
 3. Install requirements `pip install -r requirements.txt`
-4. Launch the CLI as a python module `python -m helenservice`
+4. Launch the CLI as a python module `python -m helenservice.cli`
 5. Enter your username and password as they are prompted
 6. Type `?` into the CLI prompt to see all available functions
 

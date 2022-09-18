@@ -1,6 +1,6 @@
 from requests import Request, Response, Session
 from bs4 import BeautifulSoup
-from helenservice.client.const import HTTP_READ_TIMEOUT
+from .const import HTTP_READ_TIMEOUT
 import logging
 
 

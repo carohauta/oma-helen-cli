@@ -1,8 +1,8 @@
 from cmd import Cmd
 from datetime import date, datetime
-from helenservice.client.api_client import HelenApiClient
+from .api_client import HelenApiClient
 from getpass import getpass
-from helenservice.client.price_client import HelenContractType, HelenPriceClient
+from .price_client import HelenContractType, HelenPriceClient
 import json
 
 def _json_serializer(value):

@@ -34,7 +34,7 @@ setup(
     description="Oma Helen API library and CLI",
     entry_points={
         'console_scripts': [
-            'oma-helen-cli=helenservice:main',
+            'oma-helen-cli=helenservice.cli:main',
         ],
     },
     name="oma-helen-cli",
@@ -44,6 +44,6 @@ setup(
     include_package_data=True,
     packages=find_packages(include=['helenservice', 'helenservice.*']),
     url='https://github.com/carohauta/oma-helen-cli',
-    version='1.0.0-SNAPSHOT',
+    version='0.1.0',
     zip_safe=False,
 )
