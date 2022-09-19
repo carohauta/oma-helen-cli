@@ -1,4 +1,3 @@
-from time import sleep
 from requests import Request, Response, Session
 from bs4 import BeautifulSoup
 from .const import HTTP_READ_TIMEOUT
@@ -58,8 +57,6 @@ class HelenSession:
     def _make_url_request(self, url: str, method: str, data=None, params=None):
         request = Request(method, url)
 
-        sleep(1) # avoid throttling
-
         if data is not None:
             request.data = data
         if params is not None:
@@ -86,7 +83,7 @@ class HelenSession:
         tupas_soup = BeautifulSoup(tupas_response.text, "html.parser")
         authorization_url = self._get_html_form_url(tupas_soup)
         authorization_response = self._make_url_request(
-            authorization_url, "POST")
+            authorization_url, "GET")
         authorization_soup = BeautifulSoup(
             authorization_response.text, "html.parser")
         login_url = self.HELEN_LOGIN_HOST + \
