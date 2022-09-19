@@ -47,7 +47,14 @@ class HelenSession:
         self._session.close()
         logging.info("HelenSession was closed")
 
-    def _make_url_request(self, url: str, method: str, data=None, params=None, allow_redirects: bool = False):
+    def _follow_redirects(self, response: Response):
+        location_header = response.headers.get("Location")
+        if location_header is not None:
+            response = self._follow_redirects(self._session.get(location_header, timeout=HTTP_READ_TIMEOUT))
+            return response
+        return response
+
+    def _make_url_request(self, url: str, method: str, data=None, params=None):
         request = Request(method, url)
 
         if data is not None:
@@ -56,8 +63,10 @@ class HelenSession:
             request.params = params
         prepared_request = self._session.prepare_request(request)
 
-        response = self._session.send(
-            prepared_request, allow_redirects=allow_redirects, timeout=HTTP_READ_TIMEOUT)
+        response = self._session.send(prepared_request, timeout=HTTP_READ_TIMEOUT)
+
+        response = self._follow_redirects(response)
+
         return response
 
     def _get_html_input_value(self, soup: BeautifulSoup, attribute_name: str):
@@ -74,14 +83,14 @@ class HelenSession:
         tupas_soup = BeautifulSoup(tupas_response.text, "html.parser")
         authorization_url = self._get_html_form_url(tupas_soup)
         authorization_response = self._make_url_request(
-            authorization_url, "POST", allow_redirects=True)
+            authorization_url, "POST")
         authorization_soup = BeautifulSoup(
             authorization_response.text, "html.parser")
         login_url = self.HELEN_LOGIN_HOST + \
             self._get_html_form_url(authorization_soup)
 
         login_payload = {"username": username, "password": password}
-        return self._make_url_request(login_url, "POST", login_payload, allow_redirects=True)
+        return self._make_url_request(login_url, "POST", login_payload)
 
     def _proceed_to_main_page_from_login_response(self, response: Response):
         access_granted_soup = BeautifulSoup(response.text, "html.parser")
@@ -93,14 +102,14 @@ class HelenSession:
         continue_params = {"code": continue_param_code,
                            "state": continue_param_state}
         proceed_link_page_response = self._make_url_request(
-            continue_url, "GET", params=continue_params, allow_redirects=True)
+            continue_url, "GET", params=continue_params)
 
         proceed_link_page_soup = BeautifulSoup(
             proceed_link_page_response.text, "html.parser")
         proceed_link_page_link_url = proceed_link_page_soup.find(
             "a").attrs['href']
         auth_response = self._make_url_request(
-            proceed_link_page_link_url, "GET", allow_redirects=True)
+            proceed_link_page_link_url, "GET")
 
         auth_response_soup = BeautifulSoup(auth_response.text, "html.parser")
         auth_response_url = self._get_html_form_url(auth_response_soup)
