@@ -1,3 +1,4 @@
+from time import sleep
 from requests import Request, Response, Session
 from bs4 import BeautifulSoup
 from .const import HTTP_READ_TIMEOUT
@@ -56,6 +57,8 @@ class HelenSession:
 
     def _make_url_request(self, url: str, method: str, data=None, params=None):
         request = Request(method, url)
+
+        sleep(1) # avoid throttling
 
         if data is not None:
             request.data = data
