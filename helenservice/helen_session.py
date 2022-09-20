@@ -8,12 +8,11 @@ class HelenSession:
     HELEN_LOGIN_HOST = "https://login.helen.fi"
     TUPAS_LOGIN_URL = "https://www.helen.fi/hcc/TupasLoginFrame?service=account&locale=fi"
 
-    def __init__(self):
-        self._session = Session()
+    _session: Session = None
 
     def login(self, username, password):
-        """Login to Oma Helen web and follow redirects until the main page is reached. 
-        Will save the necessary `access-token` into a Session, which can be accessed 
+        """Login to Oma Helen web and follow redirects until the main page is reached.
+        Will save the necessary `access-token` into a Session, which can be accessed
         with the `get_access_token()` method.
 
         :param username: The username for Oma Helen web service.
@@ -21,19 +20,25 @@ class HelenSession:
         :return: HelenSession.
         :rtype: .HelenSession
         """
+        self._session = Session()
+        logging.debug("Logging in to Oma Helen")
         try:
             login_response = self._send_login_request(username, password)
             self._proceed_to_main_page_from_login_response(login_response)
-        except Exception as e:
-            logging.exception(
-                "Login to Oma Helen failed. Check your credentials!")
-            raise e
+        except Exception as exception:
+            logging.exception("Login to Oma Helen failed. Check your credentials!")
+            self._session.close()
+            raise exception
+        logging.debug("Logged in to Oma Helen")
         return self
 
     def get_access_token(self):
         """Get the access-token to use the Helen API. It is required to login before the 
         token can be accessed
         """
+        if self._session is None:
+            raise Exception("The session is not active. Log in first")
+
         access_token = self._session.cookies.get("access-token")
 
         if access_token is None:
@@ -44,8 +49,9 @@ class HelenSession:
     def close(self):
         """Close down the session for the Oma Helen web service
         """
-        self._session.close()
-        logging.info("HelenSession was closed")
+        if self._session is not None:
+            self._session.close()
+            logging.debug("HelenSession was closed")
 
     def _follow_redirects(self, response: Response):
         location_header = response.headers.get("Location")

@@ -19,9 +19,9 @@ class HelenApiClient:
 
     def login(self, username, password):
         """Login to Oma Helen. Creates a new session when called."""
-        self._session = HelenSession()
-        self._session.login(username, password)
+        self._session = HelenSession().login(username, password)
         self._latest_login_time = datetime.now()
+        return self
 
     def is_session_valid(self):
         """If the latest login has happened within the last hour, then the session should be valid and ready to go"""
