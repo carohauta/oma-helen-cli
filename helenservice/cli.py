@@ -25,6 +25,7 @@ class HelenCLIPrompt(Cmd):
     def do_exit(self, input=None):
         """Exit the CLI"""
 
+        self.api_client.close()
         print("Bye")
         return True
 

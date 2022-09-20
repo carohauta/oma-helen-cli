@@ -30,6 +30,10 @@ class HelenApiClient:
         now = datetime.now()
         is_latest_login_within_hour = now-timedelta(hours=1) <= self._latest_login_time <= now
         return is_latest_login_within_hour
+
+    def close(self):
+        if self._session is not None:
+            self._session.close()
             
     @cached(cache=TTLCache(maxsize=4, ttl=3600))
     def get_daily_measurements_by_month(self, month: int) -> MeasurementResponse:

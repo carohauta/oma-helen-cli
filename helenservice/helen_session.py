@@ -75,6 +75,9 @@ class HelenSession:
     def _get_html_form_url(self, soup: BeautifulSoup):
         return soup.find("form").attrs['action']
 
+    def _get_html_form_method(self, soup: BeautifulSoup):
+        return soup.find("form").attrs["method"]
+
     def _get_tupas_response(self):
         return self._session.get(self.TUPAS_LOGIN_URL, timeout=HTTP_READ_TIMEOUT)
 
@@ -82,8 +85,9 @@ class HelenSession:
         tupas_response = self._get_tupas_response()
         tupas_soup = BeautifulSoup(tupas_response.text, "html.parser")
         authorization_url = self._get_html_form_url(tupas_soup)
+        authorization_form_method = self._get_html_form_method(tupas_soup)
         authorization_response = self._make_url_request(
-            authorization_url, "GET")
+            authorization_url, authorization_form_method)
         authorization_soup = BeautifulSoup(
             authorization_response.text, "html.parser")
         login_url = self.HELEN_LOGIN_HOST + \
