@@ -11,7 +11,7 @@ long_description = (here / "README.md").read_text(encoding="utf-8")
 requirements = [
     'beautifulsoup4==4.11.1',
     'python-dateutil==2.8.2',
-    'requests==2.28.1',
+    'requests==2.27.1',
     'soupsieve==2.3.2.post1',
     'urllib3==1.26.12',
     'cachetools==5.2.0'
