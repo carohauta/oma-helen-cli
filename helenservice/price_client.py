@@ -1,8 +1,22 @@
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 from enum import Enum, auto
 from .const import HTTP_READ_TIMEOUT
 from requests import get
 from bs4 import BeautifulSoup
+
+
+
+class VattenfallPriceClient:
+    HOURLY_PRICE_URL = "https://www.vattenfall.fi/api/price/spot/{date}/{date}?lang=fi"
+    
+    def get_hourly_prices_for_day(self, day: date):
+        url = self.HOURLY_PRICE_URL.format(date=day)
+        headers = { 'User-Agent': 'Mozilla/5.0' }
+        response = get(url, headers=headers)
+        if response.status_code == 200:
+            return response.json()
+        else:
+            print("Could not fetch prices. Response code was: " + str(response.status_code))
 
 
 class HelenMarketPrices:

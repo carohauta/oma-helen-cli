@@ -7,7 +7,7 @@ class Measurement(object):
         self.status = status
 
 
-class MeasurementElectricity(object):
+class MeasurementData(object):
     def __init__(self, start: str, stop: str, resolution_s: str, resolution: str, unit: str, measurements: List):
         self.start = start
         self.stop = stop
@@ -19,9 +19,14 @@ class MeasurementElectricity(object):
 
 class MeasurementIntervals(object):
     def __init__(self, electricity: List):
-        self.electricity = list(map(lambda e: MeasurementElectricity(**e), electricity))
+        self.electricity = list(map(lambda e: MeasurementData(**e), electricity))
 
 
 class MeasurementResponse(object):
     def __init__(self, intervals: dict):
         self.intervals = MeasurementIntervals(**intervals)
+
+
+class SpotPricesResponse(object):
+    def __init__(self, interval: dict):
+        self.interval = MeasurementData(**interval)

@@ -2,7 +2,7 @@ from cmd import Cmd
 from datetime import date, datetime
 from .api_client import HelenApiClient
 from getpass import getpass
-from .price_client import HelenContractType, HelenPriceClient
+from .price_client import HelenContractType, HelenPriceClient, VattenfallPriceClient
 import json
 
 def _json_serializer(value):
@@ -17,6 +17,7 @@ class HelenCLIPrompt(Cmd):
 
     api_client = HelenApiClient()
     market_price_client = HelenPriceClient(HelenContractType.MARKET_PRICE)
+    vattenfall_price_client = VattenfallPriceClient()
 
     def __init__(self, username, password):
         super(HelenCLIPrompt, self).__init__()
@@ -28,6 +29,19 @@ class HelenCLIPrompt(Cmd):
         self.api_client.close()
         print("Bye")
         return True
+
+    def do_calculate_the_impact_of_usage_for_month_by_date(self, input=None):
+        """Calculate the impact of usage for Helen Smart Electricity Guarantee contract for the provided date. 
+        The date provided should be presented in format 'YYYY-mm-dd'
+        """
+        # TODO: Get spot prices and measurements for every day of December and calculate the impact!
+        try:
+            date_object = datetime.strptime(input, '%Y-%m-%d').date()
+            hourly_prices = self.api_client.get_hourly_spot_prices_by_date(date_object)
+            hourly_prices_json = json.dumps(hourly_prices, default=lambda o: o.__dict__, indent=2)
+            print(hourly_prices_json)
+        except ValueError as exception:
+            print("Please provide a proper input date in format 'YYYY-mm-dd'")
 
     def do_get_monthly_measurements_json(self, input=None):
         """Get the monthly electricity measurements of the on-going year as JSON"""

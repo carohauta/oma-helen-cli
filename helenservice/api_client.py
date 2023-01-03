@@ -1,8 +1,8 @@
 import calendar
 from cachetools import cached, TTLCache
 import json
-from datetime import datetime, timedelta
-from .api_response import MeasurementResponse
+from datetime import date, datetime, timedelta
+from .api_response import MeasurementResponse, SpotPricesResponse
 from .const import HTTP_READ_TIMEOUT
 from .helen_session import HelenSession
 from requests import get
@@ -11,7 +11,9 @@ from dateutil.relativedelta import relativedelta
 
 class HelenApiClient:
     HELEN_API_URL = "https://api.omahelen.fi/v7"
+    HELEN_API_URL_V8 = "https://api.omahelen.fi/v8"
     MEASUREMENTS_ENDPOINT = "/measurements/electricity"
+    SPOT_PRICES_ENDPOINT = MEASUREMENTS_ENDPOINT + "/spot-prices"
     CONTRACT_ENDPOINT = "/contract/list"
 
     _latest_login_time: datetime = None
@@ -88,6 +90,56 @@ class HelenApiClient:
             **json.loads(response_json_text))
 
         return monthly_measurement
+
+
+    @cached(cache=TTLCache(maxsize=4, ttl=3600))
+    def get_hourly_measurements_by_date(self, day: date) -> MeasurementResponse:
+        """Get electricity measurements for each hour of a given date."""
+        
+        previous_day = day + relativedelta(days=-1)
+        start_time = f"{previous_day}T22:00:00+00:00"
+        end_time = f"{day}T21:59:59+00:00"
+        delivery_site_id = self.get_delivery_site_id()
+        measurements_params = {
+            "begin": start_time,
+            "end": end_time,
+            "resolution": "hour",
+            "delivery_site_id": delivery_site_id,
+            "allow_transfer": "true"
+        }
+
+        measurements_url = self.HELEN_API_URL + self.MEASUREMENTS_ENDPOINT
+        response_json_text = get(
+            measurements_url, measurements_params, headers=self._api_request_headers(), timeout=HTTP_READ_TIMEOUT).text
+        hourly_measurement: MeasurementResponse = MeasurementResponse(
+            **json.loads(response_json_text))
+
+        return hourly_measurement
+
+
+    @cached(cache=TTLCache(maxsize=4, ttl=3600))
+    def get_hourly_spot_prices_by_date(self, day: date) -> MeasurementResponse:
+        """Get electricity spot prices for each hour of a given date."""
+        
+        previous_day = day + relativedelta(days=-1)
+        start_time = f"{previous_day}T22:00:00+00:00"
+        end_time = f"{day}T21:59:59+00:00"
+        delivery_site_id = self.get_delivery_site_id()
+        spot_prices_params = {
+            "begin": start_time,
+            "end": end_time,
+            "resolution": "hour",
+            "delivery_site_id": delivery_site_id,
+            "allow_transfer": "true"
+        }
+
+        spot_prices_url = self.HELEN_API_URL_V8 + self.SPOT_PRICES_ENDPOINT
+        response_json_text = get(
+            spot_prices_url, spot_prices_params, headers=self._api_request_headers(), timeout=HTTP_READ_TIMEOUT).text
+        spot_prices_measurement: SpotPricesResponse = SpotPricesResponse(
+            **json.loads(response_json_text))
+
+        return spot_prices_measurement
     
     @cached(cache=TTLCache(maxsize=2, ttl=3600))
     def get_contract_data_json(self):
