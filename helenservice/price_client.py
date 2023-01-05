@@ -5,7 +5,6 @@ from requests import get
 from bs4 import BeautifulSoup
 
 
-
 class VattenfallPriceClient:
     HOURLY_PRICES_URL = "https://www.vattenfall.fi/api/price/spot/{date}/{date}?lang=fi"
     DAILY_AVERAGE_PRICES_URL = "https://www.vattenfall.fi/api/price/spot/average/{start_date}/{end_date}?lang=fi"
@@ -38,6 +37,7 @@ class HelenMarketPrices:
 
 class HelenContractType(Enum):
     MARKET_PRICE = auto()
+    SMART_ELECTRICITY_GUARANTEE = auto()
 
 
 class HelenPriceClient:

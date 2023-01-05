@@ -19,6 +19,9 @@ class HelenApiClient:
     _latest_login_time: datetime = None
     _session: HelenSession = None        
 
+    def __init__(self, tax: float = None):
+        self._tax = 0.24 if tax is None else tax
+
     def login(self, username, password):
         """Login to Oma Helen. Creates a new session when called."""
         self._session = HelenSession().login(username, password)
@@ -55,7 +58,7 @@ class HelenApiClient:
         length = min(hourly_prices.__len__(), hourly_measurements.__len__())
         hourly_weighted_consumption_prices = []
         for i in range(length):
-            hourly_weighted_consumption_prices.append((abs(hourly_prices[i].value)*abs(hourly_measurements[i].value)))
+            hourly_weighted_consumption_prices.append((abs(hourly_prices[i].value*hourly_measurements[i].value)))
         monthly_average_price = sum(map(lambda price: abs(price.value), hourly_prices))/hourly_prices.__len__()
         total_consumption = sum(map(lambda measurement: abs(measurement.value), hourly_measurements))
         total_hourly_weighted_consumption_prices = sum(hourly_weighted_consumption_prices)

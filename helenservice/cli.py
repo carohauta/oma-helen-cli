@@ -15,7 +15,8 @@ class HelenCLIPrompt(Cmd):
     prompt = "helen-cli> "
     intro = "Type ? to list commands"
 
-    api_client = HelenApiClient()
+    tax = 0.24
+    api_client = HelenApiClient(tax)
     market_price_client = HelenPriceClient(HelenContractType.MARKET_PRICE)
     vattenfall_price_client = VattenfallPriceClient()
 
