@@ -30,18 +30,25 @@ class HelenCLIPrompt(Cmd):
         print("Bye")
         return True
 
-    def do_calculate_the_impact_of_usage_for_month_by_date(self, input=None):
-        """Calculate the impact of usage for Helen Smart Electricity Guarantee contract for the provided date. 
-        The date provided should be presented in format 'YYYY-mm-dd'
+    def do_calculate_the_impact_of_usage_between_dates(self, input=None):
+        """Calculate the impact of usage for Helen Smart Electricity Guarantee contract between a start date and an end date
+        The provided dates should be presented in format 'YYYY-mm-dd'
+
+        Usage example:
+        calculate_the_impact_of_usage_between_dates 2022-12-01 2022-12-31
         """
-        # TODO: Get spot prices and measurements for every day of December and calculate the impact!
-        try:
-            date_object = datetime.strptime(input, '%Y-%m-%d').date()
-            hourly_prices = self.api_client.get_hourly_spot_prices_by_date(date_object)
-            hourly_prices_json = json.dumps(hourly_prices, default=lambda o: o.__dict__, indent=2)
-            print(hourly_prices_json)
-        except ValueError as exception:
-            print("Please provide a proper input date in format 'YYYY-mm-dd'")
+
+        if input is None:
+            print("Please provide proper start and end dates in format 'YYYY-mm-dd'")
+        else:
+            try:
+                start_date_str, end_date_str = str(input).split(' ')
+                start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
+                end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
+                impact = self.api_client.calculate_impact_of_usage_between_dates(start_date, end_date)
+                print(impact)
+            except ValueError:
+                print("Please provide proper start and end dates in format 'YYYY-mm-dd'")
 
     def do_get_monthly_measurements_json(self, input=None):
         """Get the monthly electricity measurements of the on-going year as JSON"""

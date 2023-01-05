@@ -7,12 +7,21 @@ from bs4 import BeautifulSoup
 
 
 class VattenfallPriceClient:
-    HOURLY_PRICE_URL = "https://www.vattenfall.fi/api/price/spot/{date}/{date}?lang=fi"
+    HOURLY_PRICES_URL = "https://www.vattenfall.fi/api/price/spot/{date}/{date}?lang=fi"
+    DAILY_AVERAGE_PRICES_URL = "https://www.vattenfall.fi/api/price/spot/average/{start_date}/{end_date}?lang=fi"
+    HEADERS = { 'User-Agent': 'Mozilla/5.0' }
     
     def get_hourly_prices_for_day(self, day: date):
-        url = self.HOURLY_PRICE_URL.format(date=day)
-        headers = { 'User-Agent': 'Mozilla/5.0' }
-        response = get(url, headers=headers)
+        url = self.HOURLY_PRICES_URL.format(date=day)
+        response = get(url, headers=self.HEADERS)
+        if response.status_code == 200:
+            return response.json()
+        else:
+            print("Could not fetch prices. Response code was: " + str(response.status_code))
+
+    def get_daily_average_prices_between_dates(self, start_date: date, end_date: date):
+        url = self.DAILY_AVERAGE_PRICES_URL.format(start_date=start_date, end_date=end_date)
+        response = get(url, headers=self.HEADERS)
         if response.status_code == 200:
             return response.json()
         else:
@@ -38,8 +47,6 @@ class HelenPriceClient:
 
     def __init__(self, contract_type: HelenContractType):
         self._contract_type = contract_type
-        if contract_type == HelenContractType.MARKET_PRICE:
-            self.url = self.MARKET_PRICE_ELECTRICITY_URL
 
     def get_electricity_prices(self):
         """Get the pricing for the current contract type"""
@@ -68,7 +75,7 @@ class HelenPriceClient:
     def _scrape_market_price_prices(self):
         kwh_substring = " c/kWh"
 
-        price_site_response = get(self.url, timeout=HTTP_READ_TIMEOUT)
+        price_site_response = get(self.MARKET_PRICE_ELECTRICITY_URL, timeout=HTTP_READ_TIMEOUT)
         price_site_soup = BeautifulSoup(price_site_response.text, "html.parser")
 
         element = price_site_soup.select_one(f'td:-soup-contains("{kwh_substring}")')

@@ -36,6 +36,34 @@ class HelenApiClient:
     def close(self):
         if self._session is not None:
             self._session.close()
+
+    def calculate_impact_of_usage_between_dates(self, start_date: date, end_date: date):
+        """Calculate the price impact of your usage based on hourly consumption and hourly spot prices
+
+        The price impact increases or decreases your contract's base price in certain contracts
+        such as the Helen Smart Electricity Guarantee contract
+        https://www.helen.fi/en/electricity/electricity-products-and-prices/smart-electricity-guarantee
+        A negative number decreases and a positive number increases the base price.
+
+        According to Helen, the impact is calculated with formula (A-B) / E = c/kWh, where
+        A = the sum of hourly consumption multiplied with the hourly price (i.e. your weighted average price of each hour)
+        B = total consumption multiplied with the whole month's average market price (i.e. your average price of the whole month)
+        E = total consumption
+        """
+        hourly_prices = self.get_hourly_spot_prices_between_dates(start_date, end_date).interval.measurements
+        hourly_measurements = self.get_hourly_measurements_between_dates(start_date, end_date).intervals.electricity[0].measurements
+        length = min(hourly_prices.__len__(), hourly_measurements.__len__())
+        hourly_weighted_consumption_prices = []
+        for i in range(length):
+            hourly_weighted_consumption_prices.append((abs(hourly_prices[i].value)*abs(hourly_measurements[i].value)))
+        monthly_average_price = sum(map(lambda price: abs(price.value), hourly_prices))/hourly_prices.__len__()
+        total_consumption = sum(map(lambda measurement: abs(measurement.value), hourly_measurements))
+        total_hourly_weighted_consumption_prices = sum(hourly_weighted_consumption_prices)
+        total_consumption_average_price = monthly_average_price*total_consumption
+    
+        impact = (total_hourly_weighted_consumption_prices-total_consumption_average_price)/total_consumption
+    
+        return impact
             
     @cached(cache=TTLCache(maxsize=4, ttl=3600))
     def get_daily_measurements_by_month(self, month: int) -> MeasurementResponse:
@@ -93,12 +121,12 @@ class HelenApiClient:
 
 
     @cached(cache=TTLCache(maxsize=4, ttl=3600))
-    def get_hourly_measurements_by_date(self, day: date) -> MeasurementResponse:
-        """Get electricity measurements for each hour of a given date."""
+    def get_hourly_measurements_between_dates(self, start: date, end: date) -> MeasurementResponse:
+        """Get electricity measurements for each hour between given dates."""
         
-        previous_day = day + relativedelta(days=-1)
+        previous_day = start + relativedelta(days=-1)
         start_time = f"{previous_day}T22:00:00+00:00"
-        end_time = f"{day}T21:59:59+00:00"
+        end_time = f"{end}T21:59:59+00:00"
         delivery_site_id = self.get_delivery_site_id()
         measurements_params = {
             "begin": start_time,
@@ -118,12 +146,12 @@ class HelenApiClient:
 
 
     @cached(cache=TTLCache(maxsize=4, ttl=3600))
-    def get_hourly_spot_prices_by_date(self, day: date) -> MeasurementResponse:
-        """Get electricity spot prices for each hour of a given date."""
+    def get_hourly_spot_prices_between_dates(self, start: date, end: date) -> SpotPricesResponse:
+        """Get electricity spot prices for each hour between given dates."""
         
-        previous_day = day + relativedelta(days=-1)
+        previous_day = start + relativedelta(days=-1)
         start_time = f"{previous_day}T22:00:00+00:00"
-        end_time = f"{day}T21:59:59+00:00"
+        end_time = f"{end}T21:59:59+00:00"
         delivery_site_id = self.get_delivery_site_id()
         spot_prices_params = {
             "begin": start_time,
