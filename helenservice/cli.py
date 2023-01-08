@@ -2,7 +2,7 @@ from cmd import Cmd
 from datetime import date, datetime
 from .api_client import HelenApiClient
 from getpass import getpass
-from .price_client import HelenContractType, HelenPriceClient, VattenfallPriceClient
+from .price_client import HelenContractType, HelenPriceClient
 import json
 
 def _json_serializer(value):
@@ -18,7 +18,6 @@ class HelenCLIPrompt(Cmd):
     tax = 0.24
     api_client = HelenApiClient(tax)
     market_price_client = HelenPriceClient(HelenContractType.MARKET_PRICE)
-    vattenfall_price_client = VattenfallPriceClient()
 
     def __init__(self, username, password):
         super(HelenCLIPrompt, self).__init__()

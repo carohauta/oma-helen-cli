@@ -40,10 +40,10 @@ class HelenApiClient:
         if self._session is not None:
             self._session.close()
 
-    def calculate_impact_of_usage_between_dates(self, start_date: date, end_date: date):
+    def calculate_impact_of_usage_between_dates(self, start_date: date, end_date: date) -> float:
         """Calculate the price impact of your usage based on hourly consumption and hourly spot prices
 
-        The price impact increases or decreases your contract's base price in certain contracts
+        The price impact increases or decreases your contract's unit price in certain contracts
         such as the Helen Smart Electricity Guarantee contract
         https://www.helen.fi/en/electricity/electricity-products-and-prices/smart-electricity-guarantee
         A negative number decreases and a positive number increases the base price.
@@ -53,14 +53,24 @@ class HelenApiClient:
         B = total consumption multiplied with the whole month's average market price (i.e. your average price of the whole month)
         E = total consumption
         """
+        # retain the price-measurement pairs (list ordering matters!) by assigning invalid items None
         hourly_prices = self.get_hourly_spot_prices_between_dates(start_date, end_date).interval.measurements
+        hourly_prices = list(map(lambda price: price if price.status == 'valid' else None, hourly_prices))
         hourly_measurements = self.get_hourly_measurements_between_dates(start_date, end_date).intervals.electricity[0].measurements
+        hourly_measurements = list(map(lambda measurement: measurement if measurement.status == 'valid' else None, hourly_measurements))
         length = min(hourly_prices.__len__(), hourly_measurements.__len__())
+        if length == 0: return 0.0
+        hourly_prices_without_nones = list(filter(lambda price: price is not None, hourly_prices))
+        hourly_measurements_without_nones = list(filter(lambda measurement: measurement is not None, hourly_measurements))
         hourly_weighted_consumption_prices = []
         for i in range(length):
-            hourly_weighted_consumption_prices.append((abs(hourly_prices[i].value*hourly_measurements[i].value)))
-        monthly_average_price = sum(map(lambda price: abs(price.value), hourly_prices))/hourly_prices.__len__()
-        total_consumption = sum(map(lambda measurement: abs(measurement.value), hourly_measurements))
+            hourly_price = hourly_prices[i]
+            hourly_measurement = hourly_measurements[i]
+            if hourly_price is None or hourly_measurement is None: continue
+            hourly_weighted_consumption_prices.append((abs(hourly_price.value*hourly_measurement.value)))
+        if hourly_weighted_consumption_prices.__len__() == 0: return 0.0
+        monthly_average_price = sum(map(lambda price: abs(price.value), hourly_prices_without_nones))/hourly_prices_without_nones.__len__()
+        total_consumption = sum(map(lambda measurement: abs(measurement.value), hourly_measurements_without_nones))
         total_hourly_weighted_consumption_prices = sum(hourly_weighted_consumption_prices)
         total_consumption_average_price = monthly_average_price*total_consumption
     
