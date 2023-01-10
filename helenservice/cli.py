@@ -3,6 +3,7 @@ from datetime import date, datetime
 from .api_client import HelenApiClient
 from getpass import getpass
 from .price_client import HelenContractType, HelenPriceClient
+from .utils import get_month_date_range_by_date
 import json
 
 def _json_serializer(value):
@@ -15,8 +16,9 @@ class HelenCLIPrompt(Cmd):
     prompt = "helen-cli> "
     intro = "Type ? to list commands"
 
-    tax = 0.24
-    api_client = HelenApiClient(tax)
+    tax = 0.1 # 10%
+    margin = 0.34 # 34 c/kwh
+    api_client = HelenApiClient(tax, margin)
     market_price_client = HelenPriceClient(HelenContractType.MARKET_PRICE)
 
     def __init__(self, username, password):
@@ -29,6 +31,31 @@ class HelenCLIPrompt(Cmd):
         self.api_client.close()
         print("Bye")
         return True
+
+    def do_calculate_spot_cost_between_dates(self, input=None):
+        """Calculate the price of your Exchange Electricity (spot) contract between a start date and an end date
+        The provided dates should be presented in format 'YYYY-mm-dd'
+
+        Includes 10% tax. The price returned is in euros.
+
+        Usage example:
+        calculate_spot_cost_between_dates 2022-12-01 2022-12-31
+        """
+
+        if input is None:
+            print("Please provide proper start and end dates in format 'YYYY-mm-dd'")
+        else:
+            try:
+                start_date_str, end_date_str = str(input).split(' ')
+                start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
+                end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
+                if start_date > end_date: 
+                    print("Start date must be before end date")
+                    raise ValueError()
+                price = self.api_client.calculate_total_costs_by_spot_prices_between_dates(start_date, end_date)
+                print(price)
+            except ValueError:
+                print("Please provide proper start and end dates in format 'YYYY-mm-dd'")
 
     def do_calculate_the_impact_of_usage_between_dates(self, input=None):
         """Calculate the impact of usage for Helen Smart Electricity Guarantee contract between a start date and an end date
@@ -45,6 +72,9 @@ class HelenCLIPrompt(Cmd):
                 start_date_str, end_date_str = str(input).split(' ')
                 start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
                 end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
+                if start_date > end_date: 
+                    print("Start date must be before end date")
+                    raise ValueError()
                 impact = self.api_client.calculate_impact_of_usage_between_dates(start_date, end_date)
                 print(impact)
             except ValueError:
@@ -61,8 +91,9 @@ class HelenCLIPrompt(Cmd):
     def do_get_daily_measurements_json(self, input=None):
         """Get the daily electricity measurements of the on-going month of the on-going year as JSON"""
 
-        month = date.today().month
-        daily_measurements = self.api_client.get_daily_measurements_by_month(month)
+        previous_month_last_day_date, wanted_month_last_day_date = get_month_date_range_by_date(date.today())
+
+        daily_measurements = self.api_client.get_daily_measurements_between_dates(previous_month_last_day_date, wanted_month_last_day_date)
         daily_measurements_json = json.dumps(daily_measurements, default=lambda o: o.__dict__, indent=2)
         print(daily_measurements_json)
 

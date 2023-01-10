@@ -1,4 +1,3 @@
-import calendar
 from cachetools import cached, TTLCache
 import json
 from datetime import date, datetime, timedelta
@@ -19,8 +18,9 @@ class HelenApiClient:
     _latest_login_time: datetime = None
     _session: HelenSession = None        
 
-    def __init__(self, tax: float = None):
+    def __init__(self, tax: float = None, margin: float = None):
         self._tax = 0.24 if tax is None else tax
+        self._margin = 0.38 if margin is None else margin
 
     def login(self, username, password):
         """Login to Oma Helen. Creates a new session when called."""
@@ -40,6 +40,33 @@ class HelenApiClient:
         if self._session is not None:
             self._session.close()
 
+    def _get_hourly_consumption_costs(self, start_date: date, end_date: date) -> list:
+        hourly_prices = self.get_hourly_spot_prices_between_dates(start_date, end_date).interval.measurements
+        # retain the hourly-price/hourly-measurement pairs (list ordering matters!) by assigning invalid items None
+        hourly_prices = list(map(lambda price: price if price.status == 'valid' else None, hourly_prices))
+        hourly_measurements = self.get_hourly_measurements_between_dates(start_date, end_date).intervals.electricity[0].measurements
+        hourly_measurements = list(map(lambda measurement: measurement if measurement.status == 'valid' else None, hourly_measurements))
+        length = min(hourly_prices.__len__(), hourly_measurements.__len__())
+        if length == 0: return 0.0
+        hourly_consumption_costs = []
+        for i in range(length):
+            hourly_price = hourly_prices[i]
+            hourly_measurement = hourly_measurements[i]
+            if hourly_price is None or hourly_measurement is None: continue
+            hourly_price_with_tax_and_margin = hourly_price.value+self._margin
+            hourly_consumption_costs.append((abs(hourly_price_with_tax_and_margin*hourly_measurement.value)))
+        return hourly_consumption_costs
+
+    def calculate_total_costs_by_spot_prices_between_dates(self, start_date: date, end_date: date):
+        """Calculate your total electricity cost with according spot prices by hourly precision
+
+        Returns the price in euros
+        """
+        hourly_consumption_costs = self._get_hourly_consumption_costs(start_date, end_date)
+        total_price = sum(hourly_consumption_costs)
+        total_price_with_tax_in_euros = total_price*(1+self._tax)/100
+        return total_price_with_tax_in_euros
+
     def calculate_impact_of_usage_between_dates(self, start_date: date, end_date: date) -> float:
         """Calculate the price impact of your usage based on hourly consumption and hourly spot prices
 
@@ -53,8 +80,8 @@ class HelenApiClient:
         B = total consumption multiplied with the whole month's average market price (i.e. your average price of the whole month)
         E = total consumption
         """
-        # retain the price-measurement pairs (list ordering matters!) by assigning invalid items None
         hourly_prices = self.get_hourly_spot_prices_between_dates(start_date, end_date).interval.measurements
+        # retain the hourly-price/hourly-measurement pairs (list ordering matters!) by assigning invalid items None
         hourly_prices = list(map(lambda price: price if price.status == 'valid' else None, hourly_prices))
         hourly_measurements = self.get_hourly_measurements_between_dates(start_date, end_date).intervals.electricity[0].measurements
         hourly_measurements = list(map(lambda measurement: measurement if measurement.status == 'valid' else None, hourly_measurements))
@@ -68,7 +95,7 @@ class HelenApiClient:
             hourly_measurement = hourly_measurements[i]
             if hourly_price is None or hourly_measurement is None: continue
             hourly_weighted_consumption_prices.append((abs(hourly_price.value*hourly_measurement.value)))
-        if hourly_weighted_consumption_prices.__len__() == 0: return 0.0
+        if not hourly_weighted_consumption_prices: return 0.0
         monthly_average_price = sum(map(lambda price: abs(price.value), hourly_prices_without_nones))/hourly_prices_without_nones.__len__()
         total_consumption = sum(map(lambda measurement: abs(measurement.value), hourly_measurements_without_nones))
         total_hourly_weighted_consumption_prices = sum(hourly_weighted_consumption_prices)
@@ -79,18 +106,12 @@ class HelenApiClient:
         return impact
             
     @cached(cache=TTLCache(maxsize=4, ttl=3600))
-    def get_daily_measurements_by_month(self, month: int) -> MeasurementResponse:
+    def get_daily_measurements_between_dates(self, start: date, end: date) -> MeasurementResponse:
         """Get electricity measurements for each day of the wanted month of the on-going year."""
 
-        # The start_time is always the last day of the previous month
-        wanted_month_first_day = datetime.today().replace(day=1, month=month)
-        wanted_month_last_day = datetime.today().replace(day=calendar.monthrange(wanted_month_first_day.year, month)[-1], month=month)
-        
-        previous_month = wanted_month_last_day + relativedelta(months=-1)
-        previous_month_last_day = previous_month.replace(day=calendar.monthrange(previous_month.year, previous_month.month)[-1])
-
-        start_time = f"{previous_month_last_day.year}-{previous_month_last_day.month}-{previous_month_last_day.day}T21:00:00.000Z"
-        end_time = f"{wanted_month_last_day.year}-{wanted_month_last_day.month}-{wanted_month_last_day.day}T20:59:59.999Z"
+        previous_day = start + relativedelta(days=-1)
+        start_time = f"{previous_day}T22:00:00+00:00"
+        end_time = f"{end}T21:59:59+00:00"
         delivery_site_id = self.get_delivery_site_id()
         measurements_params = {
             "begin": start_time,
