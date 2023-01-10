@@ -38,6 +38,7 @@ class HelenMarketPrices:
 class HelenContractType(Enum):
     MARKET_PRICE = auto()
     SMART_ELECTRICITY_GUARANTEE = auto()
+    EXCHANGE_ELECTRICITY = auto()
 
 
 class HelenPriceClient:

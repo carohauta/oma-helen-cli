@@ -17,7 +17,7 @@ class HelenCLIPrompt(Cmd):
     intro = "Type ? to list commands"
 
     tax = 0.1 # 10%
-    margin = 0.34 # 34 c/kwh
+    margin = 0.34 # 0.34 c/kwh
     api_client = HelenApiClient(tax, margin)
     market_price_client = HelenPriceClient(HelenContractType.MARKET_PRICE)
 
