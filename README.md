@@ -32,6 +32,8 @@ Deactivate venv when not needed: `deactivate`
 | get_daily_measurements_json   | Returns your daily energy consumption for the on-going month of the on-going year as JSON |
 | get_market_prices_json        | Returns the prices for the Market Price Electricity contract as JSON. The JSON includes the price for last month, the current month and next month if available |
 | get_monthly_measurements_json | Returns your monthly energy consumption for the on-going year as JSON |
+| calculate_the_impact_of_usage_between_dates | Calculates your impact of usage between given dates for the Helen Smart Electricity Guarantee |
+| calculate_spot_cost_between_dates | Calculates the total costs between given dates of a spot price contract in an hourly precision |
 
 ### Oma Helen API example
 
@@ -39,7 +41,7 @@ In this example, in addition to the `access-token`, you are going to need your d
 
 #### Making a request
 
-A curl example for making a reqeuest to get the energy consumption for the on-going year. **Note that the functionality of this example is already provided by the CLI tool itself**
+A curl example for making a request to get the energy consumption for the on-going year. **Note that the functionality of this example is already provided by the CLI tool itself**
 ```bash
 curl -iv 'https://api.omahelen.fi/v7/measurements/electricity?begin=2021-12-31T22:00:00.000Z&end=2022-12-31T21:59:59.999Z&resolution=month&delivery_site_id=<YOUR-DELIVERY-SITE-ID>&allow_transfer=true' -H 'User-Agent: Mozilla/5.0' -H 'Accept: application/json' -H 'Accept-Language: en-US,en;q=0.5' -H 'Accept-Encoding: gzip, deflate, br' -H 'Authorization: Bearer <YOUR-ACCESS-TOKEN>' -H 'Origin: https://web.omahelen.fi' -H 'Connection: keep-alive' -H 'Sec-Fetch-Dest: empty' -H 'Sec-Fetch-Mode: cors' -H 'Sec-Fetch-Site: same-site' -H 'TE: trailers'
 ```
