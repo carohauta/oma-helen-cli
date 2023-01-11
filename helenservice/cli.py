@@ -16,10 +16,14 @@ class HelenCLIPrompt(Cmd):
     prompt = "helen-cli> "
     intro = "Type ? to list commands"
 
-    tax = 0.1 # 10%
-    margin = 0.34 # 0.34 c/kwh
-    api_client = HelenApiClient(tax, margin)
     market_price_client = HelenPriceClient(HelenContractType.MARKET_PRICE)
+    smart_guarantee_price_client = HelenPriceClient(HelenContractType.SMART_ELECTRICITY_GUARANTEE)
+    exchange_price_client = HelenPriceClient(HelenContractType.EXCHANGE_ELECTRICITY)
+
+    tax = 0.1 # 10%
+    margin = exchange_price_client.get_electricity_prices().margin
+    api_client = HelenApiClient(tax, margin)
+
 
     def __init__(self, username, password):
         super(HelenCLIPrompt, self).__init__()
@@ -108,6 +112,20 @@ class HelenCLIPrompt(Cmd):
         """Get prices for the Market Price contract type as JSON"""
 
         price = self.market_price_client.get_electricity_prices()
+        price_json = json.dumps(price, default=_json_serializer, indent=2)
+        print(price_json)
+
+    def do_get_smart_guarantee_price_json(self, input=None):
+        """Get price for the Smart Guarantee contract type as JSON"""
+
+        price = self.smart_guarantee_price_client.get_electricity_prices()
+        price_json = json.dumps(price, default=_json_serializer, indent=2)
+        print(price_json)
+
+    def do_get_exchange_margin_price_json(self, input=None):
+        """Get margin price for the Exchange Electricity contract type as JSON"""
+
+        price = self.exchange_price_client.get_electricity_prices()
         price_json = json.dumps(price, default=_json_serializer, indent=2)
         print(price_json)
 

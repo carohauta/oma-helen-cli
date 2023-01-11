@@ -27,12 +27,29 @@ class VattenfallPriceClient:
             print("Could not fetch prices. Response code was: " + str(response.status_code))
 
 
-class HelenMarketPrices:
+class HelenPrices:
+    def __init__(self):
+        self.timestamp = datetime.now()
+
+
+class HelenMarketPrices(HelenPrices):
     def __init__(self, last_month, current_month, next_month):
+        super().__init__()
         self.last_month: float = last_month
         self.current_month: float = current_month
         self.next_month: float = next_month
-        self.timestamp = datetime.now()
+
+
+class HelenSmartGuaranteePrices(HelenPrices):
+    def __init__(self, price):
+        super().__init__()
+        self.price: float = price
+
+
+class HelenExchangePrices(HelenPrices):
+    def __init__(self, margin):
+        super().__init__()
+        self.margin: float = margin
 
 
 class HelenContractType(Enum):
@@ -43,8 +60,12 @@ class HelenContractType(Enum):
 
 class HelenPriceClient:
     MARKET_PRICE_ELECTRICITY_URL = "https://www.helen.fi/sahko/sahkosopimus/markkinahinta"
+    SMART_ELECTRICITY_GUARANTEE_URL = "https://www.helen.fi/sahko/sahkosopimus/fiksusahko-takuu"
+    EXCHANGE_ELECTRICITY_URL = "https://www.helen.fi/sahko/sahkosopimus/porssisahko"
 
     _helen_market_price_prices: HelenMarketPrices = None
+    _helen_smart_guarantee_prices: HelenSmartGuaranteePrices = None
+    _helen_exchange_prices: HelenExchangePrices = None
 
     def __init__(self, contract_type: HelenContractType):
         self._contract_type = contract_type
@@ -56,22 +77,38 @@ class HelenPriceClient:
             if self._are_market_price_prices_valid():
                 return self._helen_market_price_prices
             return self._get_market_price_prices()
+        elif self._contract_type == HelenContractType.SMART_ELECTRICITY_GUARANTEE:
+            if self._are_smart_guarantee_prices_valid():
+                return self._helen_smart_guarantee_prices
+            return self._get_smart_guarantee_prices()
+        elif self._contract_type == HelenContractType.EXCHANGE_ELECTRICITY:
+            if self._are_exchange_prices_valid():
+                return self._helen_exchange_prices
+            return self._get_exchange_prices()
         return None
+        
 
     def _are_market_price_prices_valid(self):
+        return self._is_helen_prices_valid(self._helen_market_price_prices)
+
+
+    def _are_smart_guarantee_prices_valid(self):
+        return self._is_helen_prices_valid(self._helen_smart_guarantee_prices)
+
+
+    def _are_exchange_prices_valid(self):
+        return self._is_helen_prices_valid(self._helen_exchange_prices)
+
+    
+    def _is_helen_prices_valid(self, helen_prices: HelenPrices):
         """If the latest price scrape has happened within the last hour, then use cache"""
 
         now = datetime.now()
-        if self._helen_market_price_prices is None:
+        if helen_prices is None:
             return False
-        were_market_prices_scraped_within_hour = now-timedelta(hours=1) <= self._helen_market_price_prices.timestamp <= now
+        were_market_prices_scraped_within_hour = now-timedelta(hours=1) <= helen_prices.timestamp <= now
         return were_market_prices_scraped_within_hour
 
-    def _get_market_price_prices(self) -> HelenMarketPrices:
-        last_month_price, current_month_price, next_month_price = self._scrape_market_price_prices()
-
-        self._helen_market_price_prices = HelenMarketPrices(last_month_price, current_month_price, next_month_price)
-        return self._helen_market_price_prices
 
     def _scrape_market_price_prices(self):
         kwh_substring = " c/kWh"
@@ -100,3 +137,44 @@ class HelenPriceClient:
             next_month_price = None
 
         return last_month_price, current_month_price, next_month_price
+
+
+    def _get_market_price_prices(self) -> HelenMarketPrices:
+        last_month_price, current_month_price, next_month_price = self._scrape_market_price_prices()
+
+        self._helen_market_price_prices = HelenMarketPrices(last_month_price, current_month_price, next_month_price)
+        return self._helen_market_price_prices
+
+
+    def _scrape_smart_guarantee_prices(self):
+        price_site_response = get(self.SMART_ELECTRICITY_GUARANTEE_URL, timeout=HTTP_READ_TIMEOUT)
+        price_site_soup = BeautifulSoup(price_site_response.text, "html.parser")
+
+        element = price_site_soup.select_one(f'span.product-info-block__data--price')
+        price = element.text
+
+        return float(price.replace(",", "."))
+
+
+    def _get_smart_guarantee_prices(self) -> HelenSmartGuaranteePrices:
+        price = self._scrape_smart_guarantee_prices()
+
+        self._helen_smart_guarantee_prices = HelenSmartGuaranteePrices(price)
+        return self._helen_smart_guarantee_prices
+
+
+    def _scrape_exchange_prices(self):
+        price_site_response = get(self.EXCHANGE_ELECTRICITY_URL, timeout=HTTP_READ_TIMEOUT)
+        price_site_soup = BeautifulSoup(price_site_response.text, "html.parser")
+
+        element = price_site_soup.select_one(f'span.product-info-block__data--price')
+        margin = element.text
+
+        return float(margin.replace(",", "."))
+
+
+    def _get_exchange_prices(self) -> HelenExchangePrices:
+        margin = self._scrape_exchange_prices()
+
+        self._helen_exchange_prices = HelenExchangePrices(margin)
+        return self._helen_exchange_prices

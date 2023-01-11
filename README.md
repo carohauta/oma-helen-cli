@@ -34,6 +34,8 @@ Deactivate venv when not needed: `deactivate`
 | get_monthly_measurements_json | Returns your monthly energy consumption for the on-going year as JSON |
 | calculate_the_impact_of_usage_between_dates | Calculates your impact of usage between given dates for the Helen Smart Electricity Guarantee |
 | calculate_spot_cost_between_dates | Calculates the total costs between given dates of a spot price contract in an hourly precision |
+| get_exchange_margin_price_json | Get the margin price of the Exchange Electricity contract |
+| get_smart_guarantee_price_json | Get the c/kwh price of the Smart Guarantee Electricity contract |
 
 ### Oma Helen API example
 
