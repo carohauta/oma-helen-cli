@@ -2,7 +2,7 @@ from cmd import Cmd
 from datetime import date, datetime
 from .api_client import HelenApiClient
 from getpass import getpass
-from .price_client import HelenContractType, HelenPriceClient
+from .price_client import HelenPriceClient
 from .utils import get_month_date_range_by_date
 import json
 
@@ -16,12 +16,10 @@ class HelenCLIPrompt(Cmd):
     prompt = "helen-cli> "
     intro = "Type ? to list commands"
 
-    market_price_client = HelenPriceClient(HelenContractType.MARKET_PRICE)
-    smart_guarantee_price_client = HelenPriceClient(HelenContractType.SMART_ELECTRICITY_GUARANTEE)
-    exchange_price_client = HelenPriceClient(HelenContractType.EXCHANGE_ELECTRICITY)
+    helen_price_client = HelenPriceClient()
 
     tax = 0.1 # 10%
-    margin = exchange_price_client.get_electricity_prices().margin
+    margin = helen_price_client.get_exchange_prices().margin
     api_client = HelenApiClient(tax, margin)
 
 
@@ -111,21 +109,21 @@ class HelenCLIPrompt(Cmd):
     def do_get_market_prices_json(self, input=None):
         """Get prices for the Market Price contract type as JSON"""
 
-        price = self.market_price_client.get_electricity_prices()
+        price = self.helen_price_client.get_market_price_prices()
         price_json = json.dumps(price, default=_json_serializer, indent=2)
         print(price_json)
 
     def do_get_smart_guarantee_price_json(self, input=None):
         """Get price for the Smart Guarantee contract type as JSON"""
 
-        price = self.smart_guarantee_price_client.get_electricity_prices()
+        price = self.helen_price_client.get_smart_guarantee_prices()
         price_json = json.dumps(price, default=_json_serializer, indent=2)
         print(price_json)
 
     def do_get_exchange_margin_price_json(self, input=None):
         """Get margin price for the Exchange Electricity contract type as JSON"""
 
-        price = self.exchange_price_client.get_electricity_prices()
+        price = self.helen_price_client.get_exchange_prices()
         price_json = json.dumps(price, default=_json_serializer, indent=2)
         print(price_json)
 
