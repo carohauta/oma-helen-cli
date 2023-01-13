@@ -17,7 +17,8 @@ class HelenApiClient:
     CONTRACT_ENDPOINT = "/contract/list"
 
     _latest_login_time: datetime = None
-    _session: HelenSession = None        
+    _session: HelenSession = None  
+    _margin: float = None
 
     def __init__(self, tax: float = None, margin: float = None):
         self._tax = 0.24 if tax is None else tax
@@ -234,3 +235,6 @@ class HelenApiClient:
             "Authorization": f"Bearer {self.get_api_access_token()}",
             "Accept": "application/json"
         }
+
+    def set_margin(self, margin: float):
+        self._margin = margin

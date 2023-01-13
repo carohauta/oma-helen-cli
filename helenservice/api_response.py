@@ -2,7 +2,7 @@ from typing import List
 
 
 class Measurement(object):
-    def __init__(self, value: int, status: str):
+    def __init__(self, value: float, status: str):
         self.value = value
         self.status = status
 
