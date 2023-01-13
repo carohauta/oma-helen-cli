@@ -8,6 +8,7 @@ from requests import get
 from dateutil.relativedelta import relativedelta
 
 
+# TODO: consider moving all calculation functions somewhere else - they are not related to HelenApiClient
 class HelenApiClient:
     HELEN_API_URL = "https://api.omahelen.fi/v7"
     HELEN_API_URL_V8 = "https://api.omahelen.fi/v8"
