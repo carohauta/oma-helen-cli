@@ -41,6 +41,7 @@ setup(
     install_requires=requirements,
     license="MIT license",
     long_description=long_description,
+    long_description_content_type='text/markdown',
     include_package_data=True,
     packages=find_packages(include=['helenservice', 'helenservice.*']),
     url='https://github.com/carohauta/oma-helen-cli',
