@@ -43,13 +43,15 @@ class HelenApiClient:
             self._session.close()
 
     def _get_hourly_consumption_costs(self, start_date: date, end_date: date) -> list:
-        hourly_prices = self.get_hourly_spot_prices_between_dates(start_date, end_date).interval.measurements
+        hourly_prices_response = self.get_hourly_spot_prices_between_dates(start_date, end_date)
+        if not hourly_prices_response.interval: return []
         # retain the hourly-price/hourly-measurement pairs (list ordering matters!) by assigning invalid items None
-        hourly_prices = list(map(lambda price: price if price.status == 'valid' else None, hourly_prices))
-        hourly_measurements = self.get_hourly_measurements_between_dates(start_date, end_date).intervals.electricity[0].measurements
-        hourly_measurements = list(map(lambda measurement: measurement if measurement.status == 'valid' else None, hourly_measurements))
+        hourly_prices = list(map(lambda price: price if price.status == 'valid' else None, hourly_prices_response.interval.measurements))
+        hourly_measurements_data = self.get_hourly_measurements_between_dates(start_date, end_date).intervals.electricity
+        if not hourly_measurements_data: return []
+        hourly_measurements = list(map(lambda measurement: measurement if measurement.status == 'valid' else None, hourly_measurements_data[0].measurements))
         length = min(hourly_prices.__len__(), hourly_measurements.__len__())
-        if length == 0: return 0.0
+        if length == 0: return []
         hourly_consumption_costs = []
         for i in range(length):
             hourly_price = hourly_prices[i]
@@ -82,11 +84,13 @@ class HelenApiClient:
         B = total consumption multiplied with the whole month's average market price (i.e. your average price of the whole month)
         E = total consumption
         """
-        hourly_prices = self.get_hourly_spot_prices_between_dates(start_date, end_date).interval.measurements
+        hourly_prices_response = self.get_hourly_spot_prices_between_dates(start_date, end_date)
+        if not hourly_prices_response.interval: return 0.0
         # retain the hourly-price/hourly-measurement pairs (list ordering matters!) by assigning invalid items None
-        hourly_prices = list(map(lambda price: price if price.status == 'valid' else None, hourly_prices))
-        hourly_measurements = self.get_hourly_measurements_between_dates(start_date, end_date).intervals.electricity[0].measurements
-        hourly_measurements = list(map(lambda measurement: measurement if measurement.status == 'valid' else None, hourly_measurements))
+        hourly_prices = list(map(lambda price: price if price.status == 'valid' else None, hourly_prices_response.interval.measurements))
+        hourly_measurements_response = self.get_hourly_measurements_between_dates(start_date, end_date)
+        if not hourly_measurements_response.intervals or not hourly_measurements_response.intervals.electricity: return 0.0
+        hourly_measurements = list(map(lambda measurement: measurement if measurement.status == 'valid' else None, hourly_measurements_response.intervals.electricity[0].measurements))
         length = min(hourly_prices.__len__(), hourly_measurements.__len__())
         if length == 0: return 0.0
         hourly_prices_without_nones = list(filter(lambda price: price is not None, hourly_prices))

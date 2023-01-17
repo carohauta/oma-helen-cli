@@ -24,9 +24,9 @@ class MeasurementIntervals(object):
 
 class MeasurementResponse(object):
     def __init__(self, intervals: dict):
-        self.intervals = MeasurementIntervals(**intervals)
+        self.intervals = MeasurementIntervals(**intervals) if intervals is not None else None
 
 
 class SpotPricesResponse(object):
     def __init__(self, interval: dict):
-        self.interval = MeasurementData(**interval)
+        self.interval = MeasurementData(**interval) if interval is not None else None
