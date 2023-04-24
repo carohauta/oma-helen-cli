@@ -138,6 +138,11 @@ class HelenCLIPrompt(Cmd):
         access_token = self.api_client.get_api_access_token()
         print(access_token)
 
+    def do_get_contract_energy_unit_price(self, input=None):
+        """Helper to get the energy unit price from your contract data. To see the whole contract data as JSON, use get_contract_data_json"""
+
+        contract_energy_unit_price = self.api_client.get_contract_energy_unit_price()
+        print(contract_energy_unit_price)
 
 def main():
     print("Log in to Oma Helen")
