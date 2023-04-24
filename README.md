@@ -10,9 +10,14 @@ Oma Helen is the user portal for a Finnish electricity company, Helen Oy.
 
 ### How to use and develop
 
-Install from [pypi](https://pypi.org/project/oma-helen-cli/)
+Install from [pypi](https://pypi.org/project/oma-helen-cli/): 
+```sh
+pip install oma-helen-cli
+```
 
-Or install from sources: 
+#### Installing from sources and running the project
+
+First clone this repo.
 
 Use virtual env to keep the project isolated. Developed using Python 3.9.9
 
