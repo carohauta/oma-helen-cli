@@ -10,6 +10,10 @@ Oma Helen is the user portal for a Finnish electricity company, Helen Oy.
 
 ### How to use and develop
 
+Install from [pypi](https://pypi.org/project/oma-helen-cli/)
+
+Or install from sources: 
+
 Use virtual env to keep the project isolated. Developed using Python 3.9.9
 
 1. In the project root folder run `python -m venv .venv`
@@ -35,6 +39,7 @@ Deactivate venv when not needed: `deactivate`
 | calculate_the_impact_of_usage_between_dates | Calculates your impact of usage between given dates for the Helen Smart Electricity Guarantee |
 | calculate_spot_cost_between_dates | Calculates the total costs between given dates of a spot price contract in an hourly precision |
 | get_exchange_margin_price_json | Get the margin price of the Exchange Electricity contract |
+| get_contract_energy_unit_price | Get the energy unit price (c/kwh) from your contract data |
 
 ### Oma Helen API example
 
