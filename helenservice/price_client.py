@@ -39,12 +39,6 @@ class HelenMarketPrices(HelenPrices):
         self.next_month: float = next_month
 
 
-class HelenSmartGuaranteePrices(HelenPrices):
-    def __init__(self, price):
-        super().__init__()
-        self.price: float = price
-
-
 class HelenExchangePrices(HelenPrices):
     def __init__(self, margin):
         super().__init__()
@@ -53,20 +47,14 @@ class HelenExchangePrices(HelenPrices):
 
 class HelenPriceClient:
     MARKET_PRICE_ELECTRICITY_URL = "https://www.helen.fi/sahko/sahkosopimus/markkinahinta"
-    SMART_ELECTRICITY_GUARANTEE_URL = "https://www.helen.fi/sahko/sahkosopimus/fiksusahko-takuu"
     EXCHANGE_ELECTRICITY_URL = "https://www.helen.fi/sahko/sahkosopimus/porssisahko"
 
     _helen_market_price_prices: HelenMarketPrices = None
-    _helen_smart_guarantee_prices: HelenSmartGuaranteePrices = None
     _helen_exchange_prices: HelenExchangePrices = None
         
 
     def _are_market_price_prices_valid(self):
         return self._is_helen_prices_valid(self._helen_market_price_prices)
-
-
-    def _are_smart_guarantee_prices_valid(self):
-        return self._is_helen_prices_valid(self._helen_smart_guarantee_prices)
 
 
     def _are_exchange_prices_valid(self):
@@ -120,26 +108,6 @@ class HelenPriceClient:
 
         self._helen_market_price_prices = HelenMarketPrices(last_month_price, current_month_price, next_month_price)
         return self._helen_market_price_prices
-
-
-    def _scrape_smart_guarantee_prices(self):
-        price_site_response = get(self.SMART_ELECTRICITY_GUARANTEE_URL, timeout=HTTP_READ_TIMEOUT)
-        price_site_soup = BeautifulSoup(price_site_response.text, "html.parser")
-
-        element = price_site_soup.select_one(f'span.product-info-block__data--price')
-        price = element.text
-
-        return float(price.replace(",", "."))
-
-
-    def get_smart_guarantee_prices(self) -> HelenSmartGuaranteePrices:
-        """Get the current price (c/kwh) for the Smart Guarantee contract"""
-        if self._are_smart_guarantee_prices_valid():
-            return self._helen_smart_guarantee_prices
-        price = self._scrape_smart_guarantee_prices()
-
-        self._helen_smart_guarantee_prices = HelenSmartGuaranteePrices(price)
-        return self._helen_smart_guarantee_prices
 
 
     def _scrape_exchange_prices(self):

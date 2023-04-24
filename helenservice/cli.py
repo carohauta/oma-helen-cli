@@ -113,13 +113,6 @@ class HelenCLIPrompt(Cmd):
         price_json = json.dumps(price, default=_json_serializer, indent=2)
         print(price_json)
 
-    def do_get_smart_guarantee_price_json(self, input=None):
-        """Get price for the Smart Guarantee contract type as JSON"""
-
-        price = self.helen_price_client.get_smart_guarantee_prices()
-        price_json = json.dumps(price, default=_json_serializer, indent=2)
-        print(price_json)
-
     def do_get_exchange_margin_price_json(self, input=None):
         """Get margin price for the Exchange Electricity contract type as JSON"""
 

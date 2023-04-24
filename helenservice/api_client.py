@@ -1,6 +1,8 @@
 from cachetools import cached, TTLCache
-import json
+import json, logging
 from datetime import date, datetime, timedelta
+
+from helenservice.api_exceptions import InvalidApiResponseException
 from .api_response import MeasurementResponse, SpotPricesResponse
 from .const import HTTP_READ_TIMEOUT
 from .helen_session import HelenSession
@@ -227,9 +229,29 @@ class HelenApiClient:
         """Get the contract base price from your contract data."""
         
         contract_data = self.get_contract_data_json()
-        contract_components = contract_data[0]["products"][0]["components"]
-        base_price_component = next(filter(lambda component: component["is_base_price"], contract_components))
+        contract = contract_data[0] if contract_data else None
+        if not contract: raise InvalidApiResponseException("Contract data is empty or None")
+        products = contract["products"] if contract else []
+        product = products[0] if products else None
+        if not product: raise InvalidApiResponseException("Product data is empty or None")
+        components = product["components"] if product else []
+        base_price_component = next(filter(lambda component: component["is_base_price"], components), None)
+        if base_price_component is None: raise InvalidApiResponseException("Could not resolve contract base price from Helen API response")
         return base_price_component["price"]
+    
+    def get_contract_energy_unit_price(self) -> int:
+        """Get the unit price for electricity from your contract data."""
+        
+        contract_data = self.get_contract_data_json()
+        contract = contract_data[0] if contract_data else None
+        if not contract: raise InvalidApiResponseException("Contract data is empty or None")
+        products = contract["products"] if contract else []
+        product = products[0] if products else None
+        if not product: raise InvalidApiResponseException("Product data is empty or None")
+        components = product["components"] if product else []
+        energy_unit_price_component = next(filter(lambda component: component["name"] == "Energia", components), None)
+        if energy_unit_price_component is None: raise InvalidApiResponseException("Could not resolve energy unit price from Helen API contract response")
+        return energy_unit_price_component["price"]
 
     def get_api_access_token(self):
         return self._session.get_access_token()
