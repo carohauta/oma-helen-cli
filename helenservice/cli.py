@@ -161,6 +161,12 @@ class HelenCLIPrompt(Cmd):
         base_price = self.api_client.get_transfer_fee()
         print(base_price)
 
+    def do_get_contract_transfer_base_price(self, input=None):
+        """Helper to get the transfer base price from your contract data. To see the whole contract data as JSON, use get_contract_data_json"""
+        
+        base_price = self.api_client.get_transfer_base_price()
+        print(base_price)
+
     def do_get_api_access_token(self, input=None):
         """Get your access token for the Oma Helen API."""
         

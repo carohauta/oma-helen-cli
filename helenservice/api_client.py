@@ -63,14 +63,14 @@ class HelenApiClient:
         return hourly_consumption_costs
 
     def calculate_transfer_fees_between_dates(self, start_date: date, end_date: date):
-        """Calculate your total transfer fee costs
+        """Calculate your total transfer fee costs including the monthly base price
 
         Returns the price in euros
         """
         total_consumption = self.get_total_consumption_between_dates(start_date, end_date)
         transfer_fee = self.get_transfer_fee()
         total_price = total_consumption * transfer_fee
-        total_price_in_euros = total_price/100
+        total_price_in_euros = total_price/100 + self.get_transfer_base_price()
         return total_price_in_euros
     
     def get_total_consumption_between_dates(self, start_date: date, end_date: date) -> float:
@@ -249,49 +249,81 @@ class HelenApiClient:
         self.get_contract_data_json()
         return self._latest_contract["delivery_site"]["id"]
 
-    def get_contract_base_price(self) -> int:
+    def get_contract_base_price(self) -> float:
         """Get the contract base price from your contract data."""
 
         self.get_contract_data_json()
         contract = self._latest_contract
         if not contract: raise InvalidApiResponseException("Contract data is empty or None")
         products = contract["products"] if contract else []
-        product = products[0] if products else None
-        if not product: raise InvalidApiResponseException("Product data is empty or None")
+        product = next(filter(lambda p: p["product_type"] == "energy", products), None) 
+        if not product: 
+            logging.warn("Could not resolve contract base price from Helen API response. Returning 0.0")
+            return 0.0
         components = product["components"] if product else []
         base_price_component = next(filter(lambda component: component["is_base_price"], components), None)
-        if base_price_component is None: raise InvalidApiResponseException("Could not resolve contract base price from Helen API response")
+        if not base_price_component: 
+            logging.warn("Could not resolve contract base price from Helen API response. Returning 0.0")
+            return 0.0
         return base_price_component["price"]
     
-    def get_contract_energy_unit_price(self) -> int:
-        """Get the unit price for electricity from your contract data."""
+    def get_contract_energy_unit_price(self) -> float:
+        """
+        Get the fixed unit price for electricity from your contract data. Returns '0.0' for spot electricity contracts
+        because in the price is not fixed in your contract when using spot.
+        """
         
         self.get_contract_data_json()
         contract = self._latest_contract
         if not contract: raise InvalidApiResponseException("Contract data is empty or None")
         products = contract["products"] if contract else []
-        product = products[0] if products else None
+        product = next(filter(lambda p: p["product_type"] == "energy", products), None) 
+        if not product: 
+            logging.warn("Could not resolve energy price from Helen API response. Returning 0.0")
+            return 0.0
         if not product: raise InvalidApiResponseException("Product data is empty or None")
         components = product["components"] if product else []
         energy_unit_price_component = next(filter(lambda component: component["name"] == "Energia", components), None)
-        if energy_unit_price_component is None: raise InvalidApiResponseException("Could not resolve energy unit price from Helen API contract response")
+        if not energy_unit_price_component: 
+            logging.warn("Could not resolve energy price from Helen API response. Returning 0.0")
+            return 0.0
         return energy_unit_price_component["price"]
 
-    def get_transfer_fee(self) -> int:
-        """Get the transfer fee price (c/kWh) from your contract data."""
+    def get_transfer_fee(self) -> float:
+        """Get the transfer fee price (c/kWh) from your contract data. Returns '0.0' if Helen is not your transfer company"""
 
         self.get_contract_data_json()
         contract = self._latest_contract
         if not contract: raise InvalidApiResponseException("Contract data is empty or None")
         products = contract["products"] if contract else []
-        product = products[0] if products else None
-        if not product: raise InvalidApiResponseException("Product data is empty or None")
+        product = next(filter(lambda p: p["product_type"] == "transfer", products), None) 
+        if not product: 
+            logging.warn("Could not resolve transfer fees from Helen API response. Returning 0.0")
+            return 0.0
         components = product["components"] if product else []
         transfer_fee_component = next(filter(lambda component: component["name"] == "Siirtomaksu", components), None)
         if transfer_fee_component is None: 
             logging.warn("Could not resolve transfer fees from Helen API response. Returning 0.0")
             return 0.0
         return transfer_fee_component["price"]
+    
+    def get_transfer_base_price(self) -> float:
+        """Get the transfer base price (eur) from your contract data. Returns '0.0' if Helen is not your transfer company"""
+
+        self.get_contract_data_json()
+        contract = self._latest_contract
+        if not contract: raise InvalidApiResponseException("Contract data is empty or None")
+        products = contract["products"] if contract else []
+        product = next(filter(lambda p: p["product_type"] == "transfer", products), None) 
+        if not product: 
+            logging.warn("Could not resolve transfer base price from Helen API response. Returning 0.0")
+            return 0.0
+        components = product["components"] if product else []
+        transfer_base_price_component = next(filter(lambda component: component["is_base_price"], components), None)
+        if transfer_base_price_component is None: 
+            logging.warn("Could not resolve transfer base price from Helen API response. Returning 0.0")
+            return 0.0
+        return transfer_base_price_component["price"]
 
     def get_api_access_token(self):
         return self._session.get_access_token()
