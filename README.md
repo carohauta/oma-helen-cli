@@ -41,10 +41,12 @@ Deactivate venv when not needed: `deactivate`
 | get_daily_measurements_json   | Returns your daily energy consumption for the on-going month of the on-going year as JSON |
 | get_market_prices_json        | Returns the prices for the Market Price Electricity contract as JSON. The JSON includes the price for last month, the current month and next month if available |
 | get_monthly_measurements_json | Returns your monthly energy consumption for the on-going year as JSON |
-| calculate_the_impact_of_usage_between_dates | Calculates your impact of usage between given dates for the Helen Smart Electricity Guarantee |
-| calculate_spot_cost_between_dates | Calculates the total costs between given dates of a spot price contract in an hourly precision |
+| calculate_the_impact_of_usage_between_dates | Calculates your impact of usage (in c/kwh)) between given dates for the Helen Smart Electricity Guarantee |
+| calculate_spot_cost_between_dates | Calculates the total costs (in euros) between given dates of a spot price contract in an hourly precision |
 | get_exchange_margin_price_json | Get the margin price of the Exchange Electricity contract |
 | get_contract_energy_unit_price | Get the energy unit price (c/kwh) from your contract data |
+| get_contract_transfer_fee      | Get the transfer fees (c/kwh) from your contract. Note that if Helen is not your transfer company, this returns 0.0 |
+| calculate_transfer_fees_between_dates | Calculates total transfer fees (in euros) based on your consumption between dates |
 
 ### Oma Helen API example
 
