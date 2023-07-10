@@ -16,7 +16,6 @@ class HelenApiClient:
     MEASUREMENTS_ENDPOINT = "/measurements/electricity"
     SPOT_PRICES_ENDPOINT = MEASUREMENTS_ENDPOINT + "/spot-prices"
     CONTRACT_ENDPOINT = "/contract/list"
-    CONTRACT_QUERY_PARAMS = "include_transfer=true&update=true&include_products=true"
 
     _latest_login_time: datetime = None
     _session: HelenSession = None  
@@ -232,8 +231,13 @@ class HelenApiClient:
     def get_contract_data_json(self):
         """Get your contract data."""
 
-        contract_url = self.HELEN_API_URL_V14 + self.CONTRACT_ENDPOINT + "?" + self.CONTRACT_QUERY_PARAMS
-        contract_response_dict = get(contract_url, headers=self._api_request_headers(), timeout=HTTP_READ_TIMEOUT).json()
+        contract_url = self.HELEN_API_URL_V14 + self.CONTRACT_ENDPOINT
+        contract_params = {
+            "include_transfer": "true",
+            "update": "true",
+            "include_products": "true"
+        }
+        contract_response_dict = get(contract_url, headers=self._api_request_headers(), timeout=HTTP_READ_TIMEOUT, params=contract_params).json()
         contracts_dict = contract_response_dict["contracts"]
         self._contract_data_dict = contracts_dict
         self._latest_contract = self._get_latest_contract(contracts_dict)
