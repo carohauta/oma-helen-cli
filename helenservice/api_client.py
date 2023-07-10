@@ -218,18 +218,20 @@ class HelenApiClient:
         contract_url = self.HELEN_API_URL + self.CONTRACT_ENDPOINT
         contract_response_dict = get(contract_url, headers=self._api_request_headers(), timeout=HTTP_READ_TIMEOUT).json()
         self._contract_data_dict = contract_response_dict
+        self._latest_contract = self._get_latest_contract(contract_response_dict)
         return contract_response_dict
 
     def get_delivery_site_id(self) -> int:
         """Get the delivery site id from your contract data."""
 
-        return self.get_contract_data_json()[0]["delivery_site"]["id"]
+        self.get_contract_data_json()
+        return self._latest_contract["delivery_site"]["id"]
 
     def get_contract_base_price(self) -> int:
         """Get the contract base price from your contract data."""
-        
-        contract_data = self.get_contract_data_json()
-        contract = contract_data[0] if contract_data else None
+
+        self.get_contract_data_json()
+        contract = self._latest_contract
         if not contract: raise InvalidApiResponseException("Contract data is empty or None")
         products = contract["products"] if contract else []
         product = products[0] if products else None
@@ -242,8 +244,8 @@ class HelenApiClient:
     def get_contract_energy_unit_price(self) -> int:
         """Get the unit price for electricity from your contract data."""
         
-        contract_data = self.get_contract_data_json()
-        contract = contract_data[0] if contract_data else None
+        self.get_contract_data_json()
+        contract = self._latest_contract
         if not contract: raise InvalidApiResponseException("Contract data is empty or None")
         products = contract["products"] if contract else []
         product = products[0] if products else None
@@ -264,3 +266,19 @@ class HelenApiClient:
 
     def set_margin(self, margin: float):
         self._margin = margin
+
+    def _get_latest_contract(self, contracts):
+        """
+        Resolves an active contract from a list of contracts. If there are multiple active contracts, will
+        return the newest one.
+        """
+        active_contracts = list(filter(lambda contract: contract["end_date"] == None or self._date_is_now_or_later(contract["end_date"]), contracts))
+        if active_contracts.__len__() > 1:
+            logging.warn("Found multiple active Helen contracts. Using the newest one.")
+            active_contracts.sort(key=lambda contract: datetime.strptime(contract["start_date"], '%Y-%m-%dT%H:%M:%S'), reverse=True)
+        return active_contracts[0]
+    
+    def _date_is_now_or_later(self, end_date_str):
+        end_date = datetime.strptime(end_date_str, '%Y-%m-%dT%H:%M:%S')
+        now = datetime.now()
+        return end_date >= now
