@@ -34,6 +34,29 @@ class HelenCLIPrompt(Cmd):
         print("Bye")
         return True
 
+    def do_calculate_transfer_fees_between_dates(self, input=None):
+        """Calculate the transfer fees between a start date and an end date
+        The provided dates should be presented in format 'YYYY-mm-dd'
+
+        Usage example:
+        calculate_transfer_fee_between_dates 2022-12-01 2022-12-31
+        """
+
+        if input is None:
+            print("Please provide proper start and end dates in format 'YYYY-mm-dd'")
+        else:
+            try:
+                start_date_str, end_date_str = str(input).split(' ')
+                start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
+                end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
+                if start_date > end_date: 
+                    print("Start date must be before end date")
+                    raise ValueError()
+                price = self.api_client.calculate_transfer_fees_between_dates(start_date, end_date)
+                print(price)
+            except ValueError:
+                print("Please provide proper start and end dates in format 'YYYY-mm-dd'")
+
     def do_calculate_spot_cost_between_dates(self, input=None):
         """Calculate the price of your Exchange Electricity (spot) contract between a start date and an end date
         The provided dates should be presented in format 'YYYY-mm-dd'
@@ -130,6 +153,12 @@ class HelenCLIPrompt(Cmd):
         """Helper to get the contract base price from your contract data. To see the whole contract data as JSON, use get_contract_data_json"""
         
         base_price = self.api_client.get_contract_base_price()
+        print(base_price)
+
+    def do_get_contract_transfer_fee(self, input=None):
+        """Helper to get the transfer fee price from your contract data. To see the whole contract data as JSON, use get_contract_data_json"""
+        
+        base_price = self.api_client.get_transfer_fee()
         print(base_price)
 
     def do_get_api_access_token(self, input=None):

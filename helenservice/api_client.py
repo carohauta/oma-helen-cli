@@ -12,11 +12,11 @@ from dateutil.relativedelta import relativedelta
 
 # TODO: consider moving all calculation functions somewhere else - they are not related to HelenApiClient
 class HelenApiClient:
-    HELEN_API_URL = "https://api.omahelen.fi/v7"
-    HELEN_API_URL_V8 = "https://api.omahelen.fi/v8"
+    HELEN_API_URL_V14 = "https://api.omahelen.fi/v14"
     MEASUREMENTS_ENDPOINT = "/measurements/electricity"
     SPOT_PRICES_ENDPOINT = MEASUREMENTS_ENDPOINT + "/spot-prices"
     CONTRACT_ENDPOINT = "/contract/list"
+    CONTRACT_QUERY_PARAMS = "include_transfer=true&update=true&include_products=true"
 
     _latest_login_time: datetime = None
     _session: HelenSession = None  
@@ -62,6 +62,23 @@ class HelenApiClient:
             hourly_price_with_tax_and_margin = hourly_price.value+self._margin
             hourly_consumption_costs.append((abs(hourly_price_with_tax_and_margin*hourly_measurement.value)))
         return hourly_consumption_costs
+
+    def calculate_transfer_fees_between_dates(self, start_date: date, end_date: date):
+        """Calculate your total transfer fee costs
+
+        Returns the price in euros
+        """
+        total_consumption = self.get_total_consumption_between_dates(start_date, end_date)
+        transfer_fee = self.get_transfer_fee()
+        total_price = total_consumption * transfer_fee
+        total_price_in_euros = total_price/100
+        return total_price_in_euros
+    
+    def get_total_consumption_between_dates(self, start_date: date, end_date: date) -> float:
+        daily_measurements_response = self.get_daily_measurements_between_dates(start_date, end_date)
+        daily_measurements = list(filter(lambda measurement: measurement.status == 'valid', daily_measurements_response.intervals.electricity[0].measurements))
+        total_consumption = sum(map(lambda measurement: abs(measurement.value), daily_measurements))
+        return total_consumption
 
     def calculate_total_costs_by_spot_prices_between_dates(self, start_date: date, end_date: date):
         """Calculate your total electricity cost with according spot prices by hourly precision
@@ -129,7 +146,7 @@ class HelenApiClient:
             "allow_transfer": "true"
         }
 
-        measurements_url = self.HELEN_API_URL + self.MEASUREMENTS_ENDPOINT
+        measurements_url = self.HELEN_API_URL_V14 + self.MEASUREMENTS_ENDPOINT
         response_json_text = get(
             measurements_url, measurements_params, headers=self._api_request_headers(), timeout=HTTP_READ_TIMEOUT).text
         daily_measurement: MeasurementResponse = MeasurementResponse(
@@ -139,7 +156,7 @@ class HelenApiClient:
 
     @cached(cache=TTLCache(maxsize=2, ttl=3600))
     def get_monthly_measurements_by_year(self, year: int) -> MeasurementResponse:
-        """Get electricity measurements for each month of the on-going year."""
+        """Get electricity measurements for each month of the selected year."""
         
         last_year = year-1
         start_time = f"{last_year}-12-31T22:00:00+00:00"
@@ -153,7 +170,7 @@ class HelenApiClient:
             "allow_transfer": "true"
         }
 
-        measurements_url = self.HELEN_API_URL + self.MEASUREMENTS_ENDPOINT
+        measurements_url = self.HELEN_API_URL_V14 + self.MEASUREMENTS_ENDPOINT
         response_json_text = get(
             measurements_url, measurements_params, headers=self._api_request_headers(), timeout=HTTP_READ_TIMEOUT).text
         monthly_measurement: MeasurementResponse = MeasurementResponse(
@@ -178,7 +195,7 @@ class HelenApiClient:
             "allow_transfer": "true"
         }
 
-        measurements_url = self.HELEN_API_URL + self.MEASUREMENTS_ENDPOINT
+        measurements_url = self.HELEN_API_URL_V14 + self.MEASUREMENTS_ENDPOINT
         response_json_text = get(
             measurements_url, measurements_params, headers=self._api_request_headers(), timeout=HTTP_READ_TIMEOUT).text
         hourly_measurement: MeasurementResponse = MeasurementResponse(
@@ -203,7 +220,7 @@ class HelenApiClient:
             "allow_transfer": "true"
         }
 
-        spot_prices_url = self.HELEN_API_URL_V8 + self.SPOT_PRICES_ENDPOINT
+        spot_prices_url = self.HELEN_API_URL_V14 + self.SPOT_PRICES_ENDPOINT
         response_json_text = get(
             spot_prices_url, spot_prices_params, headers=self._api_request_headers(), timeout=HTTP_READ_TIMEOUT).text
         spot_prices_measurement: SpotPricesResponse = SpotPricesResponse(
@@ -215,11 +232,12 @@ class HelenApiClient:
     def get_contract_data_json(self):
         """Get your contract data."""
 
-        contract_url = self.HELEN_API_URL + self.CONTRACT_ENDPOINT
+        contract_url = self.HELEN_API_URL_V14 + self.CONTRACT_ENDPOINT + "?" + self.CONTRACT_QUERY_PARAMS
         contract_response_dict = get(contract_url, headers=self._api_request_headers(), timeout=HTTP_READ_TIMEOUT).json()
-        self._contract_data_dict = contract_response_dict
-        self._latest_contract = self._get_latest_contract(contract_response_dict)
-        return contract_response_dict
+        contracts_dict = contract_response_dict["contracts"]
+        self._contract_data_dict = contracts_dict
+        self._latest_contract = self._get_latest_contract(contracts_dict)
+        return contracts_dict
 
     def get_delivery_site_id(self) -> int:
         """Get the delivery site id from your contract data."""
@@ -254,6 +272,22 @@ class HelenApiClient:
         energy_unit_price_component = next(filter(lambda component: component["name"] == "Energia", components), None)
         if energy_unit_price_component is None: raise InvalidApiResponseException("Could not resolve energy unit price from Helen API contract response")
         return energy_unit_price_component["price"]
+
+    def get_transfer_fee(self) -> int:
+        """Get the transfer fee price (c/kWh) from your contract data."""
+
+        self.get_contract_data_json()
+        contract = self._latest_contract
+        if not contract: raise InvalidApiResponseException("Contract data is empty or None")
+        products = contract["products"] if contract else []
+        product = products[0] if products else None
+        if not product: raise InvalidApiResponseException("Product data is empty or None")
+        components = product["components"] if product else []
+        transfer_fee_component = next(filter(lambda component: component["name"] == "Siirtomaksu", components), None)
+        if transfer_fee_component is None: 
+            logging.warn("Could not resolve transfer fees from Helen API response. Returning 0.0")
+            return 0.0
+        return transfer_fee_component["price"]
 
     def get_api_access_token(self):
         return self._session.get_access_token()
