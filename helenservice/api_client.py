@@ -240,20 +240,20 @@ class HelenApiClient:
         contract_response_dict = get(contract_url, headers=self._api_request_headers(), timeout=HTTP_READ_TIMEOUT, params=contract_params).json()
         contracts_dict = contract_response_dict["contracts"]
         self._contract_data_dict = contracts_dict
-        self._latest_contract = self._get_latest_contract(contracts_dict)
+        self._latest_active_contract = self._get_latest_active_contract(contracts_dict)
         return contracts_dict
 
     def get_delivery_site_id(self) -> int:
         """Get the delivery site id from your contract data."""
 
         self.get_contract_data_json()
-        return self._latest_contract["delivery_site"]["id"]
+        return self._latest_active_contract["delivery_site"]["id"]
 
     def get_contract_base_price(self) -> float:
         """Get the contract base price from your contract data."""
 
         self.get_contract_data_json()
-        contract = self._latest_contract
+        contract = self._latest_active_contract
         if not contract: raise InvalidApiResponseException("Contract data is empty or None")
         products = contract["products"] if contract else []
         product = next(filter(lambda p: p["product_type"] == "energy", products), None) 
@@ -274,7 +274,7 @@ class HelenApiClient:
         """
         
         self.get_contract_data_json()
-        contract = self._latest_contract
+        contract = self._latest_active_contract
         if not contract: raise InvalidApiResponseException("Contract data is empty or None")
         products = contract["products"] if contract else []
         product = next(filter(lambda p: p["product_type"] == "energy", products), None) 
@@ -293,7 +293,7 @@ class HelenApiClient:
         """Get the transfer fee price (c/kWh) from your contract data. Returns '0.0' if Helen is not your transfer company"""
 
         self.get_contract_data_json()
-        contract = self._latest_contract
+        contract = self._latest_active_contract
         if not contract: raise InvalidApiResponseException("Contract data is empty or None")
         products = contract["products"] if contract else []
         product = next(filter(lambda p: p["product_type"] == "transfer", products), None) 
@@ -311,7 +311,7 @@ class HelenApiClient:
         """Get the transfer base price (eur) from your contract data. Returns '0.0' if Helen is not your transfer company"""
 
         self.get_contract_data_json()
-        contract = self._latest_contract
+        contract = self._latest_active_contract
         if not contract: raise InvalidApiResponseException("Contract data is empty or None")
         products = contract["products"] if contract else []
         product = next(filter(lambda p: p["product_type"] == "transfer", products), None) 
@@ -337,7 +337,7 @@ class HelenApiClient:
     def set_margin(self, margin: float):
         self._margin = margin
 
-    def _get_latest_contract(self, contracts):
+    def _get_latest_active_contract(self, contracts):
         """
         Resolves an active contract from a list of contracts. If there are multiple active contracts, will
         return the newest one.
