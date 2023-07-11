@@ -44,7 +44,7 @@ Deactivate venv when not needed: `deactivate`
 | calculate_the_impact_of_usage_between_dates | Calculates your impact of usage (in c/kwh) between given dates for the Helen Smart Electricity Guarantee |
 | calculate_spot_cost_between_dates | Calculates the total costs (eur) between given dates of a spot price contract in an hourly precision |
 | get_exchange_margin_price_json | Get the margin price of the Exchange Electricity contract |
-| get_contract_energy_unit_price | Get the energy unit price (c/kwh) from your contract data |
+| get_contract_energy_unit_price | Get the energy unit price (c/kwh) from your contract data. Note that this only works for fixed price contracts. For spot electricity contract, this returns 0.0 |
 | get_contract_transfer_fee      | Get the transfer fees (c/kwh) from your contract. Note that if Helen is not your transfer company, this returns 0.0 |
 | calculate_transfer_fees_between_dates | Calculates total transfer fees (eur) based on your consumption between dates |
 | get_contract_transfer_base_price | Get the monthly transfer base price (eur) from your contract. Note that if Helen is not your transfer company, this returns 0.0 |

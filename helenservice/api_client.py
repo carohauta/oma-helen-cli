@@ -270,7 +270,7 @@ class HelenApiClient:
     def get_contract_energy_unit_price(self) -> float:
         """
         Get the fixed unit price for electricity from your contract data. Returns '0.0' for spot electricity contracts
-        because in the price is not fixed in your contract when using spot.
+        because the price is not fixed in your contract when using spot.
         """
         
         self.get_contract_data_json()
