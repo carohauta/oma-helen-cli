@@ -47,6 +47,6 @@ setup(
     include_package_data=True,
     packages=find_packages(include=['helenservice', 'helenservice.*']),
     url='https://github.com/carohauta/oma-helen-cli',
-    version='1.1.0',
+    version='1.1.1',
     zip_safe=False,
 )
