@@ -343,6 +343,7 @@ class HelenApiClient:
         return the newest one.
         """
         active_contracts = list(filter(lambda contract: contract["end_date"] == None or self._date_is_now_or_later(contract["end_date"]), contracts))
+        active_contracts = list(filter(lambda contract: contract["domain"] != "electricity-production", active_contracts))
         if active_contracts.__len__() > 1:
             logging.warn("Found multiple active Helen contracts. Using the newest one.")
             active_contracts.sort(key=lambda contract: datetime.strptime(contract["start_date"], '%Y-%m-%dT%H:%M:%S'), reverse=True)
