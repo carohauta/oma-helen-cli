@@ -18,8 +18,11 @@ class MeasurementData(object):
 
 
 class MeasurementIntervals(object):
-    def __init__(self, electricity: List):
-        self.electricity = list(map(lambda e: MeasurementData(**e), electricity))
+    def __init__(self, electricity: List = None, electricity_transfer: List = None):
+        if electricity is not None:
+            self.electricity = list(map(lambda e: MeasurementData(**e), electricity))
+        elif electricity_transfer is not None:
+            self.electricity = list(map(lambda e: MeasurementData(**e), electricity_transfer))
 
 
 class MeasurementResponse(object):
