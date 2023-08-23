@@ -14,6 +14,7 @@ from dateutil.relativedelta import relativedelta
 class HelenApiClient:
     HELEN_API_URL_V14 = "https://api.omahelen.fi/v14"
     MEASUREMENTS_ENDPOINT = "/measurements/electricity"
+    TRANSFER_ENDPOINT = "/measurements/electricity-transfer"
     SPOT_PRICES_ENDPOINT = MEASUREMENTS_ENDPOINT + "/spot-prices"
     CONTRACT_ENDPOINT = "/contract/list"
 
@@ -145,7 +146,8 @@ class HelenApiClient:
             "allow_transfer": "true"
         }
 
-        measurements_url = self.HELEN_API_URL_V14 + self.MEASUREMENTS_ENDPOINT
+        measurements_url = self._get_measurements_endpoint()
+
         response_json_text = get(
             measurements_url, measurements_params, headers=self._api_request_headers(), timeout=HTTP_READ_TIMEOUT).text
         daily_measurement: MeasurementResponse = MeasurementResponse(
@@ -169,7 +171,7 @@ class HelenApiClient:
             "allow_transfer": "true"
         }
 
-        measurements_url = self.HELEN_API_URL_V14 + self.MEASUREMENTS_ENDPOINT
+        measurements_url = self._get_measurements_endpoint()
         response_json_text = get(
             measurements_url, measurements_params, headers=self._api_request_headers(), timeout=HTTP_READ_TIMEOUT).text
         monthly_measurement: MeasurementResponse = MeasurementResponse(
@@ -194,7 +196,7 @@ class HelenApiClient:
             "allow_transfer": "true"
         }
 
-        measurements_url = self.HELEN_API_URL_V14 + self.MEASUREMENTS_ENDPOINT
+        measurements_url = self._get_measurements_endpoint()
         response_json_text = get(
             measurements_url, measurements_params, headers=self._api_request_headers(), timeout=HTTP_READ_TIMEOUT).text
         hourly_measurement: MeasurementResponse = MeasurementResponse(
@@ -356,3 +358,8 @@ class HelenApiClient:
         end_date = datetime.strptime(end_date_str, '%Y-%m-%dT%H:%M:%S')
         now = datetime.now()
         return end_date >= now
+    
+    def _get_measurements_endpoint(self):
+        if 'domain' in self._latest_active_contract and self._latest_active_contract['domain'] == 'electricity-transfer':
+            return self.HELEN_API_URL_V14 + self.TRANSFER_ENDPOINT
+        return self.HELEN_API_URL_V14 + self.MEASUREMENTS_ENDPOINT
