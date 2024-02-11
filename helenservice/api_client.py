@@ -21,6 +21,7 @@ class HelenApiClient:
     _latest_login_time: datetime = None
     _session: HelenSession = None  
     _margin: float = None
+    _delivery_site_id: int = None
 
     def __init__(self, tax: float = None, margin: float = None):
         self._tax = 0.24 if tax is None else tax
@@ -251,6 +252,10 @@ class HelenApiClient:
         self.get_contract_data_json()
         return self._latest_active_contract["delivery_site"]["id"]
 
+    def set_delivery_site_id(self, delivery_site_id: int = None):
+        """Set delivery site id to be used instead of the latest active one."""
+        self._delivery_site_id = delivery_site_id
+
     def get_contract_base_price(self) -> float:
         """Get the contract base price from your contract data."""
 
@@ -346,6 +351,10 @@ class HelenApiClient:
         """
         active_contracts = list(filter(lambda contract: contract["end_date"] == None or self._date_is_now_or_later(contract["end_date"]), contracts))
         active_contracts = list(filter(lambda contract: contract["domain"] != "electricity-production", active_contracts))
+        if self._delivery_site_id:
+            active_contracts = list(filter(
+                lambda contract: contract["delivery_site"]["id"] == self._delivery_site_id,
+                active_contracts))
         if active_contracts.__len__() > 1:
             logging.warn("Found multiple active Helen contracts. Using the newest one.")
             active_contracts.sort(key=lambda contract: datetime.strptime(contract["start_date"], '%Y-%m-%dT%H:%M:%S'), reverse=True)
