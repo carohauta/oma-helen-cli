@@ -18,7 +18,7 @@ class HelenCLIPrompt(Cmd):
 
     helen_price_client = HelenPriceClient()
 
-    tax = 0.1 # 10%
+    tax = 0.24 # 24%
     margin = helen_price_client.get_exchange_prices().margin
     api_client = HelenApiClient(tax, margin)
 
@@ -178,6 +178,20 @@ class HelenCLIPrompt(Cmd):
 
         contract_energy_unit_price = self.api_client.get_contract_energy_unit_price()
         print(contract_energy_unit_price)
+
+    def do_set_delivery_site_id(self, input=None):
+        """
+        Set a fixed delivery site id in the api_client. After setting a delivery_site_id, all measurement and contract requests will be 
+        about this delivery site.
+        """
+
+        self.api_client.set_delivery_site_id_if_valid(input)
+
+    def do_get_all_delivery_sites(self, input=None):
+        """Get all delivery site ids across your active contracts."""
+
+        delivery_sites = self.api_client.get_all_delivery_site_ids()
+        print(delivery_sites)
 
 def main():
     print("Log in to Oma Helen")

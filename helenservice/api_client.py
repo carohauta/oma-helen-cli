@@ -22,6 +22,8 @@ class HelenApiClient:
     _session: HelenSession = None  
     _margin: float = None
     _delivery_site_id: int = None
+    _latest_active_contract = None
+    _all_active_contracts = None
 
     def __init__(self, tax: float = None, margin: float = None):
         self._tax = 0.24 if tax is None else tax
@@ -242,19 +244,36 @@ class HelenApiClient:
         }
         contract_response_dict = get(contract_url, headers=self._api_request_headers(), timeout=HTTP_READ_TIMEOUT, params=contract_params).json()
         contracts_dict = contract_response_dict["contracts"]
-        self._contract_data_dict = contracts_dict
-        self._latest_active_contract = self._get_latest_active_contract(contracts_dict)
+        self._all_active_contracts = self._get_all_active_contracts(contracts_dict)
+        self._latest_active_contract = self._get_latest_active_contract_or_contract_by_delivery_site_id(contracts_dict)
         return contracts_dict
 
     def get_delivery_site_id(self) -> int:
         """Get the delivery site id from your contract data."""
 
         self.get_contract_data_json()
+        if not self._latest_active_contract:
+            logging.error(f"No active contracts found for delivery_site_id '{self._delivery_site_id}'")
+            return 0
         return self._latest_active_contract["delivery_site"]["id"]
+    
+    def get_all_delivery_site_ids(self) -> int:
+        """Get all delivery site ids from your contracts."""
 
-    def set_delivery_site_id(self, delivery_site_id: int = None):
+        self.get_contract_data_json()
+        delivery_sites = list(map(lambda contract: contract["delivery_site"]["id"], self._all_active_contracts))
+        return delivery_sites
+
+    def set_delivery_site_id_if_valid(self, delivery_site_id: int = None):
         """Set delivery site id to be used instead of the latest active one."""
-        self._delivery_site_id = delivery_site_id
+        delivery_sites = self.get_all_delivery_site_ids()
+        found_delivery_site_id = next(filter(lambda id: str(id) == delivery_site_id, delivery_sites), None)
+        if not found_delivery_site_id:
+            logging.error(f"Cannot set '{delivery_site_id}' because it does not exist in the active delivery sites list '{delivery_sites}'")
+            return
+        self._delivery_site_id = found_delivery_site_id
+        self._invalidate_caches()
+        logging.warn(f"Delivery site set to '{delivery_site_id}'")
 
     def get_contract_base_price(self) -> float:
         """Get the contract base price from your contract data."""
@@ -334,6 +353,14 @@ class HelenApiClient:
 
     def get_api_access_token(self):
         return self._session.get_access_token()
+    
+    def _invalidate_caches(self):
+        self.get_daily_measurements_between_dates.cache_clear()
+        self.get_monthly_measurements_by_year.cache_clear()
+        self.get_hourly_measurements_between_dates.cache_clear()
+        self.get_hourly_spot_prices_between_dates.cache_clear()
+        self.get_contract_data_json.cache_clear()
+        
 
     def _api_request_headers(self):
         return {
@@ -344,13 +371,20 @@ class HelenApiClient:
     def set_margin(self, margin: float):
         self._margin = margin
 
-    def _get_latest_active_contract(self, contracts):
+    def _get_all_active_contracts(self, contracts):
         """
-        Resolves an active contract from a list of contracts. If there are multiple active contracts, will
-        return the newest one.
+        Find all active contracts from a list of contracts
         """
         active_contracts = list(filter(lambda contract: contract["end_date"] == None or self._date_is_now_or_later(contract["end_date"]), contracts))
         active_contracts = list(filter(lambda contract: contract["domain"] != "electricity-production", active_contracts))
+        return active_contracts
+
+    def _get_latest_active_contract_or_contract_by_delivery_site_id(self, contracts):
+        """
+        Resolves an active contract from a list of contracts. If there are multiple active contracts, will
+        return the newest one. If self._delivery_site_id has been set, will find a contract by that id.
+        """
+        active_contracts = self._get_all_active_contracts(contracts)
         if self._delivery_site_id:
             active_contracts = list(filter(
                 lambda contract: contract["delivery_site"]["id"] == self._delivery_site_id,
