@@ -8,14 +8,15 @@ You can also retrieve your API `access-token` with the `get_access_token` functi
 
 Oma Helen is the user portal for a Finnish electricity company, Helen Oy.
 
-### How to use and develop
+### How to install and use
 
-Install from [pypi](https://pypi.org/project/oma-helen-cli/): 
+Install from [pypi](https://pypi.org/project/oma-helen-cli/) and run: 
 ```sh
 pip install oma-helen-cli
+oma-helen-cli
 ```
 
-#### Installing from sources and running the project
+### Installing from sources and running the project for local development
 
 First clone this repo.
 
@@ -30,7 +31,7 @@ Use virtual env to keep the project isolated. Developed using Python 3.9.9
 
 Deactivate venv when not needed: `deactivate`
 
-#### Available functions
+### Available functions
 
 | Function name                 | What it does |
 |-------------------------------|--------------|
