@@ -34,7 +34,7 @@ class HelenApiClient:
         """Login to Oma Helen. Creates a new session when called."""
         self._session = HelenSession().login(username, password)
         self._latest_login_time = datetime.now()
-        self.refresh_api_client_state()
+        self._refresh_api_client_state()
         return self
 
     def is_session_valid(self):
@@ -249,22 +249,10 @@ class HelenApiClient:
 
         return contracts_dict
     
-    def refresh_api_client_state(self):
-        contracts = self.get_contract_data_json()
-        self._all_active_contracts = self._get_all_active_contracts(contracts)
-
-        if self._selected_delivery_site_id is None:
-            latest_active_contract = self._get_latest_contract(self._all_active_contracts)
-            self._selected_contract = latest_active_contract
-            self._selected_delivery_site_id = latest_active_contract["delivery_site"]["id"]
-        else:
-            selected_active_contract = self._get_contract_by_delivery_site_id(self._all_active_contracts, self._selected_delivery_site_id)
-            self._selected_contract = selected_active_contract
-    
     def get_all_delivery_site_ids(self) -> int:
         """Get all delivery site ids from your contracts."""
 
-        self.refresh_api_client_state()
+        self._refresh_api_client_state()
         delivery_sites = list(map(lambda contract: contract["delivery_site"]["id"], self._all_active_contracts))
         return delivery_sites
 
@@ -276,14 +264,14 @@ class HelenApiClient:
             logging.error(f"Cannot set '{delivery_site_id}' because it does not exist in the active delivery sites list '{delivery_sites}'")
             return
         self._selected_delivery_site_id = found_delivery_site_id
-        self.refresh_api_client_state()
+        self._refresh_api_client_state()
         self._invalidate_caches()
         logging.warn(f"Delivery site set to '{delivery_site_id}'")
 
     def get_contract_base_price(self) -> float:
         """Get the contract base price from your contract data."""
 
-        self.refresh_api_client_state()
+        self._refresh_api_client_state()
         contract = self._selected_contract
         if not contract: raise InvalidApiResponseException("Contract data is empty or None")
         products = contract["products"] if contract else []
@@ -304,7 +292,7 @@ class HelenApiClient:
         because the price is not fixed in your contract when using spot.
         """
         
-        self.refresh_api_client_state()
+        self._refresh_api_client_state()
         contract = self._selected_contract
         if not contract: raise InvalidApiResponseException("Contract data is empty or None")
         products = contract["products"] if contract else []
@@ -323,7 +311,7 @@ class HelenApiClient:
     def get_transfer_fee(self) -> float:
         """Get the transfer fee price (c/kWh) from your contract data. Returns '0.0' if Helen is not your transfer company"""
 
-        self.refresh_api_client_state()
+        self._refresh_api_client_state()
         contract = self._selected_contract
         if not contract: raise InvalidApiResponseException("Contract data is empty or None")
         products = contract["products"] if contract else []
@@ -341,7 +329,7 @@ class HelenApiClient:
     def get_transfer_base_price(self) -> float:
         """Get the transfer base price (eur) from your contract data. Returns '0.0' if Helen is not your transfer company"""
 
-        self.refresh_api_client_state()
+        self._refresh_api_client_state()
         contract = self._selected_contract
         if not contract: raise InvalidApiResponseException("Contract data is empty or None")
         products = contract["products"] if contract else []
@@ -359,13 +347,24 @@ class HelenApiClient:
     def get_api_access_token(self):
         return self._session.get_access_token()
     
+    def _refresh_api_client_state(self):
+        contracts = self.get_contract_data_json()
+        self._all_active_contracts = self._get_all_active_contracts(contracts)
+
+        if self._selected_delivery_site_id is None:
+            latest_active_contract = self._get_latest_contract(self._all_active_contracts)
+            self._selected_contract = latest_active_contract
+            self._selected_delivery_site_id = latest_active_contract["delivery_site"]["id"]
+        else:
+            selected_active_contract = self._get_contract_by_delivery_site_id(self._all_active_contracts, self._selected_delivery_site_id)
+            self._selected_contract = selected_active_contract
+    
     def _invalidate_caches(self):
         self.get_daily_measurements_between_dates.cache_clear()
         self.get_monthly_measurements_by_year.cache_clear()
         self.get_hourly_measurements_between_dates.cache_clear()
         self.get_hourly_spot_prices_between_dates.cache_clear()
         self.get_contract_data_json.cache_clear()
-        
 
     def _api_request_headers(self):
         return {
