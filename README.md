@@ -2,8 +2,6 @@
 
 An interactive CLI that logs into [Oma Helen](https://www.helen.fi/kirjautuminen) and offers functions to get contract data or electricity measurement data in JSON format.
 
-You can also retrieve your API `access-token` with the `get_access_token` function of the CLI in case you wish to make some other API calls that are not provided by the CLI tool (see the [Making a request](#making-a-request) example below). Note that the token is valid for only one hour from the login.
-
 ### What is Oma Helen?
 
 Oma Helen is the user portal for a Finnish electricity company, Helen Oy.
@@ -24,7 +22,7 @@ Tip: in order to list all the commands within the CLI, enter `?`
 
 | Function name                 | What it does |
 |-------------------------------|--------------|
-| get_api_access_token          | Get the access token to the Oma Helen API. With the token, you can make queries to your own contracts and data in Oma Helen |
+| get_api_access_token          | Get the access token to the Oma Helen API. With the token, you can make manual curl requests to the API |
 | get_contract_base_price       | Get the monthly base price of your current electricity contract |
 | get_contract_data_json        | Returns the whole contract data as JSON. Will return all active contracts you have with Helen |
 | get_daily_measurements_json   | Returns your daily energy consumption for the on-going month of the on-going year as JSON |
