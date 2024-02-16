@@ -16,6 +16,10 @@ pip install oma-helen-cli
 oma-helen-cli
 ```
 
+Then just enter you Oma Helen credentials and start entering commands. 
+
+Tip: in order to list all the commands within the CLI, enter `?`
+
 ### Available functions
 
 | Function name                 | What it does |
