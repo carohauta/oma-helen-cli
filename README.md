@@ -37,7 +37,6 @@ Deactivate venv when not needed: `deactivate`
 | get_api_access_token          | Get the access token to the Oma Helen API. With the token, you can make queries to your own contracts and data in Oma Helen |
 | get_contract_base_price       | Get the monthly base price of your current electricity contract |
 | get_contract_data_json        | Returns the whole contract data as JSON. Will return all active contracts you have with Helen |
-| get_contract_delivery_site_id | Get the delivery site id from the contract data |
 | get_daily_measurements_json   | Returns your daily energy consumption for the on-going month of the on-going year as JSON |
 | get_market_prices_json        | Returns the prices for the Market Price Electricity contract as JSON. The JSON includes the price for last month, the current month and next month if available |
 | get_monthly_measurements_json | Returns your monthly energy consumption for the on-going year as JSON |
@@ -48,6 +47,8 @@ Deactivate venv when not needed: `deactivate`
 | get_contract_transfer_fee      | Get the transfer fees (c/kwh) from your contract. Note that if Helen is not your transfer company, this returns 0.0 |
 | calculate_transfer_fees_between_dates | Calculates total transfer fees (eur) based on your consumption between dates |
 | get_contract_transfer_base_price | Get the monthly transfer base price (eur) from your contract. Note that if Helen is not your transfer company, this returns 0.0 |
+| get_all_delivery_sites | Get all delivery sites across your active contracts |
+| select_delivery_site | Selects a delivery site by id for the CLI to use. Useful if you have multiple contracts with Helen. Use `get_all_delivery_sites` to find out all your delivery sites. After selecting a delivery site, all measurements and other requested data will be about the selected delivery site. |
 
 ### Oma Helen API example
 
