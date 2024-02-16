@@ -16,21 +16,6 @@ pip install oma-helen-cli
 oma-helen-cli
 ```
 
-### Installing from sources and running the project for local development
-
-First clone this repo.
-
-Use virtual env to keep the project isolated. Developed using Python 3.9.9
-
-1. In the project root folder run `python -m venv .venv`
-2. Activate the venv with `source .venv/bin/activate`
-3. Install requirements `pip install -r requirements.txt`
-4. Launch the CLI as a python module `python -m helenservice.cli`
-5. Enter your username and password as they are prompted
-6. Type `?` into the CLI prompt to see all available functions
-
-Deactivate venv when not needed: `deactivate`
-
 ### Available functions
 
 | Function name                 | What it does |
@@ -50,3 +35,18 @@ Deactivate venv when not needed: `deactivate`
 | get_contract_transfer_base_price | Get the monthly transfer base price (eur) from your contract. Note that if Helen is not your transfer company, this returns 0.0 |
 | get_all_delivery_sites | Get all delivery sites across your active contracts |
 | select_delivery_site | Selects a delivery site by id for the CLI to use. Useful if you have multiple contracts with Helen. Use `get_all_delivery_sites` to find out all your delivery sites. After selecting a delivery site, all measurements and other requested data will be about the selected delivery site. |
+
+### Installing from sources and running the project for local development
+
+First clone this repo.
+
+Use virtual env to keep the project isolated. Developed using Python 3.9.9
+
+1. In the project root folder run `python -m venv .venv`
+2. Activate the venv with `source .venv/bin/activate`
+3. Install requirements `pip install -r requirements.txt`
+4. Launch the CLI as a python module `python -m helenservice.cli`
+5. Enter your username and password as they are prompted
+6. Type `?` into the CLI prompt to see all available functions
+
+Deactivate venv when not needed: `deactivate`
