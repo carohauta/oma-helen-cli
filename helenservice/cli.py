@@ -25,7 +25,7 @@ class HelenCLIPrompt(Cmd):
 
     def __init__(self, username, password):
         super(HelenCLIPrompt, self).__init__()
-        self.api_client.login(username, password)
+        self.api_client.login_and_init(username, password)
 
     def do_exit(self, input=None):
         """Exit the CLI"""
@@ -123,7 +123,7 @@ class HelenCLIPrompt(Cmd):
         print(daily_measurements_json)
 
     def do_get_contract_data_json(self, input=None):
-        """Get the whole contract data as JSON"""
+        """Get all your contracts as JSON (includes terminated contracts)"""
 
         contract_data_json = self.api_client.get_contract_data_json()
         contract_data_json_pretty = json.dumps(contract_data_json, default=lambda o: o.__dict__, indent=2)
@@ -142,12 +142,6 @@ class HelenCLIPrompt(Cmd):
         price = self.helen_price_client.get_exchange_prices()
         price_json = json.dumps(price, default=_json_serializer, indent=2)
         print(price_json)
-
-    def do_get_contract_delivery_site_id(self, input=None):
-        """Helper to get the delivery site id from your contract data. To see the whole contract data as JSON, use get_contract_data_json"""
-        
-        site_id = self.api_client.get_delivery_site_id()
-        print(site_id)
 
     def do_get_contract_base_price(self, input=None):
         """Helper to get the contract base price from your contract data. To see the whole contract data as JSON, use get_contract_data_json"""
@@ -179,13 +173,12 @@ class HelenCLIPrompt(Cmd):
         contract_energy_unit_price = self.api_client.get_contract_energy_unit_price()
         print(contract_energy_unit_price)
 
-    def do_set_delivery_site_id(self, input=None):
+    def do_select_delivery_site(self, input=None):
         """
-        Set a fixed delivery site id in the api_client. After setting a delivery_site_id, all measurement and contract requests will be 
-        about this delivery site.
+        Select a delivery site to be used in the api_client. After setting, all measurement requests will be about this delivery site. Useful if you have multiple contracts. 
         """
 
-        self.api_client.set_delivery_site_id_if_valid(input)
+        self.api_client.select_delivery_site_if_valid_id(input)
 
     def do_get_all_delivery_sites(self, input=None):
         """Get all delivery site ids across your active contracts."""

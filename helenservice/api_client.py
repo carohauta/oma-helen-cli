@@ -8,6 +8,7 @@ from .const import HTTP_READ_TIMEOUT
 from .helen_session import HelenSession
 from requests import get
 from dateutil.relativedelta import relativedelta
+from itertools import groupby
 
 
 # TODO: consider moving all calculation functions somewhere else - they are not related to HelenApiClient
@@ -21,18 +22,19 @@ class HelenApiClient:
     _latest_login_time: datetime = None
     _session: HelenSession = None  
     _margin: float = None
-    _delivery_site_id: int = None
-    _latest_active_contract = None
+    _selected_delivery_site_id: int = None
+    _selected_contract = None
     _all_active_contracts = None
 
     def __init__(self, tax: float = None, margin: float = None):
         self._tax = 0.24 if tax is None else tax
         self._margin = 0.38 if margin is None else margin
 
-    def login(self, username, password):
+    def login_and_init(self, username, password):
         """Login to Oma Helen. Creates a new session when called."""
         self._session = HelenSession().login(username, password)
         self._latest_login_time = datetime.now()
+        self.refresh_api_client_state()
         return self
 
     def is_session_valid(self):
@@ -140,7 +142,7 @@ class HelenApiClient:
         previous_day = start + relativedelta(days=-1)
         start_time = f"{previous_day}T22:00:00+00:00"
         end_time = f"{end}T21:59:59+00:00"
-        delivery_site_id = self.get_delivery_site_id()
+        delivery_site_id = self._selected_delivery_site_id
         measurements_params = {
             "begin": start_time,
             "end": end_time,
@@ -165,7 +167,7 @@ class HelenApiClient:
         last_year = year-1
         start_time = f"{last_year}-12-31T22:00:00+00:00"
         end_time = f"{year}-12-31T21:59:59+00:00"
-        delivery_site_id = self.get_delivery_site_id()
+        delivery_site_id = self._selected_delivery_site_id
         measurements_params = {
             "begin": start_time,
             "end": end_time,
@@ -190,7 +192,7 @@ class HelenApiClient:
         previous_day = start + relativedelta(days=-1)
         start_time = f"{previous_day}T22:00:00+00:00"
         end_time = f"{end}T21:59:59+00:00"
-        delivery_site_id = self.get_delivery_site_id()
+        delivery_site_id = self._selected_delivery_site_id
         measurements_params = {
             "begin": start_time,
             "end": end_time,
@@ -215,7 +217,7 @@ class HelenApiClient:
         previous_day = start + relativedelta(days=-1)
         start_time = f"{previous_day}T22:00:00+00:00"
         end_time = f"{end}T21:59:59+00:00"
-        delivery_site_id = self.get_delivery_site_id()
+        delivery_site_id = self._selected_delivery_site_id
         spot_prices_params = {
             "begin": start_time,
             "end": end_time,
@@ -244,42 +246,45 @@ class HelenApiClient:
         }
         contract_response_dict = get(contract_url, headers=self._api_request_headers(), timeout=HTTP_READ_TIMEOUT, params=contract_params).json()
         contracts_dict = contract_response_dict["contracts"]
-        self._all_active_contracts = self._get_all_active_contracts(contracts_dict)
-        self._latest_active_contract = self._get_latest_active_contract_or_contract_by_delivery_site_id(contracts_dict)
+
         return contracts_dict
+    
+    def refresh_api_client_state(self):
+        contracts = self.get_contract_data_json()
+        self._all_active_contracts = self._get_all_active_contracts(contracts)
 
-    def get_delivery_site_id(self) -> int:
-        """Get the delivery site id from your contract data."""
-
-        self.get_contract_data_json()
-        if not self._latest_active_contract:
-            logging.error(f"No active contracts found for delivery_site_id '{self._delivery_site_id}'")
-            return 0
-        return self._latest_active_contract["delivery_site"]["id"]
+        if self._selected_delivery_site_id is None:
+            latest_active_contract = self._get_latest_contract(self._all_active_contracts)
+            self._selected_contract = latest_active_contract
+            self._selected_delivery_site_id = latest_active_contract["delivery_site"]["id"]
+        else:
+            selected_active_contract = self._get_contract_by_delivery_site_id(self._all_active_contracts, self._selected_delivery_site_id)
+            self._selected_contract = selected_active_contract
     
     def get_all_delivery_site_ids(self) -> int:
         """Get all delivery site ids from your contracts."""
 
-        self.get_contract_data_json()
+        self.refresh_api_client_state()
         delivery_sites = list(map(lambda contract: contract["delivery_site"]["id"], self._all_active_contracts))
         return delivery_sites
 
-    def set_delivery_site_id_if_valid(self, delivery_site_id: int = None):
-        """Set delivery site id to be used instead of the latest active one."""
+    def select_delivery_site_if_valid_id(self, delivery_site_id: int = None):
+        """Select a delivery site to be used when querying data."""
         delivery_sites = self.get_all_delivery_site_ids()
         found_delivery_site_id = next(filter(lambda id: str(id) == delivery_site_id, delivery_sites), None)
         if not found_delivery_site_id:
             logging.error(f"Cannot set '{delivery_site_id}' because it does not exist in the active delivery sites list '{delivery_sites}'")
             return
-        self._delivery_site_id = found_delivery_site_id
+        self._selected_delivery_site_id = found_delivery_site_id
+        self.refresh_api_client_state()
         self._invalidate_caches()
         logging.warn(f"Delivery site set to '{delivery_site_id}'")
 
     def get_contract_base_price(self) -> float:
         """Get the contract base price from your contract data."""
 
-        self.get_contract_data_json()
-        contract = self._latest_active_contract
+        self.refresh_api_client_state()
+        contract = self._selected_contract
         if not contract: raise InvalidApiResponseException("Contract data is empty or None")
         products = contract["products"] if contract else []
         product = next(filter(lambda p: p["product_type"] == "energy", products), None) 
@@ -299,8 +304,8 @@ class HelenApiClient:
         because the price is not fixed in your contract when using spot.
         """
         
-        self.get_contract_data_json()
-        contract = self._latest_active_contract
+        self.refresh_api_client_state()
+        contract = self._selected_contract
         if not contract: raise InvalidApiResponseException("Contract data is empty or None")
         products = contract["products"] if contract else []
         product = next(filter(lambda p: p["product_type"] == "energy", products), None) 
@@ -318,8 +323,8 @@ class HelenApiClient:
     def get_transfer_fee(self) -> float:
         """Get the transfer fee price (c/kWh) from your contract data. Returns '0.0' if Helen is not your transfer company"""
 
-        self.get_contract_data_json()
-        contract = self._latest_active_contract
+        self.refresh_api_client_state()
+        contract = self._selected_contract
         if not contract: raise InvalidApiResponseException("Contract data is empty or None")
         products = contract["products"] if contract else []
         product = next(filter(lambda p: p["product_type"] == "transfer", products), None) 
@@ -336,8 +341,8 @@ class HelenApiClient:
     def get_transfer_base_price(self) -> float:
         """Get the transfer base price (eur) from your contract data. Returns '0.0' if Helen is not your transfer company"""
 
-        self.get_contract_data_json()
-        contract = self._latest_active_contract
+        self.refresh_api_client_state()
+        contract = self._selected_contract
         if not contract: raise InvalidApiResponseException("Contract data is empty or None")
         products = contract["products"] if contract else []
         product = next(filter(lambda p: p["product_type"] == "transfer", products), None) 
@@ -379,15 +384,14 @@ class HelenApiClient:
         active_contracts = list(filter(lambda contract: contract["domain"] != "electricity-production", active_contracts))
         return active_contracts
 
-    def _get_latest_active_contract_or_contract_by_delivery_site_id(self, contracts):
+    def _get_contract_by_delivery_site_id(self, contracts, delivery_site_id):
         """
-        Resolves an active contract from a list of contracts. If there are multiple active contracts, will
-        return the newest one. If self._delivery_site_id has been set, will find a contract by that id.
+        Finds a contract from a list of contracts by delivery_site_id.
         """
         active_contracts = self._get_all_active_contracts(contracts)
-        if self._delivery_site_id:
+        if self._selected_delivery_site_id:
             active_contracts = list(filter(
-                lambda contract: contract["delivery_site"]["id"] == self._delivery_site_id,
+                lambda contract: contract["delivery_site"]["id"] == self._selected_delivery_site_id,
                 active_contracts))
         if active_contracts.__len__() > 1:
             logging.warn("Found multiple active Helen contracts. Using the newest one.")
@@ -397,12 +401,22 @@ class HelenApiClient:
             return None
         return active_contracts[0]
     
+    def _get_latest_contract(self, contracts):
+        """
+        Resolves the latest contract from a list of contracts.
+        """
+        if contracts.__len__() == 0:
+            logging.error("No contracts found")
+            return None
+        contracts.sort(key=lambda contract: datetime.strptime(contract["start_date"], '%Y-%m-%dT%H:%M:%S'), reverse=True)
+        return contracts[0]
+    
     def _date_is_now_or_later(self, end_date_str):
         end_date = datetime.strptime(end_date_str, '%Y-%m-%dT%H:%M:%S')
         now = datetime.now()
         return end_date >= now
     
     def _get_measurements_endpoint(self):
-        if 'domain' in self._latest_active_contract and self._latest_active_contract['domain'] == 'electricity-transfer':
+        if 'domain' in self._selected_contract and self._selected_contract['domain'] == 'electricity-transfer':
             return self.HELEN_API_URL_V14 + self.TRANSFER_ENDPOINT
         return self.HELEN_API_URL_V14 + self.MEASUREMENTS_ENDPOINT
