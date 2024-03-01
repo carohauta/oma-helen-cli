@@ -1,3 +1,4 @@
+from typing import List
 from cachetools import cached, TTLCache
 import json, logging
 from datetime import date, datetime, timedelta
@@ -22,7 +23,7 @@ class HelenApiClient:
     _latest_login_time: datetime = None
     _session: HelenSession = None  
     _margin: float = None
-    _selected_delivery_site_id: int = None
+    _selected_delivery_site_id: str = None
     _selected_contract = None
     _all_active_contracts = None
 
@@ -142,7 +143,7 @@ class HelenApiClient:
         previous_day = start + relativedelta(days=-1)
         start_time = f"{previous_day}T22:00:00+00:00"
         end_time = f"{end}T21:59:59+00:00"
-        delivery_site_id = self._selected_delivery_site_id
+        delivery_site_id = self._get_selected_delivery_site_id_for_api()
         measurements_params = {
             "begin": start_time,
             "end": end_time,
@@ -167,7 +168,7 @@ class HelenApiClient:
         last_year = year-1
         start_time = f"{last_year}-12-31T22:00:00+00:00"
         end_time = f"{year}-12-31T21:59:59+00:00"
-        delivery_site_id = self._selected_delivery_site_id
+        delivery_site_id = self._get_selected_delivery_site_id_for_api()
         measurements_params = {
             "begin": start_time,
             "end": end_time,
@@ -192,7 +193,7 @@ class HelenApiClient:
         previous_day = start + relativedelta(days=-1)
         start_time = f"{previous_day}T22:00:00+00:00"
         end_time = f"{end}T21:59:59+00:00"
-        delivery_site_id = self._selected_delivery_site_id
+        delivery_site_id = self._get_selected_delivery_site_id_for_api()
         measurements_params = {
             "begin": start_time,
             "end": end_time,
@@ -217,7 +218,7 @@ class HelenApiClient:
         previous_day = start + relativedelta(days=-1)
         start_time = f"{previous_day}T22:00:00+00:00"
         end_time = f"{end}T21:59:59+00:00"
-        delivery_site_id = self._selected_delivery_site_id
+        delivery_site_id = self._get_selected_delivery_site_id_for_api()
         spot_prices_params = {
             "begin": start_time,
             "end": end_time,
@@ -249,21 +250,34 @@ class HelenApiClient:
 
         return contracts_dict
     
-    def get_all_delivery_site_ids(self) -> int:
+    def _get_selected_delivery_site_id_for_api(self):
+        return str(self._selected_contract["delivery_site"]["id"])
+    
+    def get_all_delivery_site_ids(self) -> List[int]:
         """Get all delivery site ids from your contracts."""
 
         self._refresh_api_client_state()
-        delivery_sites = list(map(lambda contract: contract["delivery_site"]["id"], self._all_active_contracts))
+        delivery_sites = list(map(lambda contract: str(contract["delivery_site"]["id"]), self._all_active_contracts))
         return delivery_sites
+    
+    def get_all_gsrn_ids(self) -> List[int]:
+        """Get all GSRN ids from your contracts."""
 
-    def select_delivery_site_if_valid_id(self, delivery_site_id: int = None):
+        self._refresh_api_client_state()
+        gsrn_ids = list(map(lambda contract: str(contract["gsrn"]), self._all_active_contracts))
+        return gsrn_ids
+
+    def select_delivery_site_if_valid_id(self, delivery_site_id: str = None):
         """Select a delivery site to be used when querying data."""
         delivery_sites = self.get_all_delivery_site_ids()
+        gsrn_ids = self.get_all_gsrn_ids()
         found_delivery_site_id = next(filter(lambda id: str(id) == delivery_site_id, delivery_sites), None)
         if not found_delivery_site_id:
-            logging.error(f"Cannot set '{delivery_site_id}' because it does not exist in the active delivery sites list '{delivery_sites}'")
+            found_delivery_site_id = next(filter(lambda id: str(id) == delivery_site_id, gsrn_ids), None)
+        if not found_delivery_site_id:
+            logging.error(f"Cannot select {delivery_site_id} because it does not exist in the active delivery sites list {delivery_sites} or GSRN id list {gsrn_ids}")
             return
-        self._selected_delivery_site_id = found_delivery_site_id
+        self._selected_delivery_site_id = str(found_delivery_site_id)
         self._refresh_api_client_state()
         self._invalidate_caches()
         logging.warn(f"Delivery site set to '{delivery_site_id}'")
@@ -354,9 +368,9 @@ class HelenApiClient:
         if self._selected_delivery_site_id is None:
             latest_active_contract = self._get_latest_contract(self._all_active_contracts)
             self._selected_contract = latest_active_contract
-            self._selected_delivery_site_id = latest_active_contract["delivery_site"]["id"]
+            self._selected_delivery_site_id = latest_active_contract["gsrn"]
         else:
-            selected_active_contract = self._get_contract_by_delivery_site_id(self._all_active_contracts, self._selected_delivery_site_id)
+            selected_active_contract = self._get_contract_by_delivery_site_id(self._all_active_contracts)
             self._selected_contract = selected_active_contract
     
     def _invalidate_caches(self):
@@ -383,15 +397,20 @@ class HelenApiClient:
         active_contracts = list(filter(lambda contract: contract["domain"] != "electricity-production", active_contracts))
         return active_contracts
 
-    def _get_contract_by_delivery_site_id(self, contracts, delivery_site_id):
+    def _get_contract_by_delivery_site_id(self, contracts):
         """
         Finds a contract from a list of contracts by delivery_site_id.
         """
         active_contracts = self._get_all_active_contracts(contracts)
         if self._selected_delivery_site_id:
-            active_contracts = list(filter(
-                lambda contract: contract["delivery_site"]["id"] == self._selected_delivery_site_id,
-                active_contracts))
+            if len(str(self._selected_delivery_site_id)) == 18:
+                active_contracts = list(filter(
+                    lambda contract: contract["gsrn"] == str(self._selected_delivery_site_id),
+                    active_contracts))
+            else:
+                active_contracts = list(filter(
+                    lambda contract: str(contract["delivery_site"]["id"]) == str(self._selected_delivery_site_id),
+                    active_contracts))
         if active_contracts.__len__() > 1:
             logging.warn("Found multiple active Helen contracts. Using the newest one.")
             active_contracts.sort(key=lambda contract: datetime.strptime(contract["start_date"], '%Y-%m-%dT%H:%M:%S'), reverse=True)

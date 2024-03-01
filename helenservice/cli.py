@@ -176,6 +176,7 @@ class HelenCLIPrompt(Cmd):
     def do_select_delivery_site(self, input=None):
         """
         Select a delivery site to be used in the api_client. After setting, all measurement requests will be about this delivery site. Useful if you have multiple contracts. 
+        You may choose your delivery site by the GSRN number (18 numbers long) found in your contract or by the technical delivery site id (7 numbers long).
         """
 
         self.api_client.select_delivery_site_if_valid_id(input)
@@ -185,6 +186,13 @@ class HelenCLIPrompt(Cmd):
 
         delivery_sites = self.api_client.get_all_delivery_site_ids()
         print(delivery_sites)
+
+
+    def do_get_all_gsrn_ids(self, input=None):
+        """Get all gsrn ids across your active contracts."""
+
+        gsrn_ids = self.api_client.get_all_gsrn_ids()
+        print(gsrn_ids)
 
 def main():
     print("Log in to Oma Helen")

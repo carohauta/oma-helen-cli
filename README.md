@@ -36,6 +36,7 @@ Tip: in order to list all the commands within the CLI, enter `?`
 | calculate_transfer_fees_between_dates | Calculates total transfer fees (eur) based on your consumption between dates |
 | get_contract_transfer_base_price | Get the monthly transfer base price (eur) from your contract. Note that if Helen is not your transfer company, this returns 0.0 |
 | get_all_delivery_sites | Get all delivery sites across your active contracts |
+| get_all_gsrn_ids | Get all GSRN id's across your active contracts |
 | select_delivery_site | Selects a delivery site by id for the CLI to use. Useful if you have multiple contracts with Helen. Use `get_all_delivery_sites` to find out all your delivery sites. After selecting a delivery site, all measurements and other requested data will be about the selected delivery site. |
 
 ### Installing from sources and running the project for local development
