@@ -1,3 +1,4 @@
+import re
 from requests import Request, Response, Session
 from bs4 import BeautifulSoup
 from .const import HTTP_READ_TIMEOUT
@@ -7,6 +8,7 @@ import logging
 class HelenSession:
     HELEN_LOGIN_HOST = "https://login.helen.fi"
     TUPAS_LOGIN_URL = "https://www.helen.fi/hcc/TupasLoginFrame?service=account&locale=fi"
+    LOGIN_API_VERSION = "v14"
 
     _session: Session = None
 
@@ -55,6 +57,8 @@ class HelenSession:
 
     def _follow_redirects(self, response: Response):
         location_header = response.headers.get("Location")
+        if location_header is None:
+            location_header = response.headers.get("location")
         if location_header is not None:
             response = self._follow_redirects(self._session.get(location_header, timeout=HTTP_READ_TIMEOUT))
             return response
@@ -101,6 +105,10 @@ class HelenSession:
 
         login_payload = {"username": username, "password": password}
         return self._make_url_request(login_url, "POST", login_payload)
+    
+    def _fix_oma_helen_api_url(self, url):
+        fixed_url = re.sub(r"\/v\d+\/", "/" + self.LOGIN_API_VERSION + "/", url)
+        return fixed_url.replace("omahelen", "oma.helen")
 
     def _proceed_to_main_page_from_login_response(self, response: Response):
         access_granted_soup = BeautifulSoup(response.text, "html.parser")
@@ -119,8 +127,8 @@ class HelenSession:
         proceed_link_page_link_url = proceed_link_page_soup.find(
             "a").attrs['href']
         auth_response = self._make_url_request(
-            proceed_link_page_link_url, "GET")
-
+            self._fix_oma_helen_api_url(proceed_link_page_link_url), "GET")
+    
         auth_response_soup = BeautifulSoup(auth_response.text, "html.parser")
         auth_response_url = self._get_html_form_url(auth_response_soup)
         auth_response_param_code = self._get_html_input_value(
