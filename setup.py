@@ -9,12 +9,12 @@ here = pathlib.Path(__file__).parent.resolve()
 long_description = (here / "README.md").read_text(encoding="utf-8")
 
 requirements = [
-    'beautifulsoup4==4.11.1',
-    'python-dateutil==2.8.2',
+    'beautifulsoup4==4.12.3',
+    'python-dateutil==2.9.0.post0',
     'requests>=2.28.1',
-    'soupsieve==2.3.2.post1',
-    'urllib3==1.26.12',
-    'cachetools==5.2.0'
+    'soupsieve==2.5',
+    'urllib3==1.26.5',
+    'cachetools>=5.3.3'
     ]
 
 setup(
@@ -32,6 +32,9 @@ setup(
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',
+        'Programming Language :: Python :: 3.10',
+        'Programming Language :: Python :: 3.11',
+        'Programming Language :: Python :: 3.12',
     ],
     description="Oma Helen API library and CLI",
     entry_points={
