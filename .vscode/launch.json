@@ -6,7 +6,7 @@
     "configurations": [
         {
             "name": "Python: helenservice",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "module": "helenservice.cli",
             "justMyCode": true
