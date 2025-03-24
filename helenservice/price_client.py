@@ -46,8 +46,8 @@ class HelenExchangePrices(HelenPrices):
 
 
 class HelenPriceClient:
-    MARKET_PRICE_ELECTRICITY_URL = "https://www.helen.fi/sahko/sahkosopimus/markkinahinta"
-    EXCHANGE_ELECTRICITY_URL = "https://www.helen.fi/sahko/sahkosopimus/porssisahko"
+    MARKET_PRICE_ELECTRICITY_URL = "https://www.helen.fi/sahko/sahkosopimus/markkinahintasahko"
+    EXCHANGE_ELECTRICITY_URL = "https://www.helen.fi/sahko/porssisahko"
 
     _helen_market_price_prices: HelenMarketPrices = None
     _helen_exchange_prices: HelenExchangePrices = None
