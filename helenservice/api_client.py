@@ -14,7 +14,7 @@ from itertools import groupby
 
 # TODO: consider moving all calculation functions somewhere else - they are not related to HelenApiClient
 class HelenApiClient:
-    HELEN_API_URL_V16 = "https://api.omahelen.fi/v16"
+    HELEN_API_URL_V17 = "https://api.omahelen.fi/v17"
     MEASUREMENTS_ENDPOINT = "/measurements/electricity"
     TRANSFER_ENDPOINT = "/measurements/electricity-transfer"
     SPOT_PRICES_ENDPOINT = MEASUREMENTS_ENDPOINT + "/spot-prices"
@@ -227,7 +227,7 @@ class HelenApiClient:
             "allow_transfer": "true"
         }
 
-        spot_prices_url = self.HELEN_API_URL_V16 + self.SPOT_PRICES_ENDPOINT
+        spot_prices_url = self.HELEN_API_URL_V17 + self.SPOT_PRICES_ENDPOINT
         response_json_text = get(
             spot_prices_url, spot_prices_params, headers=self._api_request_headers(), timeout=HTTP_READ_TIMEOUT).text
         spot_prices_measurement: SpotPricesResponse = SpotPricesResponse(
@@ -239,7 +239,7 @@ class HelenApiClient:
     def get_contract_data_json(self):
         """Get your contract data."""
 
-        contract_url = self.HELEN_API_URL_V16 + self.CONTRACT_ENDPOINT
+        contract_url = self.HELEN_API_URL_V17 + self.CONTRACT_ENDPOINT
         contract_params = {
             "include_transfer": "true",
             "update": "true",
@@ -436,5 +436,5 @@ class HelenApiClient:
     
     def _get_measurements_endpoint(self):
         if 'domain' in self._selected_contract and self._selected_contract['domain'] == 'electricity-transfer':
-            return self.HELEN_API_URL_V16 + self.TRANSFER_ENDPOINT
-        return self.HELEN_API_URL_V16 + self.MEASUREMENTS_ENDPOINT
+            return self.HELEN_API_URL_V17 + self.TRANSFER_ENDPOINT
+        return self.HELEN_API_URL_V17 + self.MEASUREMENTS_ENDPOINT

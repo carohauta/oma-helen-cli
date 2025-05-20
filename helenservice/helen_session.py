@@ -8,7 +8,7 @@ import logging
 class HelenSession:
     HELEN_LOGIN_HOST = "https://login.helen.fi"
     TUPAS_LOGIN_URL = "https://www.helen.fi/hcc/TupasLoginFrame?service=account&locale=fi"
-    LOGIN_API_VERSION = "v14"
+    LOGIN_API_VERSION = "v17"
 
     _session: Session = None
 
