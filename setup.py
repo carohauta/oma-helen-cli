@@ -13,7 +13,7 @@ requirements = [
     'python-dateutil==2.9.0.post0',
     'requests>=2.28.1',
     'soupsieve==2.5',
-    'urllib3>=1.26.5,<3.0.0',
+    'urllib3>=1.26.5',
     'cachetools>=5.3.3'
     ]
 
