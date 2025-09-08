@@ -5,7 +5,7 @@ from datetime import date, datetime, timedelta
 from zoneinfo import ZoneInfo
 
 from helenservice.api_exceptions import InvalidApiResponseException
-from .api_response import MeasurementResponse, SpotPricesResponse
+from .api_response import MeasurementResponse, SpotPricesResponse, SpotPriceChartResponse
 from .const import HTTP_READ_TIMEOUT
 from .helen_session import HelenSession
 from requests import get
@@ -18,6 +18,7 @@ class HelenApiClient:
     MEASUREMENTS_ENDPOINT = "/measurements/electricity"
     TRANSFER_ENDPOINT = "/measurements/electricity-transfer"
     SPOT_PRICES_ENDPOINT = MEASUREMENTS_ENDPOINT + "/spot-prices"
+    SPOT_PRICES_CHART_ENDPOINT = "/chart-data/electricity/spot-prices/daily"
     CONTRACT_ENDPOINT = "/contract/list"
 
     _latest_login_time: datetime = None
@@ -208,6 +209,31 @@ class HelenApiClient:
 
         return hourly_measurement
 
+
+    @cached(cache=TTLCache(maxsize=4, ttl=3600))
+    def get_spot_prices_from_chart_data(self, start: date, end: date) -> SpotPriceChartResponse:
+        """Get electricity spot prices from chart data API. Returns data in 15-minute intervals.
+        
+        The response includes both VAT and non-VAT prices, as well as hourly averages.
+        Returns a SpotPriceChartResponse object containing the full data structure.
+        """
+        # Convert dates to UTC timestamps, rounding to full hours for chart data API
+        start_time, end_time = self._get_utc_time_range(start, end, round_to_full_hour=True)
+
+        chart_params = {
+            "start": start_time,
+            "stop": end_time
+        }
+
+        chart_url = self.HELEN_API_URL_V25 + self.SPOT_PRICES_CHART_ENDPOINT
+        response = get(
+            chart_url, 
+            chart_params, 
+            headers=self._api_request_headers(), 
+            timeout=HTTP_READ_TIMEOUT
+        )
+
+        return SpotPriceChartResponse(**response.json())
 
     @cached(cache=TTLCache(maxsize=4, ttl=3600))
     def get_hourly_spot_prices_between_dates(self, start: date, end: date) -> SpotPricesResponse:
@@ -454,10 +480,18 @@ class HelenApiClient:
             return self.HELEN_API_URL_V25 + self.TRANSFER_ENDPOINT
         return self.HELEN_API_URL_V25 + self.MEASUREMENTS_ENDPOINT
 
-    def _get_utc_time_range(self, start_date: date, end_date: date) -> tuple[str, str]:
+    def _get_utc_time_range(self, start_date: date, end_date: date, round_to_full_hour: bool = False) -> tuple[str, str]:
         """
         Convert local midnight times to UTC considering DST.
-        Returns tuple of (start_time, end_time) in ISO format with UTC offset.
+        
+        Args:
+            start_date: The start date
+            end_date: The end date
+            round_to_full_hour: If True, rounds the end time up to the next full hour (HH:00:00),
+                            used for chart data API. If False, uses millisecond precision (default).
+        
+        Returns:
+            tuple of (start_time, end_time) in ISO format with UTC offset.
         """
         # Create datetime objects in Finland timezone
         fi_tz = ZoneInfo("Europe/Helsinki")
@@ -469,9 +503,18 @@ class HelenApiClient:
         # Convert to UTC
         utc_start = local_start.astimezone(ZoneInfo("UTC"))
         utc_end = local_end.astimezone(ZoneInfo("UTC"))
-        
-        # Format with millisecond precision
-        return (
-            utc_start.isoformat(timespec='milliseconds'),
-            utc_end.replace(microsecond=999000).isoformat(timespec='milliseconds')
-        )
+
+        if round_to_full_hour:
+            # Round up to the next full hour for the end time if needed
+            if utc_end.minute > 0 or utc_end.second > 0 or utc_end.microsecond > 0:
+                utc_end = (utc_end + timedelta(hours=1)).replace(minute=0, second=0, microsecond=0)
+            return (
+                utc_start.isoformat(),
+                utc_end.isoformat()
+            )
+        else:
+            # Format with millisecond precision for other APIs
+            return (
+                utc_start.isoformat(timespec='milliseconds'),
+                utc_end.replace(microsecond=999000).isoformat(timespec='milliseconds')
+            )
