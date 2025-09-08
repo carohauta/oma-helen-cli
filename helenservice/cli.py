@@ -18,7 +18,7 @@ class HelenCLIPrompt(Cmd):
 
     helen_price_client = HelenPriceClient()
 
-    tax = 0.24 # 24%
+    tax = 0.255 # 25.5%
     margin = helen_price_client.get_exchange_prices().margin
     api_client = HelenApiClient(tax, margin)
 
@@ -193,6 +193,35 @@ class HelenCLIPrompt(Cmd):
 
         gsrn_ids = self.api_client.get_all_gsrn_ids()
         print(gsrn_ids)
+
+    def do_get_contract_type(self, input=None):
+        """Helper to get the contract type from your contract data. To see the whole contract data as JSON, use get_contract_data_json"""
+        
+        contract_type = self.api_client.get_contract_type()
+        print(contract_type)
+
+    def do_get_hourly_spot_prices_json(self, input=None):
+        """Get the spot prices for each hour between given dates
+        The provided dates should be presented in format 'YYYY-mm-dd'
+
+        Usage example:
+        get_hourly_spot_prices_json 2025-09-01 2025-09-08
+        """
+        if input is None:
+            print("Please provide proper start and end dates in format 'YYYY-mm-dd'")
+        else:
+            try:
+                start_date_str, end_date_str = str(input).split(' ')
+                start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
+                end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
+                if start_date > end_date:
+                    print("Start date must be before end date")
+                    raise ValueError()
+                spot_prices = self.api_client.get_hourly_spot_prices_between_dates(start_date, end_date)
+                spot_prices_json = json.dumps(spot_prices, default=lambda o: o.__dict__, indent=2)
+                print(spot_prices_json)
+            except ValueError:
+                print("Please provide proper start and end dates in format 'YYYY-mm-dd'")
 
 def main():
     print("Log in to Oma Helen")

@@ -2,19 +2,19 @@ from typing import List
 from cachetools import cached, TTLCache
 import json, logging
 from datetime import date, datetime, timedelta
+from zoneinfo import ZoneInfo
 
 from helenservice.api_exceptions import InvalidApiResponseException
 from .api_response import MeasurementResponse, SpotPricesResponse
 from .const import HTTP_READ_TIMEOUT
 from .helen_session import HelenSession
 from requests import get
-from dateutil.relativedelta import relativedelta
 from itertools import groupby
 
 
 # TODO: consider moving all calculation functions somewhere else - they are not related to HelenApiClient
 class HelenApiClient:
-    HELEN_API_URL_V17 = "https://api.omahelen.fi/v17"
+    HELEN_API_URL_V25 = "https://api.omahelen.fi/v25"
     MEASUREMENTS_ENDPOINT = "/measurements/electricity"
     TRANSFER_ENDPOINT = "/measurements/electricity-transfer"
     SPOT_PRICES_ENDPOINT = MEASUREMENTS_ENDPOINT + "/spot-prices"
@@ -28,7 +28,7 @@ class HelenApiClient:
     _all_active_contracts = None
 
     def __init__(self, tax: float = None, margin: float = None):
-        self._tax = 0.24 if tax is None else tax
+        self._tax = 0.255 if tax is None else tax
         self._margin = 0.38 if margin is None else margin
 
     def login_and_init(self, username, password):
@@ -140,9 +140,7 @@ class HelenApiClient:
     def get_daily_measurements_between_dates(self, start: date, end: date) -> MeasurementResponse:
         """Get electricity measurements for each day of the wanted month of the on-going year."""
 
-        previous_day = start + relativedelta(days=-1)
-        start_time = f"{previous_day}T22:00:00+00:00"
-        end_time = f"{end}T21:59:59+00:00"
+        start_time, end_time = self._get_utc_time_range(start, end)
         delivery_site_id = self._get_selected_delivery_site_id_for_api()
         measurements_params = {
             "begin": start_time,
@@ -190,9 +188,7 @@ class HelenApiClient:
     def get_hourly_measurements_between_dates(self, start: date, end: date) -> MeasurementResponse:
         """Get electricity measurements for each hour between given dates."""
         
-        previous_day = start + relativedelta(days=-1)
-        start_time = f"{previous_day}T22:00:00+00:00"
-        end_time = f"{end}T21:59:59+00:00"
+        start_time, end_time = self._get_utc_time_range(start, end)
         delivery_site_id = self._get_selected_delivery_site_id_for_api()
         measurements_params = {
             "begin": start_time,
@@ -215,9 +211,7 @@ class HelenApiClient:
     def get_hourly_spot_prices_between_dates(self, start: date, end: date) -> SpotPricesResponse:
         """Get electricity spot prices for each hour between given dates."""
         
-        previous_day = start + relativedelta(days=-1)
-        start_time = f"{previous_day}T22:00:00+00:00"
-        end_time = f"{end}T21:59:59+00:00"
+        start_time, end_time = self._get_utc_time_range(start, end)
         delivery_site_id = self._get_selected_delivery_site_id_for_api()
         spot_prices_params = {
             "begin": start_time,
@@ -227,7 +221,7 @@ class HelenApiClient:
             "allow_transfer": "true"
         }
 
-        spot_prices_url = self.HELEN_API_URL_V17 + self.SPOT_PRICES_ENDPOINT
+        spot_prices_url = self.HELEN_API_URL_V25 + self.SPOT_PRICES_ENDPOINT
         response_json_text = get(
             spot_prices_url, spot_prices_params, headers=self._api_request_headers(), timeout=HTTP_READ_TIMEOUT).text
         spot_prices_measurement: SpotPricesResponse = SpotPricesResponse(
@@ -239,7 +233,7 @@ class HelenApiClient:
     def get_contract_data_json(self):
         """Get your contract data."""
 
-        contract_url = self.HELEN_API_URL_V17 + self.CONTRACT_ENDPOINT
+        contract_url = self.HELEN_API_URL_V25 + self.CONTRACT_ENDPOINT
         contract_params = {
             "include_transfer": "true",
             "update": "true",
@@ -275,12 +269,12 @@ class HelenApiClient:
         if not found_delivery_site_id:
             found_delivery_site_id = next(filter(lambda id: str(id) == delivery_site_id, gsrn_ids), None)
         if not found_delivery_site_id:
-            logging.error(f"Cannot select {delivery_site_id} because it does not exist in the active delivery sites list {delivery_sites} or GSRN id list {gsrn_ids}")
+            logging.error("Cannot select %s because it does not exist in the active delivery sites list %s or GSRN id list %s", delivery_site_id, delivery_sites, gsrn_ids)
             return
         self._selected_delivery_site_id = str(found_delivery_site_id)
         self._refresh_api_client_state()
         self._invalidate_caches()
-        logging.warn(f"Delivery site set to '{delivery_site_id}'")
+        logging.warning("Delivery site set to '%s'", delivery_site_id)
 
     def get_contract_base_price(self) -> float:
         """Get the contract base price from your contract data."""
@@ -291,14 +285,27 @@ class HelenApiClient:
         products = contract["products"] if contract else []
         product = next(filter(lambda p: p["product_type"] == "energy", products), None) 
         if not product: 
-            logging.warn("Could not resolve contract base price from Helen API response. Returning 0.0")
+            logging.warning("Could not resolve contract base price from Helen API response. Returning 0.0")
             return 0.0
         components = product["components"] if product else []
         base_price_component = next(filter(lambda component: component["is_base_price"], components), None)
         if not base_price_component: 
-            logging.warn("Could not resolve contract base price from Helen API response. Returning 0.0")
+            logging.warning("Could not resolve contract base price from Helen API response. Returning 0.0")
             return 0.0
         return base_price_component["price"]
+    
+    def get_contract_type(self) -> str:
+        """Get the contract type as a string from your contract data."""
+
+        self._refresh_api_client_state()
+        contract = self._selected_contract
+        if not contract: raise InvalidApiResponseException("Contract data is empty or None")
+        products = contract["products"] if contract else []
+        product = next(filter(lambda p: p["product_type"] == "energy", products), None) 
+        if not product: 
+            logging.warning("Could not resolve contract type from Helen API response. Returning None")
+            return None
+        return product["id"]
     
     def get_contract_energy_unit_price(self) -> float:
         """
@@ -312,13 +319,13 @@ class HelenApiClient:
         products = contract["products"] if contract else []
         product = next(filter(lambda p: p["product_type"] == "energy", products), None) 
         if not product: 
-            logging.warn("Could not resolve energy price from Helen API response. Returning 0.0")
+            logging.warning("Could not resolve energy price from Helen API response. Returning 0.0")
             return 0.0
         if not product: raise InvalidApiResponseException("Product data is empty or None")
         components = product["components"] if product else []
         energy_unit_price_component = next(filter(lambda component: component["name"] == "Energia", components), None)
         if not energy_unit_price_component: 
-            logging.warn("Could not resolve energy price from Helen API response. Returning 0.0")
+            logging.warning("Could not resolve energy price from Helen API response. Returning 0.0")
             return 0.0
         return energy_unit_price_component["price"]
 
@@ -331,12 +338,12 @@ class HelenApiClient:
         products = contract["products"] if contract else []
         product = next(filter(lambda p: p["product_type"] == "transfer", products), None) 
         if not product: 
-            logging.warn("Could not resolve transfer fees from Helen API response. Returning 0.0")
+            logging.warning("Could not resolve transfer fees from Helen API response. Returning 0.0")
             return 0.0
         components = product["components"] if product else []
         transfer_fee_component = next(filter(lambda component: component["name"] == "Siirtomaksu", components), None)
         if transfer_fee_component is None: 
-            logging.warn("Could not resolve transfer fees from Helen API response. Returning 0.0")
+            logging.warning("Could not resolve transfer fees from Helen API response. Returning 0.0")
             return 0.0
         return transfer_fee_component["price"]
     
@@ -349,12 +356,12 @@ class HelenApiClient:
         products = contract["products"] if contract else []
         product = next(filter(lambda p: p["product_type"] == "transfer", products), None) 
         if not product: 
-            logging.warn("Could not resolve transfer base price from Helen API response. Returning 0.0")
+            logging.warning("Could not resolve transfer base price from Helen API response. Returning 0.0")
             return 0.0
         components = product["components"] if product else []
         transfer_base_price_component = next(filter(lambda component: component["is_base_price"], components), None)
         if transfer_base_price_component is None: 
-            logging.warn("Could not resolve transfer base price from Helen API response. Returning 0.0")
+            logging.warning("Could not resolve transfer base price from Helen API response. Returning 0.0")
             return 0.0
         return transfer_base_price_component["price"]
 
@@ -412,7 +419,7 @@ class HelenApiClient:
                     lambda contract: str(contract["delivery_site"]["id"]) == str(self._selected_delivery_site_id),
                     active_contracts))
         if active_contracts.__len__() > 1:
-            logging.warn("Found multiple active Helen contracts. Using the newest one.")
+            logging.warning("Found multiple active Helen contracts. Using the newest one.")
             active_contracts.sort(key=lambda contract: datetime.strptime(contract["start_date"], '%Y-%m-%dT%H:%M:%S'), reverse=True)
         if active_contracts.__len__() == 0:
             logging.error("No active contracts found")
@@ -436,5 +443,27 @@ class HelenApiClient:
     
     def _get_measurements_endpoint(self):
         if 'domain' in self._selected_contract and self._selected_contract['domain'] == 'electricity-transfer':
-            return self.HELEN_API_URL_V17 + self.TRANSFER_ENDPOINT
-        return self.HELEN_API_URL_V17 + self.MEASUREMENTS_ENDPOINT
+            return self.HELEN_API_URL_V25 + self.TRANSFER_ENDPOINT
+        return self.HELEN_API_URL_V25 + self.MEASUREMENTS_ENDPOINT
+
+    def _get_utc_time_range(self, start_date: date, end_date: date) -> tuple[str, str]:
+        """
+        Convert local midnight times to UTC considering DST.
+        Returns tuple of (start_time, end_time) in ISO format with UTC offset.
+        """
+        # Create datetime objects in Finland timezone
+        fi_tz = ZoneInfo("Europe/Helsinki")
+        # Start time is previous day 00:00 local time
+        local_start = datetime.combine(start_date, datetime.min.time()).replace(tzinfo=fi_tz)
+        # End time is end date 23:59:59.999 local time
+        local_end = datetime.combine(end_date, datetime.max.time()).replace(tzinfo=fi_tz)
+        
+        # Convert to UTC
+        utc_start = local_start.astimezone(ZoneInfo("UTC"))
+        utc_end = local_end.astimezone(ZoneInfo("UTC"))
+        
+        # Format with millisecond precision
+        return (
+            utc_start.isoformat(timespec='milliseconds'),
+            utc_end.replace(microsecond=999000).isoformat(timespec='milliseconds')
+        )
