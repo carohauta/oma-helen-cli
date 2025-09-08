@@ -87,14 +87,16 @@ class HelenApiClient:
         return total_consumption
 
     def calculate_total_costs_by_spot_prices_between_dates(self, start_date: date, end_date: date):
-        """Calculate your total electricity cost with according spot prices by hourly precision
+        """Calculate your total electricity cost with according spot prices by hourly precision.
+        Note: Spot prices already include tax from get_hourly_spot_prices_between_dates.
 
         Returns the price in euros
         """
         hourly_consumption_costs = self._get_hourly_consumption_costs(start_date, end_date)
         total_price = sum(hourly_consumption_costs)
-        total_price_with_tax_in_euros = total_price*(1+self._tax)/100
-        return total_price_with_tax_in_euros
+        # Prices already include tax from get_hourly_spot_prices_between_dates
+        total_price_in_euros = total_price/100
+        return total_price_in_euros
 
     def calculate_impact_of_usage_between_dates(self, start_date: date, end_date: date) -> float:
         """Calculate the price impact of your usage based on hourly consumption and hourly spot prices
@@ -209,7 +211,7 @@ class HelenApiClient:
 
     @cached(cache=TTLCache(maxsize=4, ttl=3600))
     def get_hourly_spot_prices_between_dates(self, start: date, end: date) -> SpotPricesResponse:
-        """Get electricity spot prices for each hour between given dates."""
+        """Get electricity spot prices for each hour between given dates. Values include tax."""
         
         start_time, end_time = self._get_utc_time_range(start, end)
         delivery_site_id = self._get_selected_delivery_site_id_for_api()
@@ -226,6 +228,12 @@ class HelenApiClient:
             spot_prices_url, spot_prices_params, headers=self._api_request_headers(), timeout=HTTP_READ_TIMEOUT).text
         spot_prices_measurement: SpotPricesResponse = SpotPricesResponse(
             **json.loads(response_json_text))
+
+        # Add tax to each price value
+        if spot_prices_measurement.interval and spot_prices_measurement.interval.measurements:
+            for measurement in spot_prices_measurement.interval.measurements:
+                if measurement.status == 'valid' and measurement.value is not None:
+                    measurement.value = measurement.value * (1 + self._tax)
 
         return spot_prices_measurement
     
