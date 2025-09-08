@@ -1,6 +1,8 @@
 import re
 from requests import Request, Response, Session
 from bs4 import BeautifulSoup
+
+from helenservice.api_exceptions import HelenAuthenticationException
 from .const import HTTP_READ_TIMEOUT
 import logging
 
@@ -30,7 +32,7 @@ class HelenSession:
         except Exception as exception:
             logging.exception("Login to Oma Helen failed. Check your credentials!")
             self._session.close()
-            raise exception
+            raise HelenAuthenticationException(exception) from exception
         logging.debug("Logged in to Oma Helen")
         return self
 
