@@ -4,7 +4,7 @@ import json, logging
 from datetime import date, datetime, timedelta
 from zoneinfo import ZoneInfo
 
-from helenservice.api_exceptions import InvalidApiResponseException
+from helenservice.api_exceptions import InvalidApiResponseException, InvalidDeliverySiteException
 from .api_response import MeasurementResponse, SpotPricesResponse, SpotPriceChartResponse
 from .const import HTTP_READ_TIMEOUT
 from .helen_session import HelenSession
@@ -303,8 +303,7 @@ class HelenApiClient:
         if not found_delivery_site_id:
             found_delivery_site_id = next(filter(lambda id: str(id) == delivery_site_id, gsrn_ids), None)
         if not found_delivery_site_id:
-            logging.error("Cannot select %s because it does not exist in the active delivery sites list %s or GSRN id list %s", delivery_site_id, delivery_sites, gsrn_ids)
-            return
+            raise InvalidDeliverySiteException(f"Cannot select {delivery_site_id} because it does not exist in the active delivery sites list {delivery_sites} or GSRN id list {gsrn_ids}")
         self._selected_delivery_site_id = str(found_delivery_site_id)
         self._refresh_api_client_state()
         self._invalidate_caches()
@@ -420,6 +419,7 @@ class HelenApiClient:
         self.get_hourly_measurements_between_dates.cache_clear()
         self.get_hourly_spot_prices_between_dates.cache_clear()
         self.get_contract_data_json.cache_clear()
+        self.get_spot_prices_from_chart_data.cache_clear()
 
     def _api_request_headers(self):
         return {

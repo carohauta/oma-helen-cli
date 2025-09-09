@@ -1,5 +1,7 @@
 from cmd import Cmd
 from datetime import date, datetime
+
+from helenservice.api_exceptions import InvalidDeliverySiteException
 from .api_client import HelenApiClient
 from getpass import getpass
 from .price_client import HelenPriceClient
@@ -179,7 +181,10 @@ class HelenCLIPrompt(Cmd):
         You may choose your delivery site by the GSRN number (18 numbers long) found in your contract or by the technical delivery site id (7 numbers long).
         """
 
-        self.api_client.select_delivery_site_if_valid_id(input)
+        try:
+            self.api_client.select_delivery_site_if_valid_id(input)
+        except InvalidDeliverySiteException as e:
+            print(e)
 
     def do_get_all_delivery_sites(self, input=None):
         """Get all delivery site ids across your active contracts."""
