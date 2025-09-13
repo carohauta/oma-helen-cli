@@ -206,27 +206,22 @@ class HelenCLIPrompt(Cmd):
         print(contract_type)
 
     def do_get_spot_prices_chart_data(self, input=None):
-        """Get spot prices from chart data API between dates. Data includes 15-minute intervals with VAT and non-VAT prices.
-        The provided dates should be presented in format 'YYYY-mm-dd'
-
+        """Get spot prices from chart data API for a single day. Data includes 15-minute intervals with VAT and non-VAT prices.
+        The provided date should be presented in format 'YYYY-mm-dd'
+        
         Usage example:
-        get_spot_prices_chart_data 2025-09-06 2025-09-07
+        get_spot_prices_chart_data 2025-09-15
         """
         if input is None:
-            print("Please provide proper start and end dates in format 'YYYY-mm-dd'")
+            print("Please provide a date in format 'YYYY-mm-dd'")
         else:
             try:
-                start_date_str, end_date_str = str(input).split(' ')
-                start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
-                end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
-                if start_date > end_date: 
-                    print("Start date must be before end date")
-                    raise ValueError()
-                spot_prices = self.api_client.get_spot_prices_from_chart_data(start_date, end_date)
+                target_date = datetime.strptime(str(input).strip(), '%Y-%m-%d').date()
+                spot_prices = self.api_client.get_spot_prices_from_chart_data(target_date)
                 spot_prices_json = json.dumps(spot_prices, default=lambda o: o.__dict__, indent=2)
                 print(spot_prices_json)
             except ValueError:
-                print("Please provide proper start and end dates in format 'YYYY-mm-dd'")
+                print("Please provide a valid date in format 'YYYY-mm-dd'")
 
     def do_get_hourly_spot_prices_json(self, input=None):
         """Get the spot prices for each hour between given dates

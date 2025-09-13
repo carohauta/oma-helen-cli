@@ -211,14 +211,20 @@ class HelenApiClient:
 
 
     @cached(cache=TTLCache(maxsize=4, ttl=3600))
-    def get_spot_prices_from_chart_data(self, start: date, end: date) -> SpotPriceChartResponse:
-        """Get electricity spot prices from chart data API. Returns data in 15-minute intervals.
+    def get_spot_prices_from_chart_data(self, target_date: date) -> SpotPriceChartResponse:
+        """Get electricity spot prices from chart data API for a single day. Returns data in 15-minute intervals.
         
-        The response includes both VAT and non-VAT prices, as well as hourly averages.
-        Returns a SpotPriceChartResponse object containing the full data structure.
+        Args:
+            target_date: The target date to get spot prices for
+            
+        Returns:
+            SpotPriceChartResponse object containing the full data structure.
         """
-        # Convert dates to UTC timestamps, rounding to full hours for chart data API
-        start_time, end_time = self._get_utc_time_range(start, end, round_to_full_hour=True)
+        start_time, end_time = self._get_utc_time_range(
+            target_date,
+            target_date,
+            round_to_full_hour=True
+        )
 
         chart_params = {
             "start": start_time,

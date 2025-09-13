@@ -38,6 +38,10 @@ Tip: in order to list all the commands within the CLI, enter `?`
 | get_all_delivery_sites | Get all delivery sites across your active contracts |
 | get_all_gsrn_ids | Get all GSRN ids across your active contracts |
 | select_delivery_site | Select a delivery site by id for the CLI to use. Accepts both GSRN ids and delivery site ids as input. Useful if you have multiple contracts with Helen. Use `get_all_delivery_sites` or `get_all_gsrn_ids` to find out all your delivery sites / GSRN ids. After selecting a delivery site, all measurements and other requested data will be about the selected delivery site. |
+| get_contract_type | Get the contract type (e.g., exchange electricity, market price) from your contract data |
+| get_spot_prices_chart_data | Get spot prices from chart data API for a single day, including 15-minute intervals |
+| get_hourly_spot_prices_json | Get the spot prices for each hour between given dates |
+| exit | Exit the CLI application |
 
 ### Installing from sources and running the project for local development
 
