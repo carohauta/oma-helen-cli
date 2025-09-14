@@ -1,0 +1,54 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "oma-helen-cli"
+version = "1.4.0"
+description = "Oma Helen API library and CLI"
+readme = "README.md"
+license = {text = "MIT"}
+authors = [
+    {name = "carohauta", email = "carosoft.dev@gmail.com"}
+]
+keywords = ["helen", "electricity", "api", "cli", "finland"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers", 
+    "Intended Audience :: End Users/Desktop",
+    "License :: OSI Approved :: MIT License",
+    "Natural Language :: English",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Operating System :: OS Independent",
+    "Topic :: Utilities",
+    "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
+]
+requires-python = ">=3.9"
+dependencies = [
+    "beautifulsoup4==4.12.3",
+    "python-dateutil==2.9.0.post0", 
+    "requests>=2.28.1",
+    "soupsieve==2.5",
+    "urllib3>=1.26.5",
+    "cachetools>=5.3.3"
+]
+
+[project.urls]
+Homepage = "https://github.com/carohauta/oma-helen-cli"
+Repository = "https://github.com/carohauta/oma-helen-cli"
+Issues = "https://github.com/carohauta/oma-helen-cli/issues"
+
+[project.scripts]
+oma-helen-cli = "helenservice.cli:main"
+
+[tool.setuptools]
+packages = ["helenservice"]
+
+[tool.setuptools.package-data]
+"*" = ["*.txt", "*.md"]
+
+
