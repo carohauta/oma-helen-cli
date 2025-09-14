@@ -31,8 +31,8 @@ class MeasurementResponse(object):
 
 
 class SpotPriceChartSeries(object):
-    def __init__(self, start: str, stop: str, electricity_spot_prices_vat: float, electricity_spot_prices: float,
-                 electricity_spot_prices_hour_average_vat: float, electricity_spot_prices_hour_average: float, **_):
+    def __init__(self, start: str, stop: str, electricity_spot_prices_vat: float = None, electricity_spot_prices: float = None,
+                 electricity_spot_prices_hour_average_vat: float = None, electricity_spot_prices_hour_average: float = None, **_):
         self.start = start
         self.stop = stop
         self.electricity_spot_prices_vat = electricity_spot_prices_vat
