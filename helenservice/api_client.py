@@ -459,7 +459,7 @@ class HelenApiClient:
                     lambda contract: str(contract["delivery_site"]["id"]) == str(self._selected_delivery_site_id),
                     active_contracts))
         if active_contracts.__len__() > 1:
-            logging.warning("Found multiple active Helen contracts. Using the newest one.")
+            logging.debug("Found multiple active Helen contracts. Using the newest one.")
             active_contracts.sort(key=lambda contract: datetime.strptime(contract["start_date"], '%Y-%m-%dT%H:%M:%S'), reverse=True)
         if active_contracts.__len__() == 0:
             logging.error("No active contracts found")
