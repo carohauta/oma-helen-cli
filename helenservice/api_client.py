@@ -8,7 +8,7 @@ from helenservice.api_exceptions import InvalidApiResponseException, InvalidDeli
 from .api_response import MeasurementResponse, SpotPricesResponse, SpotPriceChartResponse
 from .const import HTTP_READ_TIMEOUT
 from .helen_session import HelenSession
-from requests import get
+import requests
 from itertools import groupby
 
 
@@ -155,7 +155,7 @@ class HelenApiClient:
 
         measurements_url = self._get_measurements_endpoint()
 
-        response_json_text = get(
+        response_json_text = requests.get(
             measurements_url, measurements_params, headers=self._api_request_headers(), timeout=HTTP_READ_TIMEOUT).text
         daily_measurement: MeasurementResponse = MeasurementResponse(
             **json.loads(response_json_text))
@@ -179,7 +179,7 @@ class HelenApiClient:
         }
 
         measurements_url = self._get_measurements_endpoint()
-        response_json_text = get(
+        response_json_text = requests.get(
             measurements_url, measurements_params, headers=self._api_request_headers(), timeout=HTTP_READ_TIMEOUT).text
         monthly_measurement: MeasurementResponse = MeasurementResponse(
             **json.loads(response_json_text))
@@ -202,7 +202,7 @@ class HelenApiClient:
         }
 
         measurements_url = self._get_measurements_endpoint()
-        response_json_text = get(
+        response_json_text = requests.get(
             measurements_url, measurements_params, headers=self._api_request_headers(), timeout=HTTP_READ_TIMEOUT).text
         hourly_measurement: MeasurementResponse = MeasurementResponse(
             **json.loads(response_json_text))
@@ -232,7 +232,7 @@ class HelenApiClient:
         }
 
         chart_url = self.HELEN_API_URL_V25 + self.SPOT_PRICES_CHART_ENDPOINT
-        response = get(
+        response = requests.get(
             chart_url, 
             chart_params, 
             headers=self._api_request_headers(), 
@@ -256,7 +256,7 @@ class HelenApiClient:
         }
 
         spot_prices_url = self.HELEN_API_URL_V25 + self.SPOT_PRICES_ENDPOINT
-        response_json_text = get(
+        response_json_text = requests.get(
             spot_prices_url, spot_prices_params, headers=self._api_request_headers(), timeout=HTTP_READ_TIMEOUT).text
         spot_prices_measurement: SpotPricesResponse = SpotPricesResponse(
             **json.loads(response_json_text))
@@ -279,7 +279,7 @@ class HelenApiClient:
             "update": "true",
             "include_products": "true"
         }
-        contract_response_dict = get(contract_url, headers=self._api_request_headers(), timeout=HTTP_READ_TIMEOUT, params=contract_params).json()
+        contract_response_dict = requests.get(contract_url, headers=self._api_request_headers(), timeout=HTTP_READ_TIMEOUT, params=contract_params).json()
         contracts_dict = contract_response_dict["contracts"]
 
         return contracts_dict
