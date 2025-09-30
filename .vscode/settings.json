@@ -1,3 +1,10 @@
 {
-    "python.defaultInterpreterPath": "${workspaceFolder}/.venv/bin/python"
+  "[python]": {
+    "editor.codeActionsOnSave": {
+      "source.organizeImports.ruff": true,
+      "source.fixAll.ruff": true
+    },
+    "editor.defaultFormatter": "charliermarsh.ruff",
+    "editor.formatOnSave": true
+  }
 }

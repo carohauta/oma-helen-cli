@@ -51,3 +51,29 @@ packages = ["helenservice"]
 "*" = ["*.txt", "*.md"]
 
 
+[tool.ruff]
+# Keep line length reasonable for this project
+line-length = 120
+# Match the project's minimum Python version
+target-version = "py39"
+# Don't lint build artifacts
+exclude = [
+    "dist",
+    "oma_helen_cli.egg-info",
+]
+
+[tool.ruff.lint]
+# Core rules: pycodestyle (E), pyflakes (F), isort (I), bugbear (B), pyupgrade (UP)
+select = ["E", "F", "I", "B", "UP"]
+ignore = []
+fixable = ["ALL"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["helenservice"]
+combine-as-imports = true
+
+[tool.ruff.format]
+# Preserve existing quote style; don't auto-convert
+quote-style = "preserve"
+indent-style = "space"
+

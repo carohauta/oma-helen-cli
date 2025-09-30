@@ -1,14 +1,20 @@
-from typing import List
-
-
-class Measurement(object):
+class Measurement:
     def __init__(self, value: float, status: str, **_):
         self.value = value
         self.status = status
 
 
-class MeasurementData(object):
-    def __init__(self, start: str, stop: str, resolution_s: str, resolution: str, unit: str, measurements: List, **_):
+class MeasurementData:
+    def __init__(
+        self,
+        start: str,
+        stop: str,
+        resolution_s: str,
+        resolution: str,
+        unit: str,
+        measurements: list,
+        **_,
+    ):
         self.start = start
         self.stop = stop
         self.resolution_s = resolution_s
@@ -17,22 +23,30 @@ class MeasurementData(object):
         self.measurements = list(map(lambda m: Measurement(**m), measurements))
 
 
-class MeasurementIntervals(object):
-    def __init__(self, electricity: List = None, electricity_transfer: List = None, **_):
+class MeasurementIntervals:
+    def __init__(self, electricity: list = None, electricity_transfer: list = None, **_):
         if electricity is not None:
             self.electricity = list(map(lambda e: MeasurementData(**e), electricity))
         elif electricity_transfer is not None:
             self.electricity = list(map(lambda e: MeasurementData(**e), electricity_transfer))
 
 
-class MeasurementResponse(object):
+class MeasurementResponse:
     def __init__(self, intervals: dict, **_):
         self.intervals = MeasurementIntervals(**intervals) if intervals is not None else None
 
 
-class SpotPriceChartSeries(object):
-    def __init__(self, start: str, stop: str, electricity_spot_prices_vat: float = None, electricity_spot_prices: float = None,
-                 electricity_spot_prices_hour_average_vat: float = None, electricity_spot_prices_hour_average: float = None, **_):
+class SpotPriceChartSeries:
+    def __init__(
+        self,
+        start: str,
+        stop: str,
+        electricity_spot_prices_vat: float = None,
+        electricity_spot_prices: float = None,
+        electricity_spot_prices_hour_average_vat: float = None,
+        electricity_spot_prices_hour_average: float = None,
+        **_,
+    ):
         self.start = start
         self.stop = stop
         self.electricity_spot_prices_vat = electricity_spot_prices_vat
@@ -41,9 +55,20 @@ class SpotPriceChartSeries(object):
         self.electricity_spot_prices_hour_average = electricity_spot_prices_hour_average
 
 
-class SpotPriceChartResponse(object):
-    def __init__(self, start: str, stop: str, resolution: str, units: dict, ids: dict,
-                 data_start_times: dict, data_stop_times: dict, series: List, missing_series: List = None, **_):
+class SpotPriceChartResponse:
+    def __init__(
+        self,
+        start: str,
+        stop: str,
+        resolution: str,
+        units: dict,
+        ids: dict,
+        data_start_times: dict,
+        data_stop_times: dict,
+        series: list,
+        missing_series: list = None,
+        **_,
+    ):
         self.start = start
         self.stop = stop
         self.resolution = resolution
@@ -55,6 +80,6 @@ class SpotPriceChartResponse(object):
         self.missing_series = missing_series if missing_series is not None else []
 
 
-class SpotPricesResponse(object):
+class SpotPricesResponse:
     def __init__(self, interval: dict, **_):
         self.interval = MeasurementData(**interval) if interval is not None else None

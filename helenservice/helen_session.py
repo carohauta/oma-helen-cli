@@ -1,10 +1,12 @@
+import logging
 import re
-from requests import Request, Response, Session
+
 from bs4 import BeautifulSoup
+from requests import Request, Response, Session
 
 from helenservice.api_exceptions import HelenAuthenticationException
+
 from .const import HTTP_READ_TIMEOUT
-import logging
 
 
 class HelenSession:
@@ -37,7 +39,7 @@ class HelenSession:
         return self
 
     def get_access_token(self):
-        """Get the access-token to use the Helen API. It is required to login before the 
+        """Get the access-token to use the Helen API. It is required to login before the
         token can be accessed
         """
         if self._session is None:
@@ -51,8 +53,7 @@ class HelenSession:
         return access_token
 
     def close(self):
-        """Close down the session for the Oma Helen web service
-        """
+        """Close down the session for the Oma Helen web service"""
         if self._session is not None:
             self._session.close()
             logging.debug("HelenSession was closed")
@@ -98,16 +99,13 @@ class HelenSession:
         tupas_soup = BeautifulSoup(tupas_response.text, "html.parser")
         authorization_url = self._get_html_form_url(tupas_soup)
         authorization_form_method = self._get_html_form_method(tupas_soup)
-        authorization_response = self._make_url_request(
-            authorization_url, authorization_form_method)
-        authorization_soup = BeautifulSoup(
-            authorization_response.text, "html.parser")
-        login_url = self.HELEN_LOGIN_HOST + \
-            self._get_html_form_url(authorization_soup)
+        authorization_response = self._make_url_request(authorization_url, authorization_form_method)
+        authorization_soup = BeautifulSoup(authorization_response.text, "html.parser")
+        login_url = self.HELEN_LOGIN_HOST + self._get_html_form_url(authorization_soup)
 
         login_payload = {"username": username, "password": password}
         return self._make_url_request(login_url, "POST", login_payload)
-    
+
     def _fix_oma_helen_api_url(self, url):
         fixed_url = re.sub(r"\/v\d+\/", "/" + self.LOGIN_API_VERSION + "/", url)
         return fixed_url.replace("omahelen", "oma.helen")
@@ -115,29 +113,22 @@ class HelenSession:
     def _proceed_to_main_page_from_login_response(self, response: Response):
         access_granted_soup = BeautifulSoup(response.text, "html.parser")
         continue_url = self._get_html_form_url(access_granted_soup)
-        continue_param_code = self._get_html_input_value(
-            access_granted_soup, "code")
-        continue_param_state = self._get_html_input_value(
-            access_granted_soup, "state")
-        continue_params = {"code": continue_param_code,
-                           "state": continue_param_state}
-        proceed_link_page_response = self._make_url_request(
-            continue_url, "GET", params=continue_params)
+        continue_param_code = self._get_html_input_value(access_granted_soup, "code")
+        continue_param_state = self._get_html_input_value(access_granted_soup, "state")
+        continue_params = {"code": continue_param_code, "state": continue_param_state}
+        proceed_link_page_response = self._make_url_request(continue_url, "GET", params=continue_params)
 
-        proceed_link_page_soup = BeautifulSoup(
-            proceed_link_page_response.text, "html.parser")
-        proceed_link_page_link_url = proceed_link_page_soup.find(
-            "a").attrs['href']
-        auth_response = self._make_url_request(
-            self._fix_oma_helen_api_url(proceed_link_page_link_url), "GET")
-    
+        proceed_link_page_soup = BeautifulSoup(proceed_link_page_response.text, "html.parser")
+        proceed_link_page_link_url = proceed_link_page_soup.find("a").attrs['href']
+        auth_response = self._make_url_request(self._fix_oma_helen_api_url(proceed_link_page_link_url), "GET")
+
         auth_response_soup = BeautifulSoup(auth_response.text, "html.parser")
         auth_response_url = self._get_html_form_url(auth_response_soup)
-        auth_response_param_code = self._get_html_input_value(
-            auth_response_soup, "code")
-        auth_response_param_state = self._get_html_input_value(
-            auth_response_soup, "state")
+        auth_response_param_code = self._get_html_input_value(auth_response_soup, "code")
+        auth_response_param_state = self._get_html_input_value(auth_response_soup, "state")
         auth_response_params = {
-            "code": auth_response_param_code, "state": auth_response_param_state}
+            "code": auth_response_param_code,
+            "state": auth_response_param_state,
+        }
 
         self._make_url_request(auth_response_url, "GET", params=auth_response_params)
