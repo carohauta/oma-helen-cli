@@ -9,7 +9,7 @@ from cachetools import TTLCache, cached
 from helenservice.api_exceptions import InvalidApiResponseException, InvalidDeliverySiteException
 
 from .api_response import MeasurementResponse, SpotPriceChartResponse, SpotPricesResponse
-from .const import HTTP_READ_TIMEOUT
+from .const import HTTP_READ_TIMEOUT, RESOLUTION_HOUR
 from .helen_session import HelenSession
 
 
@@ -53,7 +53,7 @@ class HelenApiClient:
             self._session.close()
 
     def _get_hourly_consumption_costs(self, start_date: date, end_date: date) -> list:
-        hourly_prices_response = self.get_hourly_spot_prices_between_dates(start_date, end_date)
+        hourly_prices_response = self.get_spot_prices_between_dates(start_date, end_date, RESOLUTION_HOUR)
         if not hourly_prices_response.interval:
             return []
         # retain the hourly-price/hourly-measurement pairs (list ordering matters!) by assigning invalid items None
@@ -63,8 +63,8 @@ class HelenApiClient:
                 hourly_prices_response.interval.measurements,
             )
         )
-        hourly_measurements_data = self.get_hourly_measurements_between_dates(
-            start_date, end_date
+        hourly_measurements_data = self.get_measurements_between_dates(
+            start_date, end_date, RESOLUTION_HOUR
         ).intervals.electricity
         if not hourly_measurements_data:
             return []
@@ -111,13 +111,13 @@ class HelenApiClient:
 
     def calculate_total_costs_by_spot_prices_between_dates(self, start_date: date, end_date: date):
         """Calculate your total electricity cost with according spot prices by hourly precision.
-        Note: Spot prices already include tax from get_hourly_spot_prices_between_dates.
+        Note: Spot prices already include tax from get_spot_prices_between_dates.
 
         Returns the price in euros
         """
         hourly_consumption_costs = self._get_hourly_consumption_costs(start_date, end_date)
         total_price = sum(hourly_consumption_costs)
-        # Prices already include tax from get_hourly_spot_prices_between_dates
+        # Prices already include tax from get_spot_prices_between_dates
         total_price_in_euros = total_price / 100
         return total_price_in_euros
 
@@ -134,7 +134,7 @@ class HelenApiClient:
         B = total consumption multiplied with the whole month's average market price (i.e. your average price of the whole month)
         E = total consumption
         """
-        hourly_prices_response = self.get_hourly_spot_prices_between_dates(start_date, end_date)
+        hourly_prices_response = self.get_spot_prices_between_dates(start_date, end_date, RESOLUTION_HOUR)
         if not hourly_prices_response.interval:
             return 0.0
         # retain the hourly-price/hourly-measurement pairs (list ordering matters!) by assigning invalid items None
@@ -144,7 +144,7 @@ class HelenApiClient:
                 hourly_prices_response.interval.measurements,
             )
         )
-        hourly_measurements_response = self.get_hourly_measurements_between_dates(start_date, end_date)
+        hourly_measurements_response = self.get_measurements_between_dates(start_date, end_date, RESOLUTION_HOUR)
         if not hourly_measurements_response.intervals or not hourly_measurements_response.intervals.electricity:
             return 0.0
         hourly_measurements = list(
@@ -235,15 +235,17 @@ class HelenApiClient:
         return monthly_measurement
 
     @cached(cache=TTLCache(maxsize=4, ttl=3600))
-    def get_hourly_measurements_between_dates(self, start: date, end: date) -> MeasurementResponse:
-        """Get electricity measurements for each hour between given dates."""
+    def get_measurements_between_dates(
+        self, start: date, end: date, resolution: str = RESOLUTION_HOUR
+    ) -> MeasurementResponse:
+        """Get electricity measurements for each hour or quarter between given dates."""
 
         start_time, end_time = self._get_utc_time_range(start, end)
         delivery_site_id = self._get_selected_delivery_site_id_for_api()
         measurements_params = {
             "begin": start_time,
             "end": end_time,
-            "resolution": "hour",
+            "resolution": resolution,
             "delivery_site_id": delivery_site_id,
             "allow_transfer": "true",
         }
@@ -284,15 +286,17 @@ class HelenApiClient:
         return SpotPriceChartResponse(**response.json())
 
     @cached(cache=TTLCache(maxsize=4, ttl=3600))
-    def get_hourly_spot_prices_between_dates(self, start: date, end: date) -> SpotPricesResponse:
-        """Get electricity spot prices for each hour between given dates. Values include tax."""
+    def get_spot_prices_between_dates(
+        self, start: date, end: date, resolution: str = RESOLUTION_HOUR
+    ) -> SpotPricesResponse:
+        """Get electricity spot prices for each hour or quarter between given dates. Values include tax."""
 
         start_time, end_time = self._get_utc_time_range(start, end)
         delivery_site_id = self._get_selected_delivery_site_id_for_api()
         spot_prices_params = {
             "begin": start_time,
             "end": end_time,
-            "resolution": "hour",
+            "resolution": resolution,
             "delivery_site_id": delivery_site_id,
             "allow_transfer": "true",
         }
@@ -476,8 +480,8 @@ class HelenApiClient:
     def _invalidate_caches(self):
         self.get_daily_measurements_between_dates.cache_clear()
         self.get_monthly_measurements_by_year.cache_clear()
-        self.get_hourly_measurements_between_dates.cache_clear()
-        self.get_hourly_spot_prices_between_dates.cache_clear()
+        self.get_measurements_between_dates.cache_clear()
+        self.get_spot_prices_between_dates.cache_clear()
         self.get_contract_data_json.cache_clear()
         self.get_spot_prices_from_chart_data.cache_clear()
 

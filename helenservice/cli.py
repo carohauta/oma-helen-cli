@@ -6,6 +6,7 @@ from getpass import getpass
 from helenservice.api_exceptions import InvalidDeliverySiteException
 
 from .api_client import HelenApiClient
+from .const import RESOLUTION_QUARTER
 from .price_client import HelenPriceClient
 from .utils import get_month_date_range_by_date
 
@@ -243,7 +244,30 @@ class HelenCLIPrompt(Cmd):
                 if start_date > end_date:
                     print("Start date must be before end date")
                     raise ValueError()
-                spot_prices = self.api_client.get_hourly_spot_prices_between_dates(start_date, end_date)
+                spot_prices = self.api_client.get_spot_prices_between_dates(start_date, end_date)
+                spot_prices_json = json.dumps(spot_prices, default=lambda o: o.__dict__, indent=2)
+                print(spot_prices_json)
+            except ValueError:
+                print("Please provide proper start and end dates in format 'YYYY-mm-dd'")
+
+    def do_get_quarterly_spot_prices_json(self, input=None):
+        """Get the spot prices for each quarter between given dates
+        The provided dates should be presented in format 'YYYY-mm-dd'
+
+        Usage example:
+        get_quarterly_spot_prices_json 2025-09-01 2025-09-08
+        """
+        if input is None:
+            print("Please provide proper start and end dates in format 'YYYY-mm-dd'")
+        else:
+            try:
+                start_date_str, end_date_str = str(input).split(' ')
+                start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
+                end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
+                if start_date > end_date:
+                    print("Start date must be before end date")
+                    raise ValueError()
+                spot_prices = self.api_client.get_spot_prices_between_dates(start_date, end_date, RESOLUTION_QUARTER)
                 spot_prices_json = json.dumps(spot_prices, default=lambda o: o.__dict__, indent=2)
                 print(spot_prices_json)
             except ValueError:
