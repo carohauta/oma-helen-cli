@@ -1,5 +1,7 @@
 # Oma Helen CLI
 
+[![Tests](https://github.com/carohauta/oma-helen-cli/actions/workflows/tests.yml/badge.svg)](https://github.com/carohauta/oma-helen-cli/actions/workflows/tests.yml)
+
 An interactive CLI to use [Oma Helen](https://www.helen.fi/kirjautuminen) from your command line. Offers an API client to get contract data and electricity measurements in JSON format.
 
 ### What is Oma Helen?
