@@ -1,0 +1,700 @@
+{
+    "start": "2025-10-06T21:00:00Z",
+    "stop": "2025-10-07T21:00:00Z",
+    "resolution": "quarter",
+    "units": {
+        "electricity": "kWh",
+        "electricity_spot_prices_vat": "c/kWh",
+        "electricity_spot_prices": "c/kWh"
+    },
+    "ids": {
+        "electricity": "643007572123456789",
+        "electricity_spot_prices_vat": "electricity_spot_prices_vat",
+        "electricity_spot_prices": "electricity_spot_prices"
+    },
+    "data_start_times": {
+        "electricity": "2025-10-06T21:00:00Z",
+        "electricity_spot_prices_vat": "2025-10-06T21:00:00Z",
+        "electricity_spot_prices": "2025-10-06T21:00:00Z"
+    },
+    "data_stop_times": {
+        "electricity": "2025-10-07T21:00:00Z",
+        "electricity_spot_prices_vat": "2025-10-07T21:00:00Z",
+        "electricity_spot_prices": "2025-10-07T21:00:00Z"
+    },
+    "series": [
+        {
+            "start": "2025-10-06T21:00:00Z",
+            "stop": "2025-10-06T21:15:00Z",
+            "electricity": 1.006,
+            "electricity_spot_prices_vat": 18.74217,
+            "electricity_spot_prices": 14.934
+        },
+        {
+            "start": "2025-10-06T21:15:00Z",
+            "stop": "2025-10-06T21:30:00Z",
+            "electricity": 0.828,
+            "electricity_spot_prices_vat": 14.45007,
+            "electricity_spot_prices": 11.514
+        },
+        {
+            "start": "2025-10-06T21:30:00Z",
+            "stop": "2025-10-06T21:45:00Z",
+            "electricity": 0.196,
+            "electricity_spot_prices_vat": 12.05553,
+            "electricity_spot_prices": 9.606
+        },
+        {
+            "start": "2025-10-06T21:45:00Z",
+            "stop": "2025-10-06T22:00:00Z",
+            "electricity": 0.096,
+            "electricity_spot_prices_vat": 10.72272,
+            "electricity_spot_prices": 8.544
+        },
+        {
+            "start": "2025-10-06T22:00:00Z",
+            "stop": "2025-10-06T22:15:00Z",
+            "electricity": 0.192,
+            "electricity_spot_prices_vat": 9.950895,
+            "electricity_spot_prices": 7.929
+        },
+        {
+            "start": "2025-10-06T22:15:00Z",
+            "stop": "2025-10-06T22:30:00Z",
+            "electricity": 0.097,
+            "electricity_spot_prices_vat": 10.04251,
+            "electricity_spot_prices": 8.002
+        },
+        {
+            "start": "2025-10-06T22:30:00Z",
+            "stop": "2025-10-06T22:45:00Z",
+            "electricity": 0.184,
+            "electricity_spot_prices_vat": 9.69613,
+            "electricity_spot_prices": 7.726
+        },
+        {
+            "start": "2025-10-06T22:45:00Z",
+            "stop": "2025-10-06T23:00:00Z",
+            "electricity": 0.099,
+            "electricity_spot_prices_vat": 9.02345,
+            "electricity_spot_prices": 7.19
+        },
+        {
+            "start": "2025-10-06T23:00:00Z",
+            "stop": "2025-10-06T23:15:00Z",
+            "electricity": 0.179,
+            "electricity_spot_prices_vat": 9.787745,
+            "electricity_spot_prices": 7.799
+        },
+        {
+            "start": "2025-10-06T23:15:00Z",
+            "stop": "2025-10-06T23:30:00Z",
+            "electricity": 0.109,
+            "electricity_spot_prices_vat": 9.285745,
+            "electricity_spot_prices": 7.399
+        },
+        {
+            "start": "2025-10-06T23:30:00Z",
+            "stop": "2025-10-06T23:45:00Z",
+            "electricity": 0.186,
+            "electricity_spot_prices_vat": 9.03098,
+            "electricity_spot_prices": 7.196
+        },
+        {
+            "start": "2025-10-06T23:45:00Z",
+            "stop": "2025-10-07T00:00:00Z",
+            "electricity": 0.136,
+            "electricity_spot_prices_vat": 8.42356,
+            "electricity_spot_prices": 6.712
+        },
+        {
+            "start": "2025-10-07T00:00:00Z",
+            "stop": "2025-10-07T00:15:00Z",
+            "electricity": 0.177,
+            "electricity_spot_prices_vat": 9.21672,
+            "electricity_spot_prices": 7.344
+        },
+        {
+            "start": "2025-10-07T00:15:00Z",
+            "stop": "2025-10-07T00:30:00Z",
+            "electricity": 0.15,
+            "electricity_spot_prices_vat": 8.598005,
+            "electricity_spot_prices": 6.851
+        },
+        {
+            "start": "2025-10-07T00:30:00Z",
+            "stop": "2025-10-07T00:45:00Z",
+            "electricity": 0.159,
+            "electricity_spot_prices_vat": 8.630635,
+            "electricity_spot_prices": 6.877
+        },
+        {
+            "start": "2025-10-07T00:45:00Z",
+            "stop": "2025-10-07T01:00:00Z",
+            "electricity": 0.159,
+            "electricity_spot_prices_vat": 8.577925,
+            "electricity_spot_prices": 6.835
+        },
+        {
+            "start": "2025-10-07T01:00:00Z",
+            "stop": "2025-10-07T01:15:00Z",
+            "electricity": 0.131,
+            "electricity_spot_prices_vat": 8.87536,
+            "electricity_spot_prices": 7.072
+        },
+        {
+            "start": "2025-10-07T01:15:00Z",
+            "stop": "2025-10-07T01:30:00Z",
+            "electricity": 0.179,
+            "electricity_spot_prices_vat": 9.13389,
+            "electricity_spot_prices": 7.278
+        },
+        {
+            "start": "2025-10-07T01:30:00Z",
+            "stop": "2025-10-07T01:45:00Z",
+            "electricity": 0.106,
+            "electricity_spot_prices_vat": 9.135145,
+            "electricity_spot_prices": 7.279
+        },
+        {
+            "start": "2025-10-07T01:45:00Z",
+            "stop": "2025-10-07T02:00:00Z",
+            "electricity": 0.192,
+            "electricity_spot_prices_vat": 9.49031,
+            "electricity_spot_prices": 7.562
+        },
+        {
+            "start": "2025-10-07T02:00:00Z",
+            "stop": "2025-10-07T02:15:00Z",
+            "electricity": 0.082,
+            "electricity_spot_prices_vat": 8.3583,
+            "electricity_spot_prices": 6.66
+        },
+        {
+            "start": "2025-10-07T02:15:00Z",
+            "stop": "2025-10-07T02:30:00Z",
+            "electricity": 0.216,
+            "electricity_spot_prices_vat": 8.570395,
+            "electricity_spot_prices": 6.829
+        },
+        {
+            "start": "2025-10-07T02:30:00Z",
+            "stop": "2025-10-07T02:45:00Z",
+            "electricity": 0.097,
+            "electricity_spot_prices_vat": 9.305825,
+            "electricity_spot_prices": 7.415
+        },
+        {
+            "start": "2025-10-07T02:45:00Z",
+            "stop": "2025-10-07T03:00:00Z",
+            "electricity": 0.226,
+            "electricity_spot_prices_vat": 10.11781,
+            "electricity_spot_prices": 8.062
+        },
+        {
+            "start": "2025-10-07T03:00:00Z",
+            "stop": "2025-10-07T03:15:00Z",
+            "electricity": 0.407,
+            "electricity_spot_prices_vat": 9.52043,
+            "electricity_spot_prices": 7.586
+        },
+        {
+            "start": "2025-10-07T03:15:00Z",
+            "stop": "2025-10-07T03:30:00Z",
+            "electricity": 0.471,
+            "electricity_spot_prices_vat": 10.500585,
+            "electricity_spot_prices": 8.367
+        },
+        {
+            "start": "2025-10-07T03:30:00Z",
+            "stop": "2025-10-07T03:45:00Z",
+            "electricity": 0.167,
+            "electricity_spot_prices_vat": 11.30002,
+            "electricity_spot_prices": 9.004
+        },
+        {
+            "start": "2025-10-07T03:45:00Z",
+            "stop": "2025-10-07T04:00:00Z",
+            "electricity": 0.523,
+            "electricity_spot_prices_vat": 11.78947,
+            "electricity_spot_prices": 9.394
+        },
+        {
+            "start": "2025-10-07T04:00:00Z",
+            "stop": "2025-10-07T04:15:00Z",
+            "electricity": 0.16,
+            "electricity_spot_prices_vat": 10.437835,
+            "electricity_spot_prices": 8.317
+        },
+        {
+            "start": "2025-10-07T04:15:00Z",
+            "stop": "2025-10-07T04:30:00Z",
+            "electricity": 0.437,
+            "electricity_spot_prices_vat": 11.617535,
+            "electricity_spot_prices": 9.257
+        },
+        {
+            "start": "2025-10-07T04:30:00Z",
+            "stop": "2025-10-07T04:45:00Z",
+            "electricity": 0.239,
+            "electricity_spot_prices_vat": 13.116005,
+            "electricity_spot_prices": 10.451
+        },
+        {
+            "start": "2025-10-07T04:45:00Z",
+            "stop": "2025-10-07T05:00:00Z",
+            "electricity": 0.314,
+            "electricity_spot_prices_vat": 15.45156,
+            "electricity_spot_prices": 12.312
+        },
+        {
+            "start": "2025-10-07T05:00:00Z",
+            "stop": "2025-10-07T05:15:00Z",
+            "electricity": 0.334,
+            "electricity_spot_prices_vat": 15.1604,
+            "electricity_spot_prices": 12.08
+        },
+        {
+            "start": "2025-10-07T05:15:00Z",
+            "stop": "2025-10-07T05:30:00Z",
+            "electricity": 0.18,
+            "electricity_spot_prices_vat": 19.77629,
+            "electricity_spot_prices": 15.758
+        },
+        {
+            "start": "2025-10-07T05:30:00Z",
+            "stop": "2025-10-07T05:45:00Z",
+            "electricity": 0.682,
+            "electricity_spot_prices_vat": 25.023445,
+            "electricity_spot_prices": 19.939
+        },
+        {
+            "start": "2025-10-07T05:45:00Z",
+            "stop": "2025-10-07T06:00:00Z",
+            "electricity": 0.264,
+            "electricity_spot_prices_vat": 26.69636,
+            "electricity_spot_prices": 21.272
+        },
+        {
+            "start": "2025-10-07T06:00:00Z",
+            "stop": "2025-10-07T06:15:00Z",
+            "electricity": 0.396,
+            "electricity_spot_prices_vat": 28.381825,
+            "electricity_spot_prices": 22.615
+        },
+        {
+            "start": "2025-10-07T06:15:00Z",
+            "stop": "2025-10-07T06:30:00Z",
+            "electricity": 0.332,
+            "electricity_spot_prices_vat": 27.643885,
+            "electricity_spot_prices": 22.027
+        },
+        {
+            "start": "2025-10-07T06:30:00Z",
+            "stop": "2025-10-07T06:45:00Z",
+            "electricity": 0.269,
+            "electricity_spot_prices_vat": 26.55078,
+            "electricity_spot_prices": 21.156
+        },
+        {
+            "start": "2025-10-07T06:45:00Z",
+            "stop": "2025-10-07T07:00:00Z",
+            "electricity": 0.43,
+            "electricity_spot_prices_vat": 23.457205,
+            "electricity_spot_prices": 18.691
+        },
+        {
+            "start": "2025-10-07T07:00:00Z",
+            "stop": "2025-10-07T07:15:00Z",
+            "electricity": 0.157,
+            "electricity_spot_prices_vat": 27.106745,
+            "electricity_spot_prices": 21.599
+        },
+        {
+            "start": "2025-10-07T07:15:00Z",
+            "stop": "2025-10-07T07:30:00Z",
+            "electricity": 0.514,
+            "electricity_spot_prices_vat": 21.93238,
+            "electricity_spot_prices": 17.476
+        },
+        {
+            "start": "2025-10-07T07:30:00Z",
+            "stop": "2025-10-07T07:45:00Z",
+            "electricity": 0.136,
+            "electricity_spot_prices_vat": 15.5118,
+            "electricity_spot_prices": 12.36
+        },
+        {
+            "start": "2025-10-07T07:45:00Z",
+            "stop": "2025-10-07T08:00:00Z",
+            "electricity": 0.398,
+            "electricity_spot_prices_vat": 12.749545,
+            "electricity_spot_prices": 10.159
+        },
+        {
+            "start": "2025-10-07T08:00:00Z",
+            "stop": "2025-10-07T08:15:00Z",
+            "electricity": 0.236,
+            "electricity_spot_prices_vat": 18.161105,
+            "electricity_spot_prices": 14.471
+        },
+        {
+            "start": "2025-10-07T08:15:00Z",
+            "stop": "2025-10-07T08:30:00Z",
+            "electricity": 0.285,
+            "electricity_spot_prices_vat": 14.727425,
+            "electricity_spot_prices": 11.735
+        },
+        {
+            "start": "2025-10-07T08:30:00Z",
+            "stop": "2025-10-07T08:45:00Z",
+            "electricity": 0.311,
+            "electricity_spot_prices_vat": 12.55,
+            "electricity_spot_prices": 10.0
+        },
+        {
+            "start": "2025-10-07T08:45:00Z",
+            "stop": "2025-10-07T09:00:00Z",
+            "electricity": 0.302,
+            "electricity_spot_prices_vat": 11.052785,
+            "electricity_spot_prices": 8.807
+        },
+        {
+            "start": "2025-10-07T09:00:00Z",
+            "stop": "2025-10-07T09:15:00Z",
+            "electricity": 0.204,
+            "electricity_spot_prices_vat": 13.97568,
+            "electricity_spot_prices": 11.136
+        },
+        {
+            "start": "2025-10-07T09:15:00Z",
+            "stop": "2025-10-07T09:30:00Z",
+            "electricity": 0.54,
+            "electricity_spot_prices_vat": 12.07059,
+            "electricity_spot_prices": 9.618
+        },
+        {
+            "start": "2025-10-07T09:30:00Z",
+            "stop": "2025-10-07T09:45:00Z",
+            "electricity": 0.129,
+            "electricity_spot_prices_vat": 10.03749,
+            "electricity_spot_prices": 7.998
+        },
+        {
+            "start": "2025-10-07T09:45:00Z",
+            "stop": "2025-10-07T10:00:00Z",
+            "electricity": 0.473,
+            "electricity_spot_prices_vat": 9.67856,
+            "electricity_spot_prices": 7.712
+        },
+        {
+            "start": "2025-10-07T10:00:00Z",
+            "stop": "2025-10-07T10:15:00Z",
+            "electricity": 0.174,
+            "electricity_spot_prices_vat": 11.411715,
+            "electricity_spot_prices": 9.093
+        },
+        {
+            "start": "2025-10-07T10:15:00Z",
+            "stop": "2025-10-07T10:30:00Z",
+            "electricity": 0.259,
+            "electricity_spot_prices_vat": 10.10275,
+            "electricity_spot_prices": 8.05
+        },
+        {
+            "start": "2025-10-07T10:30:00Z",
+            "stop": "2025-10-07T10:45:00Z",
+            "electricity": 0.375,
+            "electricity_spot_prices_vat": 9.873085,
+            "electricity_spot_prices": 7.867
+        },
+        {
+            "start": "2025-10-07T10:45:00Z",
+            "stop": "2025-10-07T11:00:00Z",
+            "electricity": 0.263,
+            "electricity_spot_prices_vat": 9.679815,
+            "electricity_spot_prices": 7.713
+        },
+        {
+            "start": "2025-10-07T11:00:00Z",
+            "stop": "2025-10-07T11:15:00Z",
+            "electricity": 0.24,
+            "electricity_spot_prices_vat": 9.594475,
+            "electricity_spot_prices": 7.645
+        },
+        {
+            "start": "2025-10-07T11:15:00Z",
+            "stop": "2025-10-07T11:30:00Z",
+            "electricity": 0.373,
+            "electricity_spot_prices_vat": 9.60577,
+            "electricity_spot_prices": 7.654
+        },
+        {
+            "start": "2025-10-07T11:30:00Z",
+            "stop": "2025-10-07T11:45:00Z",
+            "electricity": 0.238,
+            "electricity_spot_prices_vat": 9.60326,
+            "electricity_spot_prices": 7.652
+        },
+        {
+            "start": "2025-10-07T11:45:00Z",
+            "stop": "2025-10-07T12:00:00Z",
+            "electricity": 0.252,
+            "electricity_spot_prices_vat": 9.51541,
+            "electricity_spot_prices": 7.582
+        },
+        {
+            "start": "2025-10-07T12:00:00Z",
+            "stop": "2025-10-07T12:15:00Z",
+            "electricity": 0.374,
+            "electricity_spot_prices_vat": 9.62083,
+            "electricity_spot_prices": 7.666
+        },
+        {
+            "start": "2025-10-07T12:15:00Z",
+            "stop": "2025-10-07T12:30:00Z",
+            "electricity": 0.175,
+            "electricity_spot_prices_vat": 9.659735,
+            "electricity_spot_prices": 7.697
+        },
+        {
+            "start": "2025-10-07T12:30:00Z",
+            "stop": "2025-10-07T12:45:00Z",
+            "electricity": 0.406,
+            "electricity_spot_prices_vat": 9.589455,
+            "electricity_spot_prices": 7.641
+        },
+        {
+            "start": "2025-10-07T12:45:00Z",
+            "stop": "2025-10-07T13:00:00Z",
+            "electricity": 0.235,
+            "electricity_spot_prices_vat": 9.55306,
+            "electricity_spot_prices": 7.612
+        },
+        {
+            "start": "2025-10-07T13:00:00Z",
+            "stop": "2025-10-07T13:15:00Z",
+            "electricity": 0.257,
+            "electricity_spot_prices_vat": 9.433835,
+            "electricity_spot_prices": 7.517
+        },
+        {
+            "start": "2025-10-07T13:15:00Z",
+            "stop": "2025-10-07T13:30:00Z",
+            "electricity": 0.268,
+            "electricity_spot_prices_vat": 9.519175,
+            "electricity_spot_prices": 7.585
+        },
+        {
+            "start": "2025-10-07T13:30:00Z",
+            "stop": "2025-10-07T13:45:00Z",
+            "electricity": 0.644,
+            "electricity_spot_prices_vat": 9.43007,
+            "electricity_spot_prices": 7.514
+        },
+        {
+            "start": "2025-10-07T13:45:00Z",
+            "stop": "2025-10-07T14:00:00Z",
+            "electricity": 0.488,
+            "electricity_spot_prices_vat": 9.009645,
+            "electricity_spot_prices": 7.179
+        },
+        {
+            "start": "2025-10-07T14:00:00Z",
+            "stop": "2025-10-07T14:15:00Z",
+            "electricity": 0.511,
+            "electricity_spot_prices_vat": 10.05506,
+            "electricity_spot_prices": 8.012
+        },
+        {
+            "start": "2025-10-07T14:15:00Z",
+            "stop": "2025-10-07T14:30:00Z",
+            "electricity": 0.279,
+            "electricity_spot_prices_vat": 10.26339,
+            "electricity_spot_prices": 8.178
+        },
+        {
+            "start": "2025-10-07T14:30:00Z",
+            "stop": "2025-10-07T14:45:00Z",
+            "electricity": 0.2,
+            "electricity_spot_prices_vat": 9.6886,
+            "electricity_spot_prices": 7.72
+        },
+        {
+            "start": "2025-10-07T14:45:00Z",
+            "stop": "2025-10-07T15:00:00Z",
+            "electricity": 0.234,
+            "electricity_spot_prices_vat": 9.544275,
+            "electricity_spot_prices": 7.605
+        },
+        {
+            "start": "2025-10-07T15:00:00Z",
+            "stop": "2025-10-07T15:15:00Z",
+            "electricity": 0.641,
+            "electricity_spot_prices_vat": 10.279705,
+            "electricity_spot_prices": 8.191
+        },
+        {
+            "start": "2025-10-07T15:15:00Z",
+            "stop": "2025-10-07T15:30:00Z",
+            "electricity": 0.453,
+            "electricity_spot_prices_vat": 9.67856,
+            "electricity_spot_prices": 7.712
+        },
+        {
+            "start": "2025-10-07T15:30:00Z",
+            "stop": "2025-10-07T15:45:00Z",
+            "electricity": 0.18,
+            "electricity_spot_prices_vat": 6.635185,
+            "electricity_spot_prices": 5.287
+        },
+        {
+            "start": "2025-10-07T15:45:00Z",
+            "stop": "2025-10-07T16:00:00Z",
+            "electricity": 0.208,
+            "electricity_spot_prices_vat": 6.273745,
+            "electricity_spot_prices": 4.999
+        },
+        {
+            "start": "2025-10-07T16:00:00Z",
+            "stop": "2025-10-07T16:15:00Z",
+            "electricity": 0.243,
+            "electricity_spot_prices_vat": 6.273745,
+            "electricity_spot_prices": 4.999
+        },
+        {
+            "start": "2025-10-07T16:15:00Z",
+            "stop": "2025-10-07T16:30:00Z",
+            "electricity": 0.261,
+            "electricity_spot_prices_vat": 5.57471,
+            "electricity_spot_prices": 4.442
+        },
+        {
+            "start": "2025-10-07T16:30:00Z",
+            "stop": "2025-10-07T16:45:00Z",
+            "electricity": 0.125,
+            "electricity_spot_prices_vat": 4.8945,
+            "electricity_spot_prices": 3.9
+        },
+        {
+            "start": "2025-10-07T16:45:00Z",
+            "stop": "2025-10-07T17:00:00Z",
+            "electricity": 0.158,
+            "electricity_spot_prices_vat": 3.74743,
+            "electricity_spot_prices": 2.986
+        },
+        {
+            "start": "2025-10-07T17:00:00Z",
+            "stop": "2025-10-07T17:15:00Z",
+            "electricity": 0.163,
+            "electricity_spot_prices_vat": 1.529845,
+            "electricity_spot_prices": 1.219
+        },
+        {
+            "start": "2025-10-07T17:15:00Z",
+            "stop": "2025-10-07T17:30:00Z",
+            "electricity": 0.102,
+            "electricity_spot_prices_vat": 1.21233,
+            "electricity_spot_prices": 0.966
+        },
+        {
+            "start": "2025-10-07T17:30:00Z",
+            "stop": "2025-10-07T17:45:00Z",
+            "electricity": 0.192,
+            "electricity_spot_prices_vat": 1.002745,
+            "electricity_spot_prices": 0.799
+        },
+        {
+            "start": "2025-10-07T17:45:00Z",
+            "stop": "2025-10-07T18:00:00Z",
+            "electricity": 0.117,
+            "electricity_spot_prices_vat": 0.721625,
+            "electricity_spot_prices": 0.575
+        },
+        {
+            "start": "2025-10-07T18:00:00Z",
+            "stop": "2025-10-07T18:15:00Z",
+            "electricity": 0.192,
+            "electricity_spot_prices_vat": 0.85842,
+            "electricity_spot_prices": 0.684
+        },
+        {
+            "start": "2025-10-07T18:15:00Z",
+            "stop": "2025-10-07T18:30:00Z",
+            "electricity": 0.212,
+            "electricity_spot_prices_vat": 0.719115,
+            "electricity_spot_prices": 0.573
+        },
+        {
+            "start": "2025-10-07T18:30:00Z",
+            "stop": "2025-10-07T18:45:00Z",
+            "electricity": 0.146,
+            "electricity_spot_prices_vat": 0.563495,
+            "electricity_spot_prices": 0.449
+        },
+        {
+            "start": "2025-10-07T18:45:00Z",
+            "stop": "2025-10-07T19:00:00Z",
+            "electricity": 0.406,
+            "electricity_spot_prices_vat": 0.46435,
+            "electricity_spot_prices": 0.37
+        },
+        {
+            "start": "2025-10-07T19:00:00Z",
+            "stop": "2025-10-07T19:15:00Z",
+            "electricity": 0.363,
+            "electricity_spot_prices_vat": 0.56977,
+            "electricity_spot_prices": 0.454
+        },
+        {
+            "start": "2025-10-07T19:15:00Z",
+            "stop": "2025-10-07T19:30:00Z",
+            "electricity": 0.141,
+            "electricity_spot_prices_vat": 0.550945,
+            "electricity_spot_prices": 0.439
+        },
+        {
+            "start": "2025-10-07T19:30:00Z",
+            "stop": "2025-10-07T19:45:00Z",
+            "electricity": 0.532,
+            "electricity_spot_prices_vat": 0.525845,
+            "electricity_spot_prices": 0.419
+        },
+        {
+            "start": "2025-10-07T19:45:00Z",
+            "stop": "2025-10-07T20:00:00Z",
+            "electricity": 1.078,
+            "electricity_spot_prices_vat": 0.502,
+            "electricity_spot_prices": 0.4
+        },
+        {
+            "start": "2025-10-07T20:00:00Z",
+            "stop": "2025-10-07T20:15:00Z",
+            "electricity": 0.952,
+            "electricity_spot_prices_vat": 0.503255,
+            "electricity_spot_prices": 0.401
+        },
+        {
+            "start": "2025-10-07T20:15:00Z",
+            "stop": "2025-10-07T20:30:00Z",
+            "electricity": 0.974,
+            "electricity_spot_prices_vat": 0.493215,
+            "electricity_spot_prices": 0.393
+        },
+        {
+            "start": "2025-10-07T20:30:00Z",
+            "stop": "2025-10-07T20:45:00Z",
+            "electricity": 1.06,
+            "electricity_spot_prices_vat": 0.45431,
+            "electricity_spot_prices": 0.362
+        },
+        {
+            "start": "2025-10-07T20:45:00Z",
+            "stop": "2025-10-07T21:00:00Z",
+            "electricity": 0.948,
+            "electricity_spot_prices_vat": 0.3765,
+            "electricity_spot_prices": 0.3
+        }
+    ],
+    "missing_series": []
+}

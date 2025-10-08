@@ -5,7 +5,7 @@ from unittest.mock import Mock, patch
 import pytest
 
 from helenservice.api_client import HelenApiClient
-from helenservice.api_response import MeasurementResponse, SpotPriceChartResponse
+from helenservice.api_response import MeasurementResponse, MeasurementsWithSpotPriceResponse, SpotPriceChartResponse
 from helenservice.const import HTTP_READ_TIMEOUT, RESOLUTION_HOUR
 
 
@@ -20,7 +20,8 @@ class TestHelenApiClient:
         client._session = Mock()
         client._session.get_access_token.return_value = "mock_token"
         client._selected_delivery_site_id = "123456789"
-        client._selected_contract = {"delivery_site": {"id": "123456789"}, "domain": None}
+        client._selected_contract = {"delivery_site": {"id": "123456789"}, "domain": None, "gsrn": "643007572123456789"}
+        client._all_active_contracts = [client._selected_contract]
         return client
 
     @pytest.fixture
@@ -39,6 +40,12 @@ class TestHelenApiClient:
     def mock_contracts_response(self):
         """Load the test contracts response."""
         with open("tests/resources/contracts_response.json") as f:
+            return json.load(f)
+
+    @pytest.fixture
+    def mock_measurement_spot_response(self):
+        """Load the test measurement with spot prices response."""
+        with open("tests/resources/measurement_spot_response.json") as f:
             return json.load(f)
 
     def test_get_daily_measurements_between_dates(self, api_client, mock_measurements_response):
@@ -198,5 +205,44 @@ class TestHelenApiClient:
             call_args = mock_get.call_args
             assert call_args[1]["params"]["resolution"] == "hour"
 
-            # Verify response
-            assert result.interval is not None
+        # Verify response
+        assert result.interval is not None
+
+    def test_get_measurements_with_spot_prices(
+        self, api_client, mock_measurement_spot_response, mock_contracts_response
+    ):
+        """Test get_measurements_with_spot_prices method."""
+        start_date = date(2025, 10, 6)
+        end_date = date(2025, 10, 7)
+
+        # Mock the HTTP requests
+        mock_chart_response = Mock()
+        mock_chart_response.json.return_value = mock_measurement_spot_response
+
+        mock_contracts_response_mock = Mock()
+        mock_contracts_response_mock.json.return_value = mock_contracts_response
+
+        # Mock the _refresh_api_client_state method to avoid contract lookup
+        with patch.object(api_client, '_refresh_api_client_state'):
+            with patch("requests.get", return_value=mock_chart_response) as mock_get:
+                result = api_client.get_measurements_with_spot_prices(start_date, end_date)
+
+            # Verify the request was made correctly
+            mock_get.assert_called_once()
+            call_args = mock_get.call_args
+            assert "start" in call_args[1]["params"]
+            assert "stop" in call_args[1]["params"]
+            assert call_args[1]["params"]["resolution"] == "hour"
+            assert call_args[1]["params"]["channel"] == "oh"
+            assert "chart-data" in call_args[0][0]  # URL contains chart-data
+
+            # Verify the response parsing
+            assert isinstance(result, MeasurementsWithSpotPriceResponse)
+            assert result.resolution == "quarter"
+            assert result.series is not None
+            assert len(result.series) > 0
+            # Check that series contains both electricity and spot price data
+            first_series = result.series[0]
+            assert hasattr(first_series, 'electricity')
+            assert hasattr(first_series, 'electricity_spot_prices_vat')
+            assert hasattr(first_series, 'electricity_spot_prices')

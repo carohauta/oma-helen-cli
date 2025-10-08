@@ -8,7 +8,12 @@ from cachetools import TTLCache, cached
 
 from helenservice.api_exceptions import InvalidApiResponseException, InvalidDeliverySiteException
 
-from .api_response import MeasurementResponse, SpotPriceChartResponse, SpotPricesResponse
+from .api_response import (
+    MeasurementResponse,
+    MeasurementsWithSpotPriceResponse,
+    SpotPriceChartResponse,
+    SpotPricesResponse,
+)
 from .const import HTTP_READ_TIMEOUT, RESOLUTION_HOUR
 from .helen_session import HelenSession
 
@@ -260,6 +265,36 @@ class HelenApiClient:
         hourly_measurement: MeasurementResponse = MeasurementResponse(**json.loads(response_json_text))
 
         return hourly_measurement
+
+    @cached(cache=TTLCache(maxsize=4, ttl=3600))
+    def get_measurements_with_spot_prices(
+        self, start: date, end: date, resolution: str = RESOLUTION_HOUR
+    ) -> MeasurementsWithSpotPriceResponse:
+        """Get electricity measurements with spot prices for a specific GSRN between given dates.
+
+        Args:
+            start: The start date
+            end: The end date
+            resolution: The resolution (default: "hour")
+
+        Returns:
+            MeasurementsWithSpotPriceResponse object containing measurements and spot prices.
+        """
+        start_time, end_time = self._get_utc_time_range(start, end, round_to_full_hour=True)
+
+        gsrn_id = self._selected_contract["gsrn"]
+
+        chart_params = {"start": start_time, "stop": end_time, "resolution": resolution, "channel": "oh"}
+
+        chart_url = f"{self.HELEN_API_URL_V25}/chart-data/{gsrn_id}/electricity"
+        response = requests.get(
+            chart_url,
+            params=chart_params,
+            headers=self._api_request_headers(),
+            timeout=HTTP_READ_TIMEOUT,
+        )
+
+        return MeasurementsWithSpotPriceResponse(**response.json())
 
     @cached(cache=TTLCache(maxsize=4, ttl=3600))
     def get_spot_prices_from_chart_data(self, target_date: date) -> SpotPriceChartResponse:

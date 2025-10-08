@@ -251,7 +251,7 @@ class HelenCLIPrompt(Cmd):
                 print("Please provide proper start and end dates in format 'YYYY-mm-dd'")
 
     def do_get_quarterly_spot_prices_json(self, input=None):
-        """Get the spot prices for each quarter between given dates
+        """Get the measurements with spot prices for each quarter between given dates
         The provided dates should be presented in format 'YYYY-mm-dd'
 
         Usage example:
@@ -267,9 +267,11 @@ class HelenCLIPrompt(Cmd):
                 if start_date > end_date:
                     print("Start date must be before end date")
                     raise ValueError()
-                spot_prices = self.api_client.get_spot_prices_between_dates(start_date, end_date, RESOLUTION_QUARTER)
-                spot_prices_json = json.dumps(spot_prices, default=lambda o: o.__dict__, indent=2)
-                print(spot_prices_json)
+                measurements_with_spot_prices = self.api_client.get_measurements_with_spot_prices(
+                    start_date, end_date, RESOLUTION_QUARTER
+                )
+                measurements_json = json.dumps(measurements_with_spot_prices, default=lambda o: o.__dict__, indent=2)
+                print(measurements_json)
             except ValueError:
                 print("Please provide proper start and end dates in format 'YYYY-mm-dd'")
 
