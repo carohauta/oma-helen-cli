@@ -90,6 +90,8 @@ class MeasurementsWithSpotPriceSeries:
         electricity: float = None,
         electricity_spot_prices_vat: float = None,
         electricity_spot_prices: float = None,
+        ambient_temperature: float = None,
+        ambient_humidity: float = None,
         **_,
     ):
         self.start = start
@@ -97,6 +99,8 @@ class MeasurementsWithSpotPriceSeries:
         self.electricity = electricity
         self.electricity_spot_prices_vat = electricity_spot_prices_vat
         self.electricity_spot_prices = electricity_spot_prices
+        self.ambient_temperature = ambient_temperature
+        self.ambient_humidity = ambient_humidity
 
 
 class MeasurementsWithSpotPriceResponse:
