@@ -289,7 +289,7 @@ class HelenApiClient:
     def get_spot_prices_between_dates(
         self, start: date, end: date, resolution: str = RESOLUTION_HOUR
     ) -> SpotPricesResponse:
-        """Get electricity spot prices for each hour or quarter between given dates. Values include tax."""
+        """Get electricity spot prices for each hour between given dates. Values include tax."""
 
         start_time, end_time = self._get_utc_time_range(start, end)
         delivery_site_id = self._get_selected_delivery_site_id_for_api()
@@ -496,18 +496,31 @@ class HelenApiClient:
 
     def _get_all_active_contracts(self, contracts):
         """
-        Find all active contracts from a list of contracts
+        Find all active contracts from a list of contracts.
+        A contract is considered active if:
+        - It has no end_date or end_date is in the future
+        - Its start_date is not in the future
+        - Its domain is not 'electricity-production'
         """
-        active_contracts = list(
-            filter(
-                lambda contract: contract["end_date"] == None or self._date_is_now_or_later(contract["end_date"]),
-                contracts,
-            )
-        )
-        active_contracts = list(
-            filter(lambda contract: contract["domain"] != "electricity-production", active_contracts)
-        )
-        return active_contracts
+        now = datetime.now()
+
+        def is_active_contract(contract):
+            # Check if contract has started (start_date is not in future)
+            start_date = datetime.strptime(contract["start_date"], '%Y-%m-%dT%H:%M:%S')
+            if start_date > now:
+                return False
+
+            # Check if contract hasn't ended (end_date is None or in future)
+            end_date_str = contract.get("end_date")
+            if end_date_str is not None:
+                end_date = datetime.strptime(end_date_str, '%Y-%m-%dT%H:%M:%S')
+                if end_date < now:
+                    return False
+
+            # Check domain
+            return contract.get("domain") != "electricity-production"
+
+        return list(filter(is_active_contract, contracts))
 
     def _get_contract_by_delivery_site_id(self, contracts):
         """

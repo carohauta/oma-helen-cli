@@ -1,0 +1,424 @@
+{
+    "contracts": [
+        {
+            "billing": {
+                "address": {
+                    "city": "TAMPERE",
+                    "country": "Suomi",
+                    "country_code": "FI",
+                    "postal_code": "33100",
+                    "postal_area": "TAMPERE",
+                    "street_address": "Katuosoite"
+                },
+                "billing_method": "e-invoice",
+                "bills_per_year": 12,
+                "e_invoice_bic": "OKOYFIHH",
+                "e_invoice_bank_name": {
+                    "fi": "OP",
+                    "sv": null,
+                    "en": null
+                },
+                "has_pending_e_invoice": false
+            },
+            "contract_id": 123456,
+            "property_manager_id": null,
+            "payer_id": 54321,
+            "external_key": "323232332",
+            "gsrn": "643007572123456789",
+            "customer_id": 654321,
+            "contract_partner_ids": [],
+            "delivery_site": {
+                "address": {
+                    "city": "TAMPERE",
+                    "country": "Suomi",
+                    "country_code": "FI",
+                    "postal_code": "33100",
+                    "postal_area": "TAMPERE",
+                    "street_address": "Katuosoite"
+                },
+                "grid_company_name": "Tampereen Energia Oy",
+                "gsrn": "643007572123456789",
+                "id": 654321
+            },
+            "domain": "electricity",
+            "end_date": "2024-08-01T00:00:00",
+            "products": [
+                {
+                    "attributes": null,
+                    "id": "PERUSKIINT01MA",
+                    "name": "Määräaikainen Perussähkö.",
+                    "localized_name": {
+                        "fi": "Määräaikainen Perussähkö.",
+                        "sv": "Tidsbunden Basel",
+                        "en": "Fixed-term Basic Electricity"
+                    },
+                    "price_list_id": "HPERUSKIINT01MA",
+                    "product_type": "energy",
+                    "product_subtypes": [],
+                    "components": [
+                        {
+                            "id": "PERUSKIINT01PM",
+                            "name": "Perusmaksu",
+                            "localized_name": {
+                                "fi": "Perusmaksu",
+                                "sv": "Grundavgift",
+                                "en": "Basic fee"
+                            },
+                            "price": 5.99,
+                            "price_without_vat": 4.83,
+                            "price_unit": "€/kk",
+                            "price_prefix": null,
+                            "price_postfix": null,
+                            "prices": [
+                                {
+                                    "price": 5.99,
+                                    "price_without_vat": 4.83,
+                                    "price_unit": "€/kk",
+                                    "localized_price_unit": {
+                                        "fi": "€/kk",
+                                        "sv": "€/mån",
+                                        "en": "€/mo"
+                                    },
+                                    "price_prefix": null,
+                                    "price_postfix": null,
+                                    "start_date": "2023-07-31T21:00:00Z",
+                                    "end_date": "2024-07-31T21:00:00Z",
+                                    "status": "valid"
+                                }
+                            ],
+                            "localized_price_unit": {
+                                "fi": "€/kk",
+                                "sv": "€/mån",
+                                "en": "€/mo"
+                            },
+                            "is_base_price": true,
+                            "is_valid_price": true,
+                            "component_description": null,
+                            "component_info": null
+                        },
+                        {
+                            "id": "PERUSKIINT01EN",
+                            "name": "Energia",
+                            "localized_name": {
+                                "fi": "Energia",
+                                "sv": "Energi",
+                                "en": "Energy "
+                            },
+                            "price": 9.11,
+                            "price_without_vat": 7.35,
+                            "price_unit": "snt/kWh",
+                            "price_prefix": null,
+                            "price_postfix": null,
+                            "prices": [
+                                {
+                                    "price": 9.11,
+                                    "price_without_vat": 7.35,
+                                    "price_unit": "snt/kWh",
+                                    "localized_price_unit": {
+                                        "fi": "snt/kWh",
+                                        "sv": "c/kWh",
+                                        "en": "c/kWh"
+                                    },
+                                    "price_prefix": null,
+                                    "price_postfix": null,
+                                    "start_date": "2023-07-31T21:00:00Z",
+                                    "end_date": "2023-10-31T22:00:00Z",
+                                    "status": "valid"
+                                },
+                                {
+                                    "price": 9.11,
+                                    "price_without_vat": 7.35,
+                                    "price_unit": "snt/kWh",
+                                    "localized_price_unit": {
+                                        "fi": "snt/kWh",
+                                        "sv": "c/kWh",
+                                        "en": "c/kWh"
+                                    },
+                                    "price_prefix": null,
+                                    "price_postfix": null,
+                                    "start_date": "2023-10-31T22:00:00Z",
+                                    "end_date": "2024-07-31T21:00:00Z",
+                                    "status": "valid"
+                                }
+                            ],
+                            "localized_price_unit": {
+                                "fi": "snt/kWh",
+                                "sv": "c/kWh",
+                                "en": "c/kWh"
+                            },
+                            "is_base_price": false,
+                            "is_valid_price": true,
+                            "component_description": null,
+                            "component_info": null
+                        }
+                    ],
+                    "start_date": "2023-07-19T00:00:00",
+                    "end_date": "2024-08-01T00:00:00",
+                    "tarification_id": 1,
+                    "product_info_link": null,
+                    "product_description": null,
+                    "components_description": null
+                }
+            ],
+            "start_date": "2020-11-05T00:00:00",
+            "pdf": "https://api.oma.helen.fi/v1/contract/654321/pdf",
+            "production_distribution": null,
+            "related_delivery_site_id": null,
+            "attributes": {
+                "contract_created": "2025-10-08T19:07:45.399749Z",
+                "contract_source": "inworks-rtl",
+                "contract_electricity_tax_category": "unknown",
+                "contract_can_be_renewed": false,
+                "contract_is_renewed": false,
+                "contract_renewal": null,
+                "contract_termination": null
+            },
+            "connection_point_id": null,
+            "passthrough_invoicing": false
+        },
+        {
+            "billing": {
+                "address": {
+                    "city": "TAMPERE",
+                    "country": "Suomi",
+                    "country_code": "FI",
+                    "postal_code": "33100",
+                    "postal_area": "TAMPERE",
+                    "street_address": "Katuosoite"
+                },
+                "billing_method": "e-invoice",
+                "bills_per_year": 12,
+                "e_invoice_bic": "OKOYFIHH",
+                "e_invoice_bank_name": {
+                    "fi": "OP",
+                    "sv": null,
+                    "en": null
+                },
+                "has_pending_e_invoice": false
+            },
+            "contract_id": 12121212,
+            "property_manager_id": null,
+            "payer_id": 21212121,
+            "external_key": "23232323",
+            "gsrn": "643007572987654321",
+            "customer_id": 65656565,
+            "contract_partner_ids": [],
+            "delivery_site": {
+                "address": {
+                    "city": "TAMPERE",
+                    "country": "Suomi",
+                    "country_code": "FI",
+                    "postal_code": "33100",
+                    "postal_area": "TAMPERE",
+                    "street_address": "Katuosoite 1"
+                },
+                "grid_company_name": "Tampereen Energia Oy",
+                "gsrn": "643007572987654321",
+                "id": 65656565
+            },
+            "domain": "electricity",
+            "end_date": "2026-08-01T00:00:00",
+            "products": [
+                {
+                    "attributes": null,
+                    "id": "PERUSKIINT24_01MA",
+                    "name": "Määräaikainen Perussähkö (24 kk)",
+                    "localized_name": {
+                        "fi": "Määräaikainen Perussähkö (24 kk)",
+                        "sv": "Tidsbunden Basel (24 mån)",
+                        "en": "Fixed-term Basic Electricity (24 months)"
+                    },
+                    "price_list_id": "H01_PERUSKIINT24_MA_U1",
+                    "product_type": "energy",
+                    "product_subtypes": [],
+                    "components": [
+                        {
+                            "id": "PERUSKIINT24_01MA_PM",
+                            "name": "Perusmaksu",
+                            "localized_name": {
+                                "fi": "Perusmaksu",
+                                "sv": "Grundavgift",
+                                "en": "Basic fee"
+                            },
+                            "price": 4.04,
+                            "price_without_vat": 3.22,
+                            "price_unit": "€/kk",
+                            "price_prefix": null,
+                            "price_postfix": null,
+                            "prices": [
+                                {
+                                    "price": 3.99,
+                                    "price_without_vat": 3.22,
+                                    "price_unit": "€/kk",
+                                    "localized_price_unit": {
+                                        "fi": "€/kk",
+                                        "sv": "€/mån",
+                                        "en": "€/mo"
+                                    },
+                                    "price_prefix": null,
+                                    "price_postfix": null,
+                                    "start_date": "2024-07-31T21:00:00Z",
+                                    "end_date": "2024-08-31T21:00:00Z",
+                                    "status": "valid"
+                                },
+                                {
+                                    "price": 4.04,
+                                    "price_without_vat": 3.22,
+                                    "price_unit": "€/kk",
+                                    "localized_price_unit": {
+                                        "fi": "€/kk",
+                                        "sv": "€/mån",
+                                        "en": "€/mo"
+                                    },
+                                    "price_prefix": null,
+                                    "price_postfix": null,
+                                    "start_date": "2024-08-31T21:00:00Z",
+                                    "end_date": "2026-07-31T21:00:00Z",
+                                    "status": "valid"
+                                }
+                            ],
+                            "localized_price_unit": {
+                                "fi": "€/kk",
+                                "sv": "€/mån",
+                                "en": "€/mo"
+                            },
+                            "is_base_price": true,
+                            "is_valid_price": true,
+                            "component_description": null,
+                            "component_info": null
+                        },
+                        {
+                            "id": "PERUSKIINT24_01MA_EN",
+                            "name": "Energia",
+                            "localized_name": {
+                                "fi": "Energia",
+                                "sv": "Energi",
+                                "en": "Energy "
+                            },
+                            "price": 8.69,
+                            "price_without_vat": 6.93,
+                            "price_unit": "snt/kWh",
+                            "price_prefix": null,
+                            "price_postfix": null,
+                            "prices": [
+                                {
+                                    "price": 8.59,
+                                    "price_without_vat": 6.93,
+                                    "price_unit": "snt/kWh",
+                                    "localized_price_unit": {
+                                        "fi": "snt/kWh",
+                                        "sv": "c/kWh",
+                                        "en": "c/kWh"
+                                    },
+                                    "price_prefix": null,
+                                    "price_postfix": null,
+                                    "start_date": "2024-07-31T21:00:00Z",
+                                    "end_date": "2024-08-08T21:00:00Z",
+                                    "status": "valid"
+                                },
+                                {
+                                    "price": 8.69,
+                                    "price_without_vat": 6.93,
+                                    "price_unit": "snt/kWh",
+                                    "localized_price_unit": {
+                                        "fi": "snt/kWh",
+                                        "sv": "c/kWh",
+                                        "en": "c/kWh"
+                                    },
+                                    "price_prefix": null,
+                                    "price_postfix": null,
+                                    "start_date": "2025-10-06T21:00:00Z",
+                                    "end_date": "2026-07-31T21:00:00Z",
+                                    "status": "valid"
+                                }
+                            ],
+                            "localized_price_unit": {
+                                "fi": "snt/kWh",
+                                "sv": "c/kWh",
+                                "en": "c/kWh"
+                            },
+                            "is_base_price": false,
+                            "is_valid_price": true,
+                            "component_description": null,
+                            "component_info": null
+                        }
+                    ],
+                    "start_date": "2024-08-01T00:00:00",
+                    "end_date": "2026-08-01T00:00:00",
+                    "tarification_id": 1,
+                    "product_info_link": null,
+                    "product_description": null,
+                    "components_description": null
+                }
+            ],
+            "start_date": "2024-08-01T00:00:00",
+            "pdf": "https://api.oma.helen.fi/v1/contract/12121212/pdf",
+            "production_distribution": {
+                "product_id": "PERUSKIINT24_01MA",
+                "product_price_list_id": "H01_PERUSKIINT24_MA_U1",
+                "description": {
+                    "major_text": null,
+                    "minor_text": null,
+                    "legend_components": [
+                        {
+                            "color": "100169",
+                            "text": {
+                                "fi": "56 % Fossiiliset ja turve",
+                                "sv": "56 % Fossila bränslen och torv",
+                                "en": "56 % Fossil fuel and peat"
+                            }
+                        },
+                        {
+                            "color": "8C6EC8",
+                            "text": {
+                                "fi": "31 % Ydinvoima",
+                                "sv": "31 % Kärnkraft",
+                                "en": "31 % Nuclear power"
+                            }
+                        },
+                        {
+                            "color": "273FBC",
+                            "text": {
+                                "fi": "13 % Uusiutuva",
+                                "sv": "13 % Förnybara energikällor",
+                                "en": "13 % Renewable energy"
+                            }
+                        }
+                    ]
+                },
+                "chart_data": {
+                    "components": [
+                        {
+                            "color": "100169",
+                            "value": 56.0
+                        },
+                        {
+                            "color": "8C6EC8",
+                            "value": 31.0
+                        },
+                        {
+                            "color": "273FBC",
+                            "value": 13.0
+                        }
+                    ]
+                }
+            },
+            "related_delivery_site_id": null,
+            "attributes": {
+                "contract_created": "2025-10-08T19:07:45.399967Z",
+                "contract_source": "inworks-rtl",
+                "contract_electricity_tax_category": "unknown",
+                "contract_can_be_renewed": false,
+                "contract_is_renewed": false,
+                "contract_renewal": null,
+                "contract_termination": null,
+                "promote_additional_products": [
+                    "green_energy_products"
+                ]
+            },
+            "connection_point_id": null,
+            "passthrough_invoicing": false
+        }
+    ],
+    "failed_sources": []
+}

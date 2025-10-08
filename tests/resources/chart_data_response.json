@@ -1,0 +1,42 @@
+{
+    "start": "2025-10-06T21:00:00Z",
+    "stop": "2025-10-07T21:00:00Z",
+    "resolution": "quarter",
+    "units": {
+        "electricity": "kWh",
+        "electricity_spot_prices_vat": "c/kWh",
+        "electricity_spot_prices": "c/kWh"
+    },
+    "ids": {
+        "electricity": "643007572123456789",
+        "electricity_spot_prices_vat": "electricity_spot_prices_vat",
+        "electricity_spot_prices": "electricity_spot_prices"
+    },
+    "data_start_times": {
+        "electricity": "2025-10-06T21:00:00Z",
+        "electricity_spot_prices_vat": "2025-10-06T21:00:00Z",
+        "electricity_spot_prices": "2025-10-06T21:00:00Z"
+    },
+    "data_stop_times": {
+        "electricity": "2025-10-07T21:00:00Z",
+        "electricity_spot_prices_vat": "2025-10-07T21:00:00Z",
+        "electricity_spot_prices": "2025-10-07T21:00:00Z"
+    },
+    "series": [
+        {
+            "start": "2025-10-06T21:00:00Z",
+            "stop": "2025-10-06T21:15:00Z",
+            "electricity": 1.006,
+            "electricity_spot_prices_vat": 18.74217,
+            "electricity_spot_prices": 14.934
+        },
+        {
+            "start": "2025-10-06T21:15:00Z",
+            "stop": "2025-10-06T21:30:00Z",
+            "electricity": 0.828,
+            "electricity_spot_prices_vat": 14.45007,
+            "electricity_spot_prices": 11.514
+        }
+    ],
+    "missing_series": []
+}

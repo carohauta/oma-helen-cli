@@ -1,0 +1,139 @@
+{
+    "intervals": {
+        "electricity": [
+            {
+                "start": "2025-09-07T21:00:00Z",
+                "stop": "2025-10-08T20:59:59.999000Z",
+                "resolution": "day",
+                "resolution_s": 86400,
+                "unit": "kWh",
+                "measurements": [
+                    {
+                        "value": 23.077,
+                        "status": "valid"
+                    },
+                    {
+                        "value": 19.098,
+                        "status": "valid"
+                    },
+                    {
+                        "value": 22.798,
+                        "status": "valid"
+                    },
+                    {
+                        "value": 19.169,
+                        "status": "valid"
+                    },
+                    {
+                        "value": 14.446,
+                        "status": "valid"
+                    },
+                    {
+                        "value": 14.617,
+                        "status": "valid"
+                    },
+                    {
+                        "value": 19.741,
+                        "status": "valid"
+                    },
+                    {
+                        "value": 29.371,
+                        "status": "valid"
+                    },
+                    {
+                        "value": 34.883,
+                        "status": "valid"
+                    },
+                    {
+                        "value": 22.292,
+                        "status": "valid"
+                    },
+                    {
+                        "value": 24.253,
+                        "status": "valid"
+                    },
+                    {
+                        "value": 33.05,
+                        "status": "valid"
+                    },
+                    {
+                        "value": 24.376,
+                        "status": "valid"
+                    },
+                    {
+                        "value": 27.39,
+                        "status": "valid"
+                    },
+                    {
+                        "value": 32.219,
+                        "status": "valid"
+                    },
+                    {
+                        "value": 38.534,
+                        "status": "valid"
+                    },
+                    {
+                        "value": 38.419,
+                        "status": "valid"
+                    },
+                    {
+                        "value": 23.455,
+                        "status": "valid"
+                    },
+                    {
+                        "value": 34.203,
+                        "status": "valid"
+                    },
+                    {
+                        "value": 21.19,
+                        "status": "valid"
+                    },
+                    {
+                        "value": 31.368,
+                        "status": "valid"
+                    },
+                    {
+                        "value": 49.374,
+                        "status": "valid"
+                    },
+                    {
+                        "value": 46.711,
+                        "status": "valid"
+                    },
+                    {
+                        "value": 38.286,
+                        "status": "valid"
+                    },
+                    {
+                        "value": 40.831,
+                        "status": "valid"
+                    },
+                    {
+                        "value": 39.23,
+                        "status": "valid"
+                    },
+                    {
+                        "value": 36.071,
+                        "status": "valid"
+                    },
+                    {
+                        "value": 33.987,
+                        "status": "valid"
+                    },
+                    {
+                        "value": 37.051,
+                        "status": "valid"
+                    },
+                    {
+                        "value": 30.564,
+                        "status": "valid"
+                    },
+                    {
+                        "value": 0.0,
+                        "status": "invalid"
+                    }
+                ]
+            }
+        ]
+    }
+}

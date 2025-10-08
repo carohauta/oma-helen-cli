@@ -29,7 +29,7 @@ class HelenCLIPrompt(Cmd):
     api_client = HelenApiClient(tax, margin)
 
     def __init__(self, username, password):
-        super(HelenCLIPrompt, self).__init__()
+        super().__init__()
         self.api_client.login_and_init(username, password)
 
     def do_exit(self, input=None):
