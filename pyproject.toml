@@ -1,6 +1,6 @@
 [build-system]
-requires = ["setuptools>=61.0,<70.0", "wheel"]
-build-backend = "setuptools.build_meta"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
 [project]
 name = "oma-helen-cli"
@@ -45,11 +45,8 @@ Issues = "https://github.com/carohauta/oma-helen-cli/issues"
 [project.scripts]
 oma-helen-cli = "helenservice.cli:main"
 
-[tool.setuptools]
+[tool.hatch.build.targets.wheel]
 packages = ["helenservice"]
-
-[tool.setuptools.package-data]
-"*" = ["*.txt", "*.md"]
 
 
 [tool.ruff]

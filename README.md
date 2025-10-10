@@ -51,24 +51,22 @@ Tip: in order to list all the commands within the CLI, enter `?`
 
 First clone this repo.
 
-Use virtual env to keep the project isolated. Developed using Python 3.9.9
+This project uses [uv](https://docs.astral.sh/uv/) for fast dependency management. Make sure you have uv installed.
 
-1. In the project root folder run `python -m venv .venv`
-2. Activate the venv with `source .venv/bin/activate`
-3. Install requirements `pip install -r requirements.txt`
-4. Launch the CLI as a python module `python -m helenservice.cli`
-5. Enter your username and password as they are prompted
-6. Type `?` into the CLI prompt to see all available functions
+1. In the project root folder run `uv sync` to install dependencies
+2. Launch the CLI with `uv run oma-helen-cli`
+3. Enter your username and password as they are prompted
+4. Type `?` into the CLI prompt to see all available functions
 
-Deactivate venv when not needed: `deactivate`
+For development with test dependencies: `uv sync --extra test`
 
 ### Testing
 
 Install test dependencies
-`pip install -e ".[test]"`
+`uv sync --extra test`
 
 Run tests
-`pytest tests/test_api_client.py`
+`uv run pytest tests/test_api_client.py`
 
 Run with verbose output
-`pytest tests/test_api_client.py -v`
+`uv run pytest tests/test_api_client.py -v`

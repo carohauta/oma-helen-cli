@@ -1,16 +1,17 @@
-name: Publish to PyPI
+name: Publish to Test PyPI
 
 on:
-  release:
-    types: [published]
+  push:
+    tags:
+      - "*beta*"
 
 jobs:
-  build-and-publish:
+  test-publish:
     runs-on: ubuntu-latest
-    environment: release
+    environment: test-pypi
     permissions:
-      id-token: write # Required for trusted publishing
-      contents: write # Required to upload release assets
+      id-token: write
+      contents: write
 
     steps:
       - name: Checkout code
@@ -30,12 +31,8 @@ jobs:
       - name: Build package
         run: uv build
 
-      - name: Upload built packages to release
-        uses: softprops/action-gh-release@v1
-        with:
-          files: dist/*
-
-      - name: Publish to PyPI
+      - name: Publish to Test PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
+          repository-url: https://test.pypi.org/legacy/
           verbose: true
