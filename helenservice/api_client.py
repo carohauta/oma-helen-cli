@@ -1,4 +1,3 @@
-import json
 import logging
 from datetime import date, datetime, timedelta
 from zoneinfo import ZoneInfo
@@ -9,10 +8,8 @@ from cachetools import TTLCache, cachedmethod
 from helenservice.api_exceptions import InvalidApiResponseException, InvalidDeliverySiteException
 
 from .api_response import (
-    MeasurementResponse,
     MeasurementsWithSpotPriceResponse,
     SpotPriceChartResponse,
-    SpotPricesResponse,
 )
 from .const import HTTP_READ_TIMEOUT, RESOLUTION_HOUR
 from .helen_session import HelenSession
@@ -21,9 +18,7 @@ from .helen_session import HelenSession
 # TODO: consider moving all calculation functions somewhere else - they are not related to HelenApiClient
 class HelenApiClient:
     HELEN_API_URL_V25 = "https://api.omahelen.fi/v25"
-    MEASUREMENTS_ENDPOINT = "/measurements/electricity"
-    TRANSFER_ENDPOINT = "/measurements/electricity-transfer"
-    SPOT_PRICES_ENDPOINT = MEASUREMENTS_ENDPOINT + "/spot-prices"
+    HELEN_API_URL_V26 = "https://api.omahelen.fi/v26"
     SPOT_PRICES_CHART_ENDPOINT = "/chart-data/electricity/spot-prices/daily"
     CONTRACT_ENDPOINT = "/contract/list"
 
@@ -59,38 +54,15 @@ class HelenApiClient:
             self._session.close()
 
     def _get_hourly_consumption_costs(self, start_date: date, end_date: date) -> list:
-        hourly_prices_response = self.get_spot_prices_between_dates(start_date, end_date, RESOLUTION_HOUR)
-        if not hourly_prices_response.interval:
-            return []
-        # retain the hourly-price/hourly-measurement pairs (list ordering matters!) by assigning invalid items None
-        hourly_prices = list(
-            map(
-                lambda price: price if price.status == 'valid' else None,
-                hourly_prices_response.interval.measurements,
-            )
-        )
-        hourly_measurements_data = self.get_measurements_between_dates(
-            start_date, end_date, RESOLUTION_HOUR
-        ).intervals.electricity
-        if not hourly_measurements_data:
-            return []
-        hourly_measurements = list(
-            map(
-                lambda measurement: measurement if measurement.status == 'valid' else None,
-                hourly_measurements_data[0].measurements,
-            )
-        )
-        length = min(hourly_prices.__len__(), hourly_measurements.__len__())
-        if length == 0:
+        series = self.get_measurements_with_spot_prices(start_date, end_date, RESOLUTION_HOUR).series
+        if not series:
             return []
         hourly_consumption_costs = []
-        for i in range(length):
-            hourly_price = hourly_prices[i]
-            hourly_measurement = hourly_measurements[i]
-            if hourly_price is None or hourly_measurement is None:
+        for entry in series:
+            if entry.electricity is None or entry.electricity_spot_prices is None:
                 continue
-            hourly_price_with_tax_and_margin = hourly_price.value + self._margin
-            hourly_consumption_costs.append(abs(hourly_price_with_tax_and_margin * hourly_measurement.value))
+            hourly_price_with_tax_and_margin = entry.electricity_spot_prices * (1 + self._tax) + self._margin
+            hourly_consumption_costs.append(abs(hourly_price_with_tax_and_margin * entry.electricity))
         return hourly_consumption_costs
 
     def calculate_transfer_fees_between_dates(self, start_date: date, end_date: date):
@@ -105,25 +77,18 @@ class HelenApiClient:
         return total_price_in_euros
 
     def get_total_consumption_between_dates(self, start_date: date, end_date: date) -> float:
-        daily_measurements_response = self.get_daily_measurements_between_dates(start_date, end_date)
-        daily_measurements = list(
-            filter(
-                lambda measurement: measurement.status == 'valid',
-                daily_measurements_response.intervals.electricity[0].measurements,
-            )
-        )
-        total_consumption = sum(map(lambda measurement: abs(measurement.value), daily_measurements))
+        series = self.get_daily_measurements_between_dates(start_date, end_date).series
+        total_consumption = sum(abs(entry.electricity) for entry in series if entry.electricity is not None)
         return total_consumption
 
     def calculate_total_costs_by_spot_prices_between_dates(self, start_date: date, end_date: date):
         """Calculate your total electricity cost with according spot prices by hourly precision.
-        Note: Spot prices already include tax from get_spot_prices_between_dates.
+        Note: Spot prices include the user-configured tax and margin.
 
         Returns the price in euros
         """
         hourly_consumption_costs = self._get_hourly_consumption_costs(start_date, end_date)
         total_price = sum(hourly_consumption_costs)
-        # Prices already include tax from get_spot_prices_between_dates
         total_price_in_euros = total_price / 100
         return total_price_in_euros
 
@@ -140,46 +105,21 @@ class HelenApiClient:
         B = total consumption multiplied with the whole month's average market price (i.e. your average price of the whole month)
         E = total consumption
         """
-        hourly_prices_response = self.get_spot_prices_between_dates(start_date, end_date, RESOLUTION_HOUR)
-        if not hourly_prices_response.interval:
+        series = self.get_measurements_with_spot_prices(start_date, end_date, RESOLUTION_HOUR).series
+        if not series:
             return 0.0
-        # retain the hourly-price/hourly-measurement pairs (list ordering matters!) by assigning invalid items None
-        hourly_prices = list(
-            map(
-                lambda price: price if price.status == 'valid' else None,
-                hourly_prices_response.interval.measurements,
-            )
-        )
-        hourly_measurements_response = self.get_measurements_between_dates(start_date, end_date, RESOLUTION_HOUR)
-        if not hourly_measurements_response.intervals or not hourly_measurements_response.intervals.electricity:
+        valid_entries = [
+            entry for entry in series if entry.electricity is not None and entry.electricity_spot_prices is not None
+        ]
+        if not valid_entries:
             return 0.0
-        hourly_measurements = list(
-            map(
-                lambda measurement: measurement if measurement.status == 'valid' else None,
-                hourly_measurements_response.intervals.electricity[0].measurements,
-            )
-        )
-        length = min(hourly_prices.__len__(), hourly_measurements.__len__())
-        if length == 0:
-            return 0.0
-        hourly_prices_without_nones = list(filter(lambda price: price is not None, hourly_prices))
-        hourly_measurements_without_nones = list(
-            filter(lambda measurement: measurement is not None, hourly_measurements)
-        )
-        hourly_weighted_consumption_prices = []
-        for i in range(length):
-            hourly_price = hourly_prices[i]
-            hourly_measurement = hourly_measurements[i]
-            if hourly_price is None or hourly_measurement is None:
-                continue
-            hourly_weighted_consumption_prices.append(abs(hourly_price.value * hourly_measurement.value))
-        if not hourly_weighted_consumption_prices:
-            return 0.0
-        monthly_average_price = (
-            sum(map(lambda price: abs(price.value), hourly_prices_without_nones))
-            / hourly_prices_without_nones.__len__()
-        )
-        total_consumption = sum(map(lambda measurement: abs(measurement.value), hourly_measurements_without_nones))
+        hourly_weighted_consumption_prices = [
+            abs(entry.electricity_spot_prices * (1 + self._tax) * entry.electricity) for entry in valid_entries
+        ]
+        monthly_average_price = sum(
+            abs(entry.electricity_spot_prices * (1 + self._tax)) for entry in valid_entries
+        ) / len(valid_entries)
+        total_consumption = sum(abs(entry.electricity) for entry in valid_entries)
         total_hourly_weighted_consumption_prices = sum(hourly_weighted_consumption_prices)
         total_consumption_average_price = monthly_average_price * total_consumption
 
@@ -188,84 +128,26 @@ class HelenApiClient:
         return impact
 
     @cachedmethod(lambda self: self._cache)
-    def get_daily_measurements_between_dates(self, start: date, end: date) -> MeasurementResponse:
-        """Get electricity measurements for each day of the wanted month of the on-going year."""
+    def get_daily_measurements_between_dates(self, start: date, end: date) -> MeasurementsWithSpotPriceResponse:
+        """Get electricity measurements for each day between the given dates."""
 
-        start_time, end_time = self._get_utc_time_range(start, end)
-        delivery_site_id = self._get_selected_delivery_site_id_for_api()
-        measurements_params = {
-            "begin": start_time,
-            "end": end_time,
-            "resolution": "day",
-            "delivery_site_id": delivery_site_id,
-            "allow_transfer": "true",
-        }
-
-        measurements_url = self._get_measurements_endpoint()
-
-        response_json_text = requests.get(
-            measurements_url,
-            params=measurements_params,
-            headers=self._api_request_headers(),
-            timeout=HTTP_READ_TIMEOUT,
-        ).text
-        daily_measurement: MeasurementResponse = MeasurementResponse(**json.loads(response_json_text))
-
-        return daily_measurement
+        return self.get_measurements_with_spot_prices(start, end, resolution="day")
 
     @cachedmethod(lambda self: self._cache)
-    def get_monthly_measurements_by_year(self, year: int) -> MeasurementResponse:
+    def get_monthly_measurements_by_year(self, year: int) -> MeasurementsWithSpotPriceResponse:
         """Get electricity measurements for each month of the selected year."""
 
-        last_year = year - 1
-        start_time = f"{last_year}-12-31T22:00:00+00:00"
-        end_time = f"{year}-12-31T21:59:59+00:00"
-        delivery_site_id = self._get_selected_delivery_site_id_for_api()
-        measurements_params = {
-            "begin": start_time,
-            "end": end_time,
-            "resolution": "month",
-            "delivery_site_id": delivery_site_id,
-            "allow_transfer": "true",
-        }
-
-        measurements_url = self._get_measurements_endpoint()
-        response_json_text = requests.get(
-            measurements_url,
-            params=measurements_params,
-            headers=self._api_request_headers(),
-            timeout=HTTP_READ_TIMEOUT,
-        ).text
-        monthly_measurement: MeasurementResponse = MeasurementResponse(**json.loads(response_json_text))
-
-        return monthly_measurement
+        start = date(year - 1, 12, 31)
+        end = date(year, 12, 31)
+        return self.get_measurements_with_spot_prices(start, end, resolution="month")
 
     @cachedmethod(lambda self: self._cache)
     def get_measurements_between_dates(
         self, start: date, end: date, resolution: str = RESOLUTION_HOUR
-    ) -> MeasurementResponse:
+    ) -> MeasurementsWithSpotPriceResponse:
         """Get electricity measurements for each hour or quarter between given dates."""
 
-        start_time, end_time = self._get_utc_time_range(start, end)
-        delivery_site_id = self._get_selected_delivery_site_id_for_api()
-        measurements_params = {
-            "begin": start_time,
-            "end": end_time,
-            "resolution": resolution,
-            "delivery_site_id": delivery_site_id,
-            "allow_transfer": "true",
-        }
-
-        measurements_url = self._get_measurements_endpoint()
-        response_json_text = requests.get(
-            measurements_url,
-            params=measurements_params,
-            headers=self._api_request_headers(),
-            timeout=HTTP_READ_TIMEOUT,
-        ).text
-        hourly_measurement: MeasurementResponse = MeasurementResponse(**json.loads(response_json_text))
-
-        return hourly_measurement
+        return self.get_measurements_with_spot_prices(start, end, resolution)
 
     @cachedmethod(lambda self: self._cache)
     def get_measurements_with_spot_prices(
@@ -281,13 +163,13 @@ class HelenApiClient:
         Returns:
             MeasurementsWithSpotPriceResponse object containing measurements and spot prices.
         """
-        start_time, end_time = self._get_utc_time_range(start, end, round_to_full_hour=True)
+        start_time, end_time = self._get_utc_time_range(start, end)
 
         gsrn_id = self._selected_contract["gsrn"]
 
         chart_params = {"start": start_time, "stop": end_time, "resolution": resolution, "channel": "oh"}
 
-        chart_url = f"{self.HELEN_API_URL_V25}/chart-data/{gsrn_id}/electricity"
+        chart_url = f"{self.HELEN_API_URL_V26}/chart-data/{gsrn_id}/electricity"
         response = requests.get(
             chart_url,
             params=chart_params,
@@ -307,7 +189,7 @@ class HelenApiClient:
         Returns:
             SpotPriceChartResponse object containing the full data structure.
         """
-        start_time, end_time = self._get_utc_time_range(target_date, target_date, round_to_full_hour=True)
+        start_time, end_time = self._get_utc_time_range(target_date, target_date)
 
         chart_params = {"start": start_time, "stop": end_time}
 
@@ -320,39 +202,6 @@ class HelenApiClient:
         )
 
         return SpotPriceChartResponse(**response.json())
-
-    @cachedmethod(lambda self: self._cache)
-    def get_spot_prices_between_dates(
-        self, start: date, end: date, resolution: str = RESOLUTION_HOUR
-    ) -> SpotPricesResponse:
-        """Get electricity spot prices for each hour between given dates. Values include tax."""
-
-        start_time, end_time = self._get_utc_time_range(start, end)
-        delivery_site_id = self._get_selected_delivery_site_id_for_api()
-        spot_prices_params = {
-            "begin": start_time,
-            "end": end_time,
-            "resolution": resolution,
-            "delivery_site_id": delivery_site_id,
-            "allow_transfer": "true",
-        }
-
-        spot_prices_url = self.HELEN_API_URL_V25 + self.SPOT_PRICES_ENDPOINT
-        response_json_text = requests.get(
-            spot_prices_url,
-            params=spot_prices_params,
-            headers=self._api_request_headers(),
-            timeout=HTTP_READ_TIMEOUT,
-        ).text
-        spot_prices_measurement: SpotPricesResponse = SpotPricesResponse(**json.loads(response_json_text))
-
-        # Add tax to each price value
-        if spot_prices_measurement.interval and spot_prices_measurement.interval.measurements:
-            for measurement in spot_prices_measurement.interval.measurements:
-                if measurement.status == 'valid' and measurement.value is not None:
-                    measurement.value = measurement.value * (1 + self._tax)
-
-        return spot_prices_measurement
 
     @cachedmethod(lambda self: self._cache)
     def get_contract_data_json(self):
@@ -369,9 +218,6 @@ class HelenApiClient:
         contracts_dict = contract_response_dict["contracts"]
 
         return contracts_dict
-
-    def _get_selected_delivery_site_id_for_api(self):
-        return str(self._selected_contract["delivery_site"]["id"])
 
     def get_all_delivery_site_ids(self) -> list[int]:
         """Get all delivery site ids from your contracts."""
@@ -514,12 +360,7 @@ class HelenApiClient:
             self._selected_contract = selected_active_contract
 
     def _invalidate_caches(self):
-        self.get_daily_measurements_between_dates.cache_clear()
-        self.get_monthly_measurements_by_year.cache_clear()
-        self.get_measurements_between_dates.cache_clear()
-        self.get_spot_prices_between_dates.cache_clear()
-        self.get_contract_data_json.cache_clear()
-        self.get_spot_prices_from_chart_data.cache_clear()
+        self._cache.clear()
 
     def _api_request_headers(self):
         return {
@@ -607,45 +448,29 @@ class HelenApiClient:
         now = datetime.now()
         return end_date >= now
 
-    def _get_measurements_endpoint(self):
-        if 'domain' in self._selected_contract and self._selected_contract['domain'] == 'electricity-transfer':
-            return self.HELEN_API_URL_V25 + self.TRANSFER_ENDPOINT
-        return self.HELEN_API_URL_V25 + self.MEASUREMENTS_ENDPOINT
-
-    def _get_utc_time_range(
-        self, start_date: date, end_date: date, round_to_full_hour: bool = False
-    ) -> tuple[str, str]:
+    def _get_utc_time_range(self, start_date: date, end_date: date) -> tuple[str, str]:
         """
-        Convert local midnight times to UTC considering DST.
+        Convert a local date range to UTC midnight boundaries, matching the Oma Helen API.
+
+        The API uses midnight Helsinki time as interval boundaries. Because Helsinki is
+        UTC+2 (winter) or UTC+3 (summer), midnight of a given date in Helsinki maps to
+        21:00Z or 22:00Z of the *previous* UTC calendar day. Both start and stop use
+        this convention, producing a half-open interval [start_date, end_date+1).
 
         Args:
-            start_date: The start date
-            end_date: The end date
-            round_to_full_hour: If True, rounds the end time up to the next full hour (HH:00:00),
-                            used for chart data API. If False, uses millisecond precision (default).
+            start_date: First day of the range (inclusive)
+            end_date: Last day of the range (inclusive)
 
         Returns:
-            tuple of (start_time, end_time) in ISO format with UTC offset.
+            tuple of (start_time, stop_time) as ISO 8601 strings with UTC offset.
         """
-        # Create datetime objects in Finland timezone
         fi_tz = ZoneInfo("Europe/Helsinki")
-        # Start time is previous day 00:00 local time
+        # Midnight of start_date in Helsinki (= 21:00Z or 22:00Z of the previous UTC day)
         local_start = datetime.combine(start_date, datetime.min.time()).replace(tzinfo=fi_tz)
-        # End time is end date 23:59:59.999 local time
-        local_end = datetime.combine(end_date, datetime.max.time()).replace(tzinfo=fi_tz)
+        # Midnight of the day after end_date in Helsinki (exclusive upper bound)
+        local_end = datetime.combine(end_date + timedelta(days=1), datetime.min.time()).replace(tzinfo=fi_tz)
 
-        # Convert to UTC
         utc_start = local_start.astimezone(ZoneInfo("UTC"))
         utc_end = local_end.astimezone(ZoneInfo("UTC"))
 
-        if round_to_full_hour:
-            # Round up to the next full hour for the end time if needed
-            if utc_end.minute > 0 or utc_end.second > 0 or utc_end.microsecond > 0:
-                utc_end = (utc_end + timedelta(hours=1)).replace(minute=0, second=0, microsecond=0)
-            return (utc_start.isoformat(), utc_end.isoformat())
-        else:
-            # Format with millisecond precision for other APIs
-            return (
-                utc_start.isoformat(timespec='milliseconds'),
-                utc_end.replace(microsecond=999000).isoformat(timespec='milliseconds'),
-            )
+        return (utc_start.isoformat(), utc_end.isoformat())

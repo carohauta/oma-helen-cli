@@ -62,6 +62,31 @@ class HelenCLIPrompt(Cmd):
             except ValueError:
                 print("Please provide proper start and end dates in format 'YYYY-mm-dd'")
 
+    def do_calculate_total_consumption_between_dates(self, input=None):
+        """Calculate the total electricity consumption between a start date and an end date
+        The provided dates should be presented in format 'YYYY-mm-dd'
+
+        The consumption returned is in kWh.
+
+        Usage example:
+        calculate_total_consumption_between_dates 2022-12-01 2022-12-31
+        """
+
+        if input is None:
+            print("Please provide proper start and end dates in format 'YYYY-mm-dd'")
+        else:
+            try:
+                start_date_str, end_date_str = str(input).split(' ')
+                start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
+                end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
+                if start_date > end_date:
+                    print("Start date must be before end date")
+                    raise ValueError()
+                consumption = self.api_client.get_total_consumption_between_dates(start_date, end_date)
+                print(consumption)
+            except ValueError:
+                print("Please provide proper start and end dates in format 'YYYY-mm-dd'")
+
     def do_calculate_spot_cost_between_dates(self, input=None):
         """Calculate the price of your Exchange Electricity (spot) contract between a start date and an end date
         The provided dates should be presented in format 'YYYY-mm-dd'

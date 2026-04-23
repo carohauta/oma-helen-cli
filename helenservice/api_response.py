@@ -1,41 +1,3 @@
-class Measurement:
-    def __init__(self, value: float, status: str, **_):
-        self.value = value
-        self.status = status
-
-
-class MeasurementData:
-    def __init__(
-        self,
-        start: str,
-        stop: str,
-        resolution_s: str,
-        resolution: str,
-        unit: str,
-        measurements: list,
-        **_,
-    ):
-        self.start = start
-        self.stop = stop
-        self.resolution_s = resolution_s
-        self.resolution = resolution
-        self.unit = unit
-        self.measurements = list(map(lambda m: Measurement(**m), measurements))
-
-
-class MeasurementIntervals:
-    def __init__(self, electricity: list = None, electricity_transfer: list = None, **_):
-        if electricity is not None:
-            self.electricity = list(map(lambda e: MeasurementData(**e), electricity))
-        elif electricity_transfer is not None:
-            self.electricity = list(map(lambda e: MeasurementData(**e), electricity_transfer))
-
-
-class MeasurementResponse:
-    def __init__(self, intervals: dict, **_):
-        self.intervals = MeasurementIntervals(**intervals) if intervals is not None else None
-
-
 class SpotPriceChartSeries:
     def __init__(
         self,
@@ -126,8 +88,3 @@ class MeasurementsWithSpotPriceResponse:
         self.data_stop_times = data_stop_times
         self.series = list(map(lambda s: MeasurementsWithSpotPriceSeries(**s), series))
         self.missing_series = missing_series if missing_series is not None else []
-
-
-class SpotPricesResponse:
-    def __init__(self, interval: dict, **_):
-        self.interval = MeasurementData(**interval) if interval is not None else None

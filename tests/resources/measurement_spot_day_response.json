@@ -1,0 +1,67 @@
+{
+    "start": "2025-09-06T21:00:00Z",
+    "stop": "2025-10-08T21:00:00Z",
+    "resolution": "day",
+    "units": {
+        "ambient_temperature": "°C",
+        "ambient_humidity": "%",
+        "electricity": "kWh",
+        "electricity_spot_prices_vat": "c/kWh",
+        "electricity_spot_prices": "c/kWh"
+    },
+    "ids": {
+        "ambient_temperature": "Tampere Siilinkari",
+        "ambient_humidity": "Tampere Siilinkari",
+        "electricity": "643007572123456789",
+        "electricity_spot_prices_vat": "electricity_spot_prices_vat",
+        "electricity_spot_prices": "electricity_spot_prices"
+    },
+    "data_start_times": {
+        "ambient_temperature": "2025-09-06T21:00:00Z",
+        "ambient_humidity": "2025-09-06T21:00:00Z",
+        "electricity": "2025-09-06T21:00:00Z",
+        "electricity_spot_prices_vat": "2025-09-06T21:00:00Z",
+        "electricity_spot_prices": "2025-09-06T21:00:00Z"
+    },
+    "data_stop_times": {
+        "ambient_temperature": "2025-10-07T21:00:00Z",
+        "ambient_humidity": "2025-10-07T21:00:00Z",
+        "electricity": "2025-10-07T21:00:00Z",
+        "electricity_spot_prices_vat": "2025-10-07T21:00:00Z",
+        "electricity_spot_prices": "2025-10-07T21:00:00Z"
+    },
+    "series": [
+        { "start": "2025-09-06T21:00:00Z", "stop": "2025-09-07T21:00:00Z", "ambient_temperature": 14.2, "ambient_humidity": 72.0, "electricity": 23.077, "electricity_spot_prices_vat": 5.123, "electricity_spot_prices": 4.082 },
+        { "start": "2025-09-07T21:00:00Z", "stop": "2025-09-08T21:00:00Z", "ambient_temperature": 13.8, "ambient_humidity": 68.0, "electricity": 19.098, "electricity_spot_prices_vat": 4.876, "electricity_spot_prices": 3.887 },
+        { "start": "2025-09-08T21:00:00Z", "stop": "2025-09-09T21:00:00Z", "ambient_temperature": 15.1, "ambient_humidity": 65.0, "electricity": 22.798, "electricity_spot_prices_vat": 6.210, "electricity_spot_prices": 4.950 },
+        { "start": "2025-09-09T21:00:00Z", "stop": "2025-09-10T21:00:00Z", "ambient_temperature": 16.0, "ambient_humidity": 60.0, "electricity": 19.169, "electricity_spot_prices_vat": 3.445, "electricity_spot_prices": 2.745 },
+        { "start": "2025-09-10T21:00:00Z", "stop": "2025-09-11T21:00:00Z", "ambient_temperature": 17.2, "ambient_humidity": 58.0, "electricity": 14.446, "electricity_spot_prices_vat": 2.987, "electricity_spot_prices": 2.381 },
+        { "start": "2025-09-11T21:00:00Z", "stop": "2025-09-12T21:00:00Z", "ambient_temperature": 16.5, "ambient_humidity": 62.0, "electricity": 14.617, "electricity_spot_prices_vat": 4.102, "electricity_spot_prices": 3.269 },
+        { "start": "2025-09-12T21:00:00Z", "stop": "2025-09-13T21:00:00Z", "ambient_temperature": 15.3, "ambient_humidity": 70.0, "electricity": 19.741, "electricity_spot_prices_vat": 5.678, "electricity_spot_prices": 4.527 },
+        { "start": "2025-09-13T21:00:00Z", "stop": "2025-09-14T21:00:00Z", "ambient_temperature": 14.0, "ambient_humidity": 75.0, "electricity": 29.371, "electricity_spot_prices_vat": 7.234, "electricity_spot_prices": 5.766 },
+        { "start": "2025-09-14T21:00:00Z", "stop": "2025-09-15T21:00:00Z", "ambient_temperature": 12.8, "ambient_humidity": 80.0, "electricity": 34.883, "electricity_spot_prices_vat": 8.901, "electricity_spot_prices": 7.095 },
+        { "start": "2025-09-15T21:00:00Z", "stop": "2025-09-16T21:00:00Z", "ambient_temperature": 13.5, "ambient_humidity": 77.0, "electricity": 22.292, "electricity_spot_prices_vat": 6.543, "electricity_spot_prices": 5.216 },
+        { "start": "2025-09-16T21:00:00Z", "stop": "2025-09-17T21:00:00Z", "ambient_temperature": 14.1, "ambient_humidity": 73.0, "electricity": 24.253, "electricity_spot_prices_vat": 5.890, "electricity_spot_prices": 4.695 },
+        { "start": "2025-09-17T21:00:00Z", "stop": "2025-09-18T21:00:00Z", "ambient_temperature": 11.9, "ambient_humidity": 85.0, "electricity": 33.050, "electricity_spot_prices_vat": 9.112, "electricity_spot_prices": 7.264 },
+        { "start": "2025-09-18T21:00:00Z", "stop": "2025-09-19T21:00:00Z", "ambient_temperature": 10.5, "ambient_humidity": 88.0, "electricity": 24.376, "electricity_spot_prices_vat": 7.654, "electricity_spot_prices": 6.103 },
+        { "start": "2025-09-19T21:00:00Z", "stop": "2025-09-20T21:00:00Z", "ambient_temperature": 11.2, "ambient_humidity": 84.0, "electricity": 27.390, "electricity_spot_prices_vat": 8.321, "electricity_spot_prices": 6.633 },
+        { "start": "2025-09-20T21:00:00Z", "stop": "2025-09-21T21:00:00Z", "ambient_temperature": 9.8,  "ambient_humidity": 90.0, "electricity": 32.219, "electricity_spot_prices_vat": 10.234, "electricity_spot_prices": 8.157 },
+        { "start": "2025-09-21T21:00:00Z", "stop": "2025-09-22T21:00:00Z", "ambient_temperature": 8.4,  "ambient_humidity": 92.0, "electricity": 38.534, "electricity_spot_prices_vat": 11.456, "electricity_spot_prices": 9.131 },
+        { "start": "2025-09-22T21:00:00Z", "stop": "2025-09-23T21:00:00Z", "ambient_temperature": 9.1,  "ambient_humidity": 89.0, "electricity": 38.419, "electricity_spot_prices_vat": 10.987, "electricity_spot_prices": 8.758 },
+        { "start": "2025-09-23T21:00:00Z", "stop": "2025-09-24T21:00:00Z", "ambient_temperature": 10.3, "ambient_humidity": 83.0, "electricity": 23.455, "electricity_spot_prices_vat": 7.123, "electricity_spot_prices": 5.680 },
+        { "start": "2025-09-24T21:00:00Z", "stop": "2025-09-25T21:00:00Z", "ambient_temperature": 11.7, "ambient_humidity": 79.0, "electricity": 34.203, "electricity_spot_prices_vat": 8.765, "electricity_spot_prices": 6.988 },
+        { "start": "2025-09-25T21:00:00Z", "stop": "2025-09-26T21:00:00Z", "ambient_temperature": 12.4, "ambient_humidity": 74.0, "electricity": 21.190, "electricity_spot_prices_vat": 5.432, "electricity_spot_prices": 4.330 },
+        { "start": "2025-09-26T21:00:00Z", "stop": "2025-09-27T21:00:00Z", "ambient_temperature": 10.9, "ambient_humidity": 81.0, "electricity": 31.368, "electricity_spot_prices_vat": 9.876, "electricity_spot_prices": 7.871 },
+        { "start": "2025-09-27T21:00:00Z", "stop": "2025-09-28T21:00:00Z", "ambient_temperature": 9.5,  "ambient_humidity": 87.0, "electricity": 49.374, "electricity_spot_prices_vat": 13.210, "electricity_spot_prices": 10.530 },
+        { "start": "2025-09-28T21:00:00Z", "stop": "2025-09-29T21:00:00Z", "ambient_temperature": 8.7,  "ambient_humidity": 91.0, "electricity": 46.711, "electricity_spot_prices_vat": 12.543, "electricity_spot_prices": 9.999 },
+        { "start": "2025-09-29T21:00:00Z", "stop": "2025-09-30T21:00:00Z", "ambient_temperature": 9.2,  "ambient_humidity": 88.0, "electricity": 38.286, "electricity_spot_prices_vat": 11.098, "electricity_spot_prices": 8.848 },
+        { "start": "2025-09-30T21:00:00Z", "stop": "2025-10-01T21:00:00Z", "ambient_temperature": 8.1,  "ambient_humidity": 93.0, "electricity": 40.831, "electricity_spot_prices_vat": 11.765, "electricity_spot_prices": 9.379 },
+        { "start": "2025-10-01T21:00:00Z", "stop": "2025-10-02T21:00:00Z", "ambient_temperature": 7.4,  "ambient_humidity": 95.0, "electricity": 39.230, "electricity_spot_prices_vat": 10.432, "electricity_spot_prices": 8.316 },
+        { "start": "2025-10-02T21:00:00Z", "stop": "2025-10-03T21:00:00Z", "ambient_temperature": 7.9,  "ambient_humidity": 93.0, "electricity": 36.071, "electricity_spot_prices_vat": 9.654, "electricity_spot_prices": 7.697 },
+        { "start": "2025-10-03T21:00:00Z", "stop": "2025-10-04T21:00:00Z", "ambient_temperature": 8.5,  "ambient_humidity": 90.0, "electricity": 33.987, "electricity_spot_prices_vat": 9.012, "electricity_spot_prices": 7.184 },
+        { "start": "2025-10-04T21:00:00Z", "stop": "2025-10-05T21:00:00Z", "ambient_temperature": 9.3,  "ambient_humidity": 86.0, "electricity": 37.051, "electricity_spot_prices_vat": 9.876, "electricity_spot_prices": 7.872 },
+        { "start": "2025-10-05T21:00:00Z", "stop": "2025-10-06T21:00:00Z", "ambient_temperature": 10.1, "ambient_humidity": 82.0, "electricity": 30.564, "electricity_spot_prices_vat": 8.234, "electricity_spot_prices": 6.564 },
+        { "start": "2025-10-06T21:00:00Z", "stop": "2025-10-07T21:00:00Z", "ambient_temperature": null,  "ambient_humidity": null,  "electricity": null,   "electricity_spot_prices_vat": null,   "electricity_spot_prices": null }
+    ],
+    "missing_series": []
+}
