@@ -137,7 +137,7 @@ class HelenApiClient:
     def get_monthly_measurements_by_year(self, year: int) -> MeasurementsWithSpotPriceResponse:
         """Get electricity measurements for each month of the selected year."""
 
-        start = date(year - 1, 12, 31)
+        start = date(year, 1, 1)
         end = date(year, 12, 31)
         return self.get_measurements_with_spot_prices(start, end, resolution="month")
 
