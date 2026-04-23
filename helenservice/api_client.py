@@ -4,7 +4,7 @@ from datetime import date, datetime, timedelta
 from zoneinfo import ZoneInfo
 
 import requests
-from cachetools import TTLCache, cached
+from cachetools import TTLCache, cachedmethod
 
 from helenservice.api_exceptions import InvalidApiResponseException, InvalidDeliverySiteException
 
@@ -37,6 +37,7 @@ class HelenApiClient:
     def __init__(self, tax: float = None, margin: float = None):
         self._tax = 0.255 if tax is None else tax
         self._margin = 0.38 if margin is None else margin
+        self._cache = TTLCache(maxsize=128, ttl=3600)
 
     def login_and_init(self, username, password):
         """Login to Oma Helen. Creates a new session when called."""
@@ -186,7 +187,7 @@ class HelenApiClient:
 
         return impact
 
-    @cached(cache=TTLCache(maxsize=4, ttl=3600))
+    @cachedmethod(lambda self: self._cache)
     def get_daily_measurements_between_dates(self, start: date, end: date) -> MeasurementResponse:
         """Get electricity measurements for each day of the wanted month of the on-going year."""
 
@@ -212,7 +213,7 @@ class HelenApiClient:
 
         return daily_measurement
 
-    @cached(cache=TTLCache(maxsize=2, ttl=3600))
+    @cachedmethod(lambda self: self._cache)
     def get_monthly_measurements_by_year(self, year: int) -> MeasurementResponse:
         """Get electricity measurements for each month of the selected year."""
 
@@ -239,7 +240,7 @@ class HelenApiClient:
 
         return monthly_measurement
 
-    @cached(cache=TTLCache(maxsize=4, ttl=3600))
+    @cachedmethod(lambda self: self._cache)
     def get_measurements_between_dates(
         self, start: date, end: date, resolution: str = RESOLUTION_HOUR
     ) -> MeasurementResponse:
@@ -266,7 +267,7 @@ class HelenApiClient:
 
         return hourly_measurement
 
-    @cached(cache=TTLCache(maxsize=4, ttl=3600))
+    @cachedmethod(lambda self: self._cache)
     def get_measurements_with_spot_prices(
         self, start: date, end: date, resolution: str = RESOLUTION_HOUR
     ) -> MeasurementsWithSpotPriceResponse:
@@ -296,7 +297,7 @@ class HelenApiClient:
 
         return MeasurementsWithSpotPriceResponse(**response.json())
 
-    @cached(cache=TTLCache(maxsize=4, ttl=3600))
+    @cachedmethod(lambda self: self._cache)
     def get_spot_prices_from_chart_data(self, target_date: date) -> SpotPriceChartResponse:
         """Get electricity spot prices from chart data API for a single day. Returns data in 15-minute intervals.
 
@@ -320,7 +321,7 @@ class HelenApiClient:
 
         return SpotPriceChartResponse(**response.json())
 
-    @cached(cache=TTLCache(maxsize=4, ttl=3600))
+    @cachedmethod(lambda self: self._cache)
     def get_spot_prices_between_dates(
         self, start: date, end: date, resolution: str = RESOLUTION_HOUR
     ) -> SpotPricesResponse:
@@ -353,7 +354,7 @@ class HelenApiClient:
 
         return spot_prices_measurement
 
-    @cached(cache=TTLCache(maxsize=2, ttl=3600))
+    @cachedmethod(lambda self: self._cache)
     def get_contract_data_json(self):
         """Get your contract data."""
 
