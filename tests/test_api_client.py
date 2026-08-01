@@ -204,6 +204,28 @@ class TestHelenApiClient:
         # Sum of non-null electricity_transfer values from the fixture (10 + 20 + 30)
         assert total == pytest.approx(60.0)
 
+    def test_get_transfer_fee_sums_non_base_components(self, api_client_transfer):
+        """Total per-kWh transfer price = transfer fee + electricity tax,
+        excluding the monthly base fee. Works regardless of the inconsistent
+        component name casing the API returns ("siirtomaksu" vs "Siirtomaksu")."""
+        api_client_transfer._selected_contract["products"] = [
+            {
+                "product_type": "transfer",
+                "components": [
+                    {"name": "siirtomaksu", "price": 4.44, "is_base_price": False},
+                    {"name": "Sähkövero", "price": 2.91788, "is_base_price": False},
+                    {"name": "perusmaksu", "price": 6.01, "is_base_price": True},
+                ],
+            }
+        ]
+        with patch.object(api_client_transfer, "_refresh_api_client_state"):
+            assert api_client_transfer.get_transfer_fee() == pytest.approx(7.35788)
+
+    def test_get_transfer_fee_without_transfer_product(self, api_client):
+        api_client._selected_contract["products"] = [{"product_type": "energy", "components": []}]
+        with patch.object(api_client, "_refresh_api_client_state"):
+            assert api_client.get_transfer_fee() == 0.0
+
     def test_close_saves_cookies_and_nulls_session(self, api_client):
         api_client._session.get_all_cookies.return_value = [("access-token", "tok", ".oma.helen.fi", "/")]
         api_client.close()

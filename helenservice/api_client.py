@@ -346,7 +346,14 @@ class HelenApiClient:
         return energy_unit_price_component["price"]
 
     def get_transfer_fee(self) -> float:
-        """Get the transfer fee price (c/kWh) from your contract data. Returns '0.0' if Helen is not your transfer company"""
+        """Get the total per-kWh transfer price (c/kWh) from your contract data.
+
+        Sums all non-base-price components of the transfer product (e.g. the
+        transfer fee and the electricity tax) — component names are not matched
+        because the API returns them in inconsistent casing.
+
+        Returns '0.0' if Helen is not your transfer company.
+        """
 
         self._refresh_api_client_state()
         contract = self._selected_contract
@@ -358,11 +365,11 @@ class HelenApiClient:
             logger.warning("Could not resolve transfer fees from Helen API response. Returning 0.0")
             return 0.0
         components = product["components"] if product else []
-        transfer_fee_component = next(filter(lambda component: component["name"] == "Siirtomaksu", components), None)
-        if transfer_fee_component is None:
+        unit_price_components = [c for c in components if not c.get("is_base_price")]
+        if not unit_price_components:
             logger.warning("Could not resolve transfer fees from Helen API response. Returning 0.0")
             return 0.0
-        return transfer_fee_component["price"]
+        return sum(c["price"] for c in unit_price_components)
 
     def get_transfer_base_price(self) -> float:
         """Get the transfer base price (eur) from your contract data. Returns '0.0' if Helen is not your transfer company"""
